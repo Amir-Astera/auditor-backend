@@ -1,4 +1,3 @@
-# app/auth/router.py
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
@@ -19,35 +18,12 @@ from app.modules.auth.models import User
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
+# Swagger's "Authorize" button will use this URL to obtain tokens.
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/admin/login")
 
 
 def _get_auth_service(db: Session = Depends(get_db)) -> AuthService:
     return AuthService(db)
-
-
-@router.post("/admin/login", response_model=TokenResponse)
-def admin_login(payload: AdminLoginRequest, service: AuthService = Depends(_get_auth_service)):
-    try:
-        token, _ = service.login_admin(payload.email, payload.password)
-    except ValueError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=str(exc),
-        )
-    return TokenResponse(access_token=token)
-
-
-@router.post("/telegram/login", response_model=TokenResponse)
-def telegram_login(payload: TelegramLoginRequest, service: AuthService = Depends(_get_auth_service)):
-    try:
-        token, _ = service.login_telegram(payload.phone, payload.password)
-    except ValueError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=str(exc),
-        )
-    return TokenResponse(access_token=token)
 
 
 def get_current_user(
@@ -80,7 +56,45 @@ def get_current_admin(user: User = Depends(get_current_user)) -> User:
     return user
 
 
-@router.post("/admin/users", response_model=UserBase)
+@router.post(
+    "/admin/login",
+    response_model=TokenResponse,
+    summary="Админ: вход по email и паролю",
+)
+def admin_login(payload: AdminLoginRequest, service: AuthService = Depends(_get_auth_service)):
+    try:
+        token, _ = service.login_admin(payload.email, payload.password)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=str(exc),
+        )
+    return TokenResponse(access_token=token)
+
+
+@router.post(
+    "/telegram/login",
+    response_model=TokenResponse,
+    summary="Сотрудник: вход по телефону и паролю",
+)
+def telegram_login(
+    payload: TelegramLoginRequest, service: AuthService = Depends(_get_auth_service)
+):
+    try:
+        token, _ = service.login_telegram(payload.phone, payload.password)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=str(exc),
+        )
+    return TokenResponse(access_token=token)
+
+
+@router.post(
+    "/admin/users",
+    response_model=UserBase,
+    summary="Создание сотрудника или администратора",
+)
 def create_user(
     payload: UserCreateRequest,
     service: AuthService = Depends(_get_auth_service),
@@ -95,7 +109,11 @@ def create_user(
         )
 
 
-@router.post("/admin/bootstrap", response_model=UserBase)
+@router.post(
+    "/admin/bootstrap",
+    response_model=UserBase,
+    summary="Инициализация первого администратора",
+)
 def bootstrap_admin(payload: UserCreateRequest, service: AuthService = Depends(_get_auth_service)):
     try:
         return service.bootstrap_admin(payload)
@@ -106,6 +124,6 @@ def bootstrap_admin(payload: UserCreateRequest, service: AuthService = Depends(_
         )
 
 
-@router.get("/me", response_model=UserBase)
+@router.get("/me", response_model=UserBase, summary="Проверка авторизации")
 def me(user: User = Depends(get_current_user)):
     return user

@@ -2,5 +2,17 @@
 1) В BotFather включить параметр Domain: https://divan.asteradigital.kz/
 2) В настройках bot API добавить Web App URL c тем же доменом и путём / (или конкретным роутом из мини-аппа).
 3) В initData WebApp передавать auth data в запросы к бекенду; бэкенд использует TELEGRAM_BOT_TOKEN для проверки подписи.
-4) Мини-апп запускает запрос на https://divan.asteradigital.kz/auth/telegram/login, передавая номер телефона сотрудника и пароль, полученный от администратора.
+4) Мини-апп запускает запрос на https://divan.asteradigital.kz/auth/telegram/login, передавая номер телефона сотрудника и пароль
+, полученный от администратора.
 5) Для административной панели на https://sec.asteradigital.kz/ авторизация по email и паролю через /auth/admin/login.
+
+Swagger /docs:
+- Запускаем бекенд: `uvicorn app.main:app --host 0.0.0.0 --port 8000` (нужны переменные DATABASE_URL и SECRET_KEY).
+- Первый админ создаётся через POST /auth/admin/bootstrap, затем в Swagger жмём Authorize и вставляем bearer-токен из /auth/admin/login.
+- После авторизации можно вызывать POST /auth/admin/users для создания сотрудника и GET /auth/me для проверки токена.
+
+Подключение инфраструктуры:
+- Postgres: укажите строку подключения в DATABASE_URL (формат `postgresql+psycopg2://user:pass@host:5432/dbname`) и примените миграции/создание таблиц при старте приложения.
+- MinIO/S3: поднимите сервис командой вроде `docker run -p 9000:9000 -p 9001:9001 -e MINIO_ROOT_USER=admin -e MINIO_ROOT_PASSWORD=password quay.io/minio/minio server /data --console-address :9001`. Для доступа в коде используйте стандартные переменные MINIO_ENDPOINT, MINIO_ACCESS_KEY, MINIO_SECRET_KEY, MINIO_BUCKET.
+- Qdrant: запустите `docker run -p 6333:6333 qdrant/qdrant` и подключайтесь по URL `http://localhost:6333`; для продакшена задайте пароль/ключ через QDRANT__SERVICE__API_KEY или переменную окружения QDRANT_API_KEY.
+- Очереди/кеш (Redis/RabbitMQ и т.д.): если понадобятся, следуйте той же схеме — поднимите контейнер, пропишите хост/порт/пароль в переменных окружения и передайте их в сервисы, которые будут использовать хранилище.

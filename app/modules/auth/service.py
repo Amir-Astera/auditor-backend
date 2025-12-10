@@ -1,7 +1,4 @@
 """Business logic for authentication flows."""
-
-from dataclasses import dataclass
-
 from sqlalchemy.orm import Session
 
 from app.core.security import create_access_token, hash_password, verify_password
@@ -10,37 +7,44 @@ from app.modules.auth.repository import UserRepository
 from app.modules.auth.schemas import UserCreateRequest
 
 
-@dataclass
-class AuthResult:
-    token: str
-    user: User
-
-
 class AuthService:
     def __init__(self, db: Session):
+        self.db = db
         self.repo = UserRepository(db)
 
-    def login_admin(self, email: str, password: str) -> AuthResult:
+    def login_admin(self, email: str, password: str) -> tuple[str, User]:
         user = self.repo.get_by_email(email)
         if not user or not user.is_admin:
             raise ValueError("Invalid email or password")
         self._ensure_active(user)
         self._validate_password(password, user)
-        token = create_access_token(user.id, extra_claims={"role": "admin", "aud": "sec.asteradigital.kz"})
-        return AuthResult(token=token, user=user)
+        token = create_access_token(
+            user.id,
+            extra_claims={"role": "admin", "aud": "sec.asteradigital.kz"},
+        )
+        return token, user
 
-    def login_telegram(self, phone: str, password: str) -> AuthResult:
+    def login_telegram(self, phone: str, password: str) -> tuple[str, User]:
         user = self.repo.get_by_phone(phone)
         if not user:
             raise ValueError("Invalid phone or password")
         self._ensure_active(user)
         self._validate_password(password, user)
-        token = create_access_token(user.id, extra_claims={"role": "employee", "aud": "divan.asteradigital.kz"})
-        return AuthResult(token=token, user=user)
+        token = create_access_token(
+            user.id,
+            extra_claims={"role": "employee", "aud": "divan.asteradigital.kz"},
+        )
+        return token, user
 
     def create_user(self, payload: UserCreateRequest) -> User:
         if payload.is_admin is False and not payload.telegram_phone:
             raise ValueError("Telegram phone is required for employee accounts")
+
+        if payload.email and self.repo.get_by_email(payload.email):
+            raise ValueError("User with this email already exists")
+
+        if payload.telegram_phone and self.repo.get_by_phone(payload.telegram_phone):
+            raise ValueError("User with this phone already exists")
 
         new_user = User(
             email=payload.email,

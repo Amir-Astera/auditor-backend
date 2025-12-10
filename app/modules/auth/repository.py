@@ -14,10 +14,14 @@ class UserRepository:
         return self.db.get(User, user_id)
 
     def get_by_email(self, email: str) -> User | None:
+        if email is None:
+            return None
         stmt = select(User).where(func.lower(User.email) == email.lower())
         return self.db.scalar(stmt)
 
     def get_by_phone(self, phone: str) -> User | None:
+        if phone is None:
+            return None
         stmt = select(User).where(User.telegram_phone == phone)
         return self.db.scalar(stmt)
 

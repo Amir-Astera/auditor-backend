@@ -1,4 +1,3 @@
-# app/auth/models.py
 from datetime import datetime
 from uuid import uuid4
 
