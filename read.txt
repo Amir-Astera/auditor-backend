@@ -1,0 +1,6 @@
+Привязка Telegram Mini App:
+1) В BotFather включить параметр Domain: https://divan.asteradigital.kz/
+2) В настройках bot API добавить Web App URL c тем же доменом и путём / (или конкретным роутом из мини-аппа).
+3) В initData WebApp передавать auth data в запросы к бекенду; бэкенд использует TELEGRAM_BOT_TOKEN для проверки подписи.
+4) Мини-апп запускает запрос на https://divan.asteradigital.kz/auth/telegram/login, передавая номер телефона сотрудника и пароль, полученный от администратора.
+5) Для административной панели на https://sec.asteradigital.kz/ авторизация по email и паролю через /auth/admin/login.

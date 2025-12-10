@@ -1,6 +1,12 @@
-# app/core/database.py
+"""Database setup for SQLAlchemy sessions and metadata.
+
+This module centralizes the engine and session factory configuration so that
+all models share the same Base. It is intentionally minimal to keep
+initialization predictable for both admin and Telegram entry points.
+"""
+
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, DeclarativeBase
+from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 from app.core.config import settings
 
