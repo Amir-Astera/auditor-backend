@@ -1,4 +1,15 @@
+"""FastAPI application entrypoint."""
+
+from pathlib import Path
+import sys
+
 from fastapi import FastAPI
+
+
+# Ensure the project root is on the import path when running as ``python app/main.py``.
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.append(str(PROJECT_ROOT))
 
 from app.core.db import Base, engine
 from app.modules.auth.router import router as auth_router
