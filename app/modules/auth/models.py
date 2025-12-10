@@ -1,29 +1,17 @@
 # app/auth/models.py
 from datetime import datetime
-<<<<<<< HEAD
-
-from sqlalchemy import Boolean, DateTime, String, BigInteger
-from sqlalchemy.orm import Mapped, mapped_column
-
-from app.core.database import Base
-=======
 from uuid import uuid4
 
 from sqlalchemy import BigInteger, Boolean, DateTime, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.db import Base
->>>>>>> e81b75286128c8454dcb0c6fa4879ac1da9358b2
 
 
 class User(Base):
     __tablename__ = "users"
 
-<<<<<<< HEAD
-    id: Mapped[str] = mapped_column(String, primary_key=True)
-=======
     id: Mapped[str] = mapped_column(String, primary_key=True, default=lambda: str(uuid4()))
->>>>>>> e81b75286128c8454dcb0c6fa4879ac1da9358b2
     email: Mapped[str | None] = mapped_column(String, unique=True, index=True, nullable=True)
     full_name: Mapped[str | None] = mapped_column(String, nullable=True)
 
