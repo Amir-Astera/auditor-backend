@@ -1,4 +1,6 @@
-fastapi>=0.110.0
+# FastAPI 0.110.0+ requires Pydantic v2, but the project currently depends on
+# Pydantic v1.x, so we pin FastAPI to the latest compatible release.
+fastapi>=0.109.2,<0.110.0
 uvicorn[standard]>=0.23.0
 SQLAlchemy>=2.0.0
 pydantic>=1.10.0,<2.0.0
