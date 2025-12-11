@@ -13,6 +13,17 @@ class Settings(BaseSettings):
     # Для проверки Telegram WebApp initData
     TELEGRAM_BOT_TOKEN: str | None = None
 
+    S3_ENDPOINT_URL: str
+    S3_ACCESS_KEY: str
+    S3_SECRET_KEY: str
+    S3_REGION: str = "us-east-1"
+    S3_BUCKET_ADMIN_LAWS: str
+    S3_BUCKET_CUSTOMER_DOCS: str
+
+    QDRANT_URL: str
+    QDRANT_COLLECTION_NAME: str
+    QDRANT_VECTOR_SIZE: int = 1536
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

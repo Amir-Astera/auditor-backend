@@ -13,6 +13,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from app.core.db import Base, engine
 from app.modules.auth.router import router as auth_router
+from app.modules.files.router import router as files_router
 
 Base.metadata.create_all(bind=engine)
 
@@ -23,3 +24,4 @@ app = FastAPI(
 )
 
 app.include_router(auth_router)
+app.include_router(files_router)

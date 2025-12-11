@@ -128,6 +128,12 @@ def get_current_employee(
     return user
 
 
+def get_current_employee(user: User = Depends(get_current_user)) -> User:
+    if user.is_admin:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Employee privileges required")
+    return user
+
+
 @router.post(
     "/admin/login",
     response_model=TokenResponse,
