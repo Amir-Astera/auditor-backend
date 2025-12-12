@@ -1,10 +1,9 @@
+import enum
 import uuid
 from datetime import datetime
-import enum
 
 from sqlalchemy import (
     Boolean,
-    Column,
     DateTime,
     Enum,
     ForeignKey,
@@ -13,7 +12,7 @@ from sqlalchemy import (
     Text,
 )
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.db import Base
 
@@ -23,32 +22,54 @@ class FileScope(str, enum.Enum):
     CUSTOMER_DOC = "CUSTOMER_DOC"
 
 
+class FileIndexStatus(str, enum.Enum):
+    QUEUED = "QUEUED"
+    RUNNING = "RUNNING"
+    DONE = "DONE"
+    ERROR = "ERROR"
+
+
 class StoredFile(Base):
     __tablename__ = "stored_files"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
 
-    owner_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    owner_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id"),
+        nullable=False,
+    )
 
-    customer_id = Column(String, nullable=True)
+    customer_id: Mapped[str | None] = mapped_column(String, nullable=True)
 
-    scope = Column(Enum(FileScope), nullable=False)
+    scope: Mapped[FileScope] = mapped_column(Enum(FileScope), nullable=False)
 
-    bucket = Column(String, nullable=False)
-    object_key = Column(String, nullable=False)
+    bucket: Mapped[str] = mapped_column(String, nullable=False)
+    object_key: Mapped[str] = mapped_column(String, nullable=False)
 
-    original_filename = Column(String, nullable=False)
-    content_type = Column(String, nullable=True)
-    size_bytes = Column(Integer, nullable=True)
+    original_filename: Mapped[str] = mapped_column(String, nullable=False)
+    content_type: Mapped[str | None] = mapped_column(String, nullable=True)
+    size_bytes: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
-    description = Column(Text, nullable=True)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    uploaded_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    uploaded_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.utcnow, nullable=False
+    )
 
-    is_indexed = Column(Boolean, default=False, nullable=False)
-    index_error = Column(Text, nullable=True)
+    is_indexed: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    index_error: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    chunks = relationship(
+    index_status: Mapped[FileIndexStatus] = mapped_column(
+        Enum(FileIndexStatus),
+        default=FileIndexStatus.QUEUED,
+        nullable=False,
+    )
+    indexed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
+    chunks: Mapped[list["FileChunk"]] = relationship(
         "FileChunk",
         back_populates="file",
         cascade="all, delete-orphan",
@@ -58,15 +79,23 @@ class StoredFile(Base):
 class FileChunk(Base):
     __tablename__ = "file_chunks"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    file_id = Column(UUID(as_uuid=True), ForeignKey("stored_files.id"), nullable=False)
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    file_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("stored_files.id"),
+        nullable=False,
+    )
 
-    chunk_index = Column(Integer, nullable=False)
+    chunk_index: Mapped[int] = mapped_column(Integer, nullable=False)
 
-    text = Column(Text, nullable=False)
+    text: Mapped[str] = mapped_column(Text, nullable=False)
 
-    qdrant_point_id = Column(String, nullable=True)
+    qdrant_point_id: Mapped[str | None] = mapped_column(String, nullable=True)
 
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.utcnow, nullable=False
+    )
 
-    file = relationship("StoredFile", back_populates="chunks")
+    file: Mapped[StoredFile] = relationship("StoredFile", back_populates="chunks")

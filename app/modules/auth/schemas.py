@@ -1,4 +1,7 @@
 """Pydantic schemas for authentication endpoints."""
+
+from uuid import UUID
+
 from pydantic import BaseModel, EmailStr, Field
 
 
@@ -27,7 +30,7 @@ class UserCreateRequest(BaseModel):
 
 
 class UserBase(BaseModel):
-    id: str
+    id: UUID
     email: EmailStr | None = None
     full_name: str | None = None
     telegram_phone: str | None = None
