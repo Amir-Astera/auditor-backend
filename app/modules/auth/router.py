@@ -113,7 +113,7 @@ def get_current_employee(
 ) -> User:
     """
     Требуется токен с aud = divan.asteradigital.kz.
-    Можно сделать, чтобы админ тоже мог пользоваться, если нужно.
+    Админ также может использовать этот endpoint.
     """
     payload = _decode_token(
         token,
@@ -125,12 +125,6 @@ def get_current_employee(
             detail="Employee token required",
         )
     
-    return user
-
-
-def get_current_employee(user: User = Depends(get_current_user)) -> User:
-    if user.is_admin:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Employee privileges required")
     return user
 
 

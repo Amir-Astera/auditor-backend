@@ -1,14 +1,19 @@
 # FastAPI 0.110.0+ requires Pydantic v2, but the project currently depends on
 # Pydantic v1.x, so we pin FastAPI to the latest compatible release.
-fastapi>=0.109.2,<0.110.0
+fastapi>=0.109.0,<0.110.0
 uvicorn[standard]>=0.23.0
 SQLAlchemy>=2.0.0
 pydantic>=1.10.0,<2.0.0
 PyJWT>=2.8.0
-bcrypt==4.0.1
-passlib[bcrypt]>=1.7.4
+bcrypt==3.2.2
+passlib[bcrypt]==1.7.4
 psycopg2-binary>=2.9.0
 requests>=2.31.0
-minio>=7.2.7
+minio>=7.2.0
 qdrant-client>=1.8.0
 python-multipart>=0.0.9
+pydantic[email]>=1.10.0,<2.0.0
+python-docx>=1.1.0
+pypdf>=4.2.0
+arq>=0.25.0
+redis>=5.0.0

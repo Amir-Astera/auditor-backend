@@ -20,6 +20,7 @@ class S3Config:
 class FileStorage:
     def __init__(self, cfg: S3Config):
         self._cfg = cfg
+
         self._client = Minio(
             endpoint=cfg.endpoint_url.replace("http://", "").replace("https://", ""),
             access_key=cfg.access_key,
@@ -27,7 +28,9 @@ class FileStorage:
             secure=cfg.endpoint_url.startswith("https"),
             region=cfg.region,
         )
+
         self._ensure_bucket(cfg.bucket_admin_laws)
+
         self._ensure_bucket(cfg.bucket_customer_docs)
 
     def _ensure_bucket(self, bucket: str) -> None:
@@ -52,6 +55,7 @@ class FileStorage:
         content_type: str | None,
     ) -> None:
         path = f"{customer_id}/{object_key}"
+
         self._put_object(
             bucket=self._cfg.bucket_customer_docs,
             object_key=path,
@@ -62,19 +66,27 @@ class FileStorage:
     def download_file(self, bucket: str, object_key: str) -> BinaryIO:
         try:
             response = self._client.get_object(bucket, object_key)
+
         except S3Error as exc:  # pragma: no cover - network bound
-            raise FileNotFoundError(f"Object {object_key} not found in bucket {bucket}") from exc
-        return response
+            raise FileNotFoundError(
+                f"Object {object_key} not found in bucket {bucket}"
+            ) from exc
+
+        return response  # type: ignore[return-value]
 
     def _put_object(
         self, bucket: str, object_key: str, file_obj: BinaryIO, content_type: str | None
     ) -> None:
         # MinIO SDK requires length; -1 with part_size enables streaming unknown sizes
+
+        ct: str | None = content_type
+        if ct is None:
+            ct = "application/octet-stream"
         self._client.put_object(
             bucket_name=bucket,
             object_name=object_key,
             data=file_obj,
             length=-1,
             part_size=10 * 1024 * 1024,
-            content_type=content_type,
+            content_type=ct,
         )

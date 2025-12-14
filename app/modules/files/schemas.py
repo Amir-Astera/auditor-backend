@@ -30,3 +30,19 @@ class FileInfo(FileUploadResponse):
 class FileListResponse(BaseModel):
     items: list[FileInfo]
     total: int
+
+
+class ChunkSearchResult(BaseModel):
+    score: float
+    file_id: str
+    chunk_index: int
+    text: str
+    filename: Optional[str] = None
+    scope: Optional[FileScope] = None
+    customer_id: Optional[str] = None
+    owner_id: Optional[str] = None
+
+
+class ChunkSearchResponse(BaseModel):
+    items: list[ChunkSearchResult]
+    total: int
