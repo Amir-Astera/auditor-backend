@@ -128,3 +128,4 @@ class WorkerSettings:
 
 async def create_redis_pool() -> ArqRedis:
     return await create_pool(settings.REDIS_URL)
+

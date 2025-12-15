@@ -196,4 +196,6 @@ def search_admin_files(
     return {
         "items": results,
         "total": len(results),
+
     }
+

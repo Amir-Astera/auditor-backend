@@ -160,3 +160,4 @@ class QdrantVectorStore:
             return None
 
         return Filter(must=conditions)
+

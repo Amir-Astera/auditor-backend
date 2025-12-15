@@ -1,4 +1,5 @@
 """Pydantic schemas for authentication endpoints."""
+<<<<<<< HEAD
 from pydantic import BaseModel, EmailStr, Field, validator
 
 # Максимальная длина пароля для bcrypt (72 байта)
@@ -16,6 +17,12 @@ def validate_password_length(value: str) -> str:
                 f"({len(value)} символов). Для ASCII это примерно {MAX_PASSWORD_BYTES} символов."
             )
     return value
+=======
+
+from uuid import UUID
+
+from pydantic import BaseModel, EmailStr, Field
+>>>>>>> origin/test
 
 
 class TokenResponse(BaseModel):
@@ -63,7 +70,7 @@ class UserCreateRequest(BaseModel):
 
 
 class UserBase(BaseModel):
-    id: str
+    id: UUID
     email: EmailStr | None = None
     full_name: str | None = None
     telegram_phone: str | None = None

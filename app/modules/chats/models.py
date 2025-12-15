@@ -73,3 +73,4 @@ class ChatMessage(Base):
 
     chat = relationship("Chat", back_populates="messages")
     sender = relationship("User")
+

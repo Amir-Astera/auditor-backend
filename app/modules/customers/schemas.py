@@ -31,3 +31,4 @@ class CustomerBase(BaseModel):
 
     class Config:
         orm_mode = True
+
