@@ -103,3 +103,4 @@ def update_customer(
     db.commit()
     db.refresh(customer)
     return customer
+

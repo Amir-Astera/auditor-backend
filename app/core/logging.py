@@ -33,3 +33,4 @@ def get_logger(name: Optional[str] = None) -> logging.Logger:
     (обычно в main.py при старте приложения).
     """
     return logging.getLogger(name)
+

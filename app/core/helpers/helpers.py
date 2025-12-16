@@ -16,3 +16,4 @@ async def get_arq_redis() -> ArqRedis:
     if _redis_pool is None:
         _redis_pool = await create_pool(settings.REDIS_URL)
     return _redis_pool
+

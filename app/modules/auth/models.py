@@ -20,6 +20,7 @@ class User(Base):
     email: Mapped[str | None] = mapped_column(
         String, unique=True, index=True, nullable=True
     )
+
     full_name: Mapped[str | None] = mapped_column(String, nullable=True)
 
     password_hash: Mapped[str | None] = mapped_column(String, nullable=True)

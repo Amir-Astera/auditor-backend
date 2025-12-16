@@ -108,16 +108,16 @@ def get_current_admin(
 
 
 def get_current_employee(user: User = Depends(get_current_user)) -> User:
-    """
-    Требуется, чтобы пользователь не был админом (сотрудник).
-    """
+
+    
     if user.is_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Employee privileges required",
         )
-
+    
     return user
+
 
 
 @router.post(

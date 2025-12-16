@@ -46,3 +46,4 @@ class Customer(Base):
     chats = relationship(
         "Chat", back_populates="customer", cascade="all, delete-orphan"
     )
+
