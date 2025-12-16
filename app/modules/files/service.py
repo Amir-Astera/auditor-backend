@@ -55,7 +55,7 @@ class FileService:
             "Uploading admin file",
             extra={
                 "user_id": str(user.id),
-                "filename": file.filename,
+                "file_name": file.filename,
                 "content_type": file.content_type,
             },
         )
@@ -107,7 +107,7 @@ class FileService:
             extra={
                 "user_id": str(user.id),
                 "customer_id": customer_id,
-                "filename": file.filename,
+                "file_name": file.filename,
                 "content_type": file.content_type,
             },
         )
