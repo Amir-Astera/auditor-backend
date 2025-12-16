@@ -42,3 +42,4 @@ class ChatMessageBase(BaseModel):
 
 class ChatWithMessages(ChatBase):
     messages: list[ChatMessageBase]
+

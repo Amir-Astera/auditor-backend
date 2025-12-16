@@ -45,4 +45,6 @@ class ChunkSearchResult(BaseModel):
 
 class ChunkSearchResponse(BaseModel):
     items: list[ChunkSearchResult]
+
     total: int
+

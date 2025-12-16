@@ -24,3 +24,4 @@ async def get_arq_redis() -> ArqRedis:
         redis_settings = RedisSettings.from_dsn(str(settings.REDIS_URL))
         _redis_pool = await create_pool(redis_settings)
     return _redis_pool
+

@@ -28,8 +28,17 @@ app = FastAPI(
 
 from app.modules.chats.router import router as chats_router
 from app.modules.customers.router import router as customers_router
+from app.modules.rag.router import router as rag_router
 
 app.include_router(auth_router)
 app.include_router(files_router)
 app.include_router(customers_router)
 app.include_router(chats_router)
+app.include_router(rag_router)
+
+
+@app.get("/health", tags=["health"])
+async def health_check():
+    """Проверка работоспособности сервера."""
+    return {"status": "ok", "service": "auditor-backend"}
+
