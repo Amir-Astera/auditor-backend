@@ -89,10 +89,13 @@ class FileChunk(Base):
     )
 
     chunk_index: Mapped[int] = mapped_column(Integer, nullable=False)
-
     text: Mapped[str] = mapped_column(Text, nullable=False)
 
+    # Qdrant point ID
     qdrant_point_id: Mapped[str | None] = mapped_column(String, nullable=True)
+
+    # LightRAG node ID (NEW!)
+    lightrag_node_id: Mapped[str | None] = mapped_column(String, nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, nullable=False

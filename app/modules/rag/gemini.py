@@ -1,152 +1,182 @@
-import requests
+# app/modules/rag/gemini.py
+"""
+Обёртка для работы с Gemini API.
+Поддерживает генерацию текста и embeddings.
+"""
+
+from __future__ import annotations
+
 import logging
+from typing import List, Optional
 
+import google.generativeai as genai
 
-GEMINI_API_KEY = "AIzaSyBfxC1LZ8x17UcHUi0oLQC72mcUPaeGg-w" 
-MODEL_NAME = 'gemini-2.0-flash' 
-# FILE_API_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/files"
+from app.core.config import settings
+from app.core.logging import get_logger
 
-# Настройка логгера
-logger = logging.getLogger("ai") # Используем тот же логгер, что и в main.py
-logger.setLevel(logging.INFO)
-if not logger.hasHandlers():
-    handler = logging.StreamHandler()
-    handler.setFormatter(logging.Formatter('[%(asctime)s][%(levelname)s][AI][GeminiAPI] %(message)s'))
-    logger.addHandler(handler)
+logger = get_logger(__name__)
+
+# Конфигурируем API key
+genai.configure(api_key=settings.GEMINI_API_KEY)
+
 
 class GeminiAPI:
     """
-    Класс для взаимодействия с Gemini API.
-    """
-    def __init__(self, api_key=GEMINI_API_KEY, model=MODEL_NAME, max_tokens=100000):
-        self.api_key = api_key
-        self.model = model
-        self.max_tokens = max_tokens
-        # Формируем базовый URL для API
-        self.base_url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent"
-        logger.info(f"Инициализация GeminiAPI с моделью: {self.model}, лимит токенов: {self.max_tokens}")
+    Production-ready клиент для работы с Gemini API.
 
-    def generate_content(self, prompt):
-        """Отправляет запрос на генерацию контента в Gemini API.
+    Поддерживает:
+    - Генерацию текста (LLM)
+    - Embeddings для документов и запросов
+    - Безопасную обработку ошибок
+    - Логирование всех операций
+    """
+
+    def __init__(
+        self,
+        llm_model: str | None = None,
+        embedding_model: str | None = None,
+    ):
+        self.llm_model = llm_model or settings.LIGHTRAG_LLM_MODEL
+        self.embedding_model = embedding_model or settings.LIGHTRAG_EMBEDDING_MODEL
+
+        logger.info(
+            "GeminiAPI initialized",
+            extra={
+                "llm_model": self.llm_model,
+                "embedding_model": self.embedding_model,
+            },
+        )
+
+    def generate_content(
+        self,
+        prompt: str,
+        system_instruction: str | None = None,
+        temperature: float = 0.7,
+        max_tokens: int = 8192,
+    ) -> str:
+        """
+        Генерирует текст через Gemini.
 
         Args:
-            prompt (str): Входной текст для генерации.
+            prompt: Входной промпт
+            system_instruction: Системная инструкция (роль)
+            temperature: Температура генерации (0.0-1.0)
+            max_tokens: Максимальное количество токенов
 
         Returns:
-            dict: JSON-ответ от Gemini API.
-
-        Raises:
-            requests.exceptions.RequestException: Если произошла ошибка HTTP-запроса.
-            ValueError: Если ответ от API не содержит ожидаемых данных.
+            Сгенерированный текст
         """
-        headers = {
-            "Content-Type": "application/json",
-        }
-        params = {
-            "key": self.api_key # Ключ API передается как параметр запроса
-        }
-        data = {
-            "contents": [{"parts": [{"text": prompt}]}],
-            "generationConfig": {
-                "maxOutputTokens": self.max_tokens
-            }
-        }
-        logger.info(f"Отправка запроса в Gemini. Длина промпта: {len(prompt)} символов")
-
         try:
-            response = requests.post(self.base_url, headers=headers, params=params, json=data, verify=False)
-            response.raise_for_status() # Вызывает HTTPError для плохих ответов (4xx или 5xx)
-            
-            logger.info(f"Ответ от Gemini: status_code={response.status_code}")
-            
-            json_response = response.json()
-            
-            # Проверка структуры ответа
-            if json_response and 'candidates' in json_response and \
-               len(json_response['candidates']) > 0 and \
-               'content' in json_response['candidates'][0] and \
-               'parts' in json_response['candidates'][0]['content'] and \
-               len(json_response['candidates'][0]['content']['parts']) > 0 and \
-               'text' in json_response['candidates'][0]['content']['parts'][0]:
-                logger.info(f"Успешный ответ от Gemini. Длина ответа: {len(response.text)} символов")
-                return json_response
-            else:
-                logger.error(f"Неожиданная структура ответа от Gemini: {json_response}")
-                raise ValueError("Неожиданная структура ответа от Gemini")
+            model = genai.GenerativeModel(
+                model_name=self.llm_model,
+                system_instruction=system_instruction,
+            )
 
-        except requests.exceptions.HTTPError as e:
-            logger.error(f"HTTP ошибка при запросе к Gemini: {e.response.status_code} - {e.response.text}")
-            raise requests.exceptions.RequestException(f"Ошибка HTTP: {e.response.status_code} - {e.response.text}")
-        except requests.exceptions.ConnectionError as e:
-            logger.error(f"Ошибка подключения при запросе к Gemini: {e}")
-            raise requests.exceptions.RequestException(f"Ошибка подключения к Gemini: {e}")
-        except requests.exceptions.Timeout as e:
-            logger.error(f"Таймаут при запросе к Gemini: {e}")
-            raise requests.exceptions.RequestException(f"Таймаут запроса к Gemini: {e}")
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Общая ошибка запроса к Gemini: {e}")
-            raise
-        except ValueError as e:
-            logger.error(f"Ошибка обработки JSON или структуры ответа: {e}")
-            raise
+            response = model.generate_content(
+                prompt,
+                generation_config=genai.GenerationConfig(
+                    temperature=temperature,
+                    max_output_tokens=max_tokens,
+                ),
+            )
+
+            logger.info(
+                "Gemini content generated",
+                extra={
+                    "prompt_length": len(prompt),
+                    "response_length": len(response.text) if response.text else 0,
+                },
+            )
+
+            return response.text
+
         except Exception as e:
-            logger.error(f"Непредвиденная ошибка в GeminiAPI: {e}")
+            logger.error(
+                "Gemini generation error",
+                extra={"error": str(e), "prompt_length": len(prompt)},
+            )
             raise
 
-    def upload_file(self, file_data, file_name, mime_type):
-        url = f"{FILE_API_BASE_URL}?key={self.api_key}"
+    def embed_text(
+        self,
+        text: str | List[str],
+        task_type: str = "retrieval_document",
+    ) -> List[float] | List[List[float]]:
+        """
+        Генерирует embeddings через Gemini Embedding API.
 
-        metadata = {
-            "display_name": file_name,
-            "mime_type": mime_type
-        }
+        Args:
+            text: Текст или список текстов для эмбеддинга
+            task_type: Тип задачи ('retrieval_document' или 'retrieval_query')
 
-        data = {
-            "metadata": json.dumps(metadata)
-        }
-
-        files = {
-            "file": (file_name, file_data, mime_type)
-        }
-
-        self.logger.info(f"Загрузка файла: {file_name}")
-
+        Returns:
+            Вектор или список векторов
+        """
         try:
-            response = requests.post(url, data=data, files=files)
-
-            if not response.ok:
-                self.logger.error(
-                    f"File API Error {response.status_code}: {response.text}"
+            if isinstance(text, str):
+                result = genai.embed_content(
+                    model=self.embedding_model,
+                    content=text,
+                    task_type=task_type,
                 )
-                response.raise_for_status()
 
-            json_response = response.json()
+                logger.info(
+                    "Gemini embedding generated",
+                    extra={
+                        "text_length": len(text),
+                        "task_type": task_type,
+                    },
+                )
 
-            if "name" in json_response:
-                self.logger.info(f"Файл загружен: {json_response['name']}")
-                return json_response
+                return result["embedding"]
+            else:
+                # Batch embeddings
+                embeddings = []
+                for txt in text:
+                    result = genai.embed_content(
+                        model=self.embedding_model,
+                        content=txt,
+                        task_type=task_type,
+                    )
+                    embeddings.append(result["embedding"])
 
-            raise ValueError(f"Неожиданный ответ: {json_response}")
+                logger.info(
+                    "Gemini batch embeddings generated",
+                    extra={
+                        "batch_size": len(text),
+                        "task_type": task_type,
+                    },
+                )
+
+                return embeddings
 
         except Exception as e:
-            self.logger.error(f"Ошибка загрузки файла: {e}")
+            logger.error(
+                "Gemini embedding error",
+                extra={"error": str(e)},
+            )
             raise
-            
-    def generate_content_with_file(self, file_name: str, prompt: str):
-        """Отправляет запрос на генерацию контента, используя ранее загруженный файл."""
-        headers = {"Content-Type": "application/json"}
-        params = {"key": self.api_key}
-        
-        # Формируем `contents` для передачи файла
-        data = {
-            "contents": [{
-                "parts": [
-                    {"fileData": {"mimeType": "application/pdf", "fileUri": file_name}}, # MimeType лучше брать из загрузки
-                    {"text": prompt}
-                ]
-            }],
-            "generationConfig": {"maxOutputTokens": self.max_tokens}
-        }
-        
-        # ... (Остальная часть generate_content, начиная с try: response = requests.post...)
-        # Вы можете переиспользовать существующую логику generate_content, просто изменив data.
+
+    def embed_query(self, query: str) -> List[float]:
+        """
+        Генерирует embedding для поискового запроса.
+
+        Args:
+            query: Поисковый запрос
+
+        Returns:
+            Вектор запроса
+        """
+        return self.embed_text(query, task_type="retrieval_query")
+
+    def embed_documents(self, documents: List[str]) -> List[List[float]]:
+        """
+        Генерирует embeddings для документов.
+
+        Args:
+            documents: Список текстов документов
+
+        Returns:
+            Список векторов
+        """
+        return self.embed_text(documents, task_type="retrieval_document")

@@ -18,8 +18,11 @@ pypdf>=4.2.0
 arq>=0.25.0
 redis>=5.0.0
 
-lightrag>=0.1.0b1
+# RAG with LightRAG + Gemini
+lightrag>=0.0.5
+google-generativeai>=0.3.0
+networkx>=3.0
+nano-vectordb>=0.1.0
 openai>=1.0.0
 langchain>=0.1.0
 langchain-community>=0.0.20
-networkx>=3.0

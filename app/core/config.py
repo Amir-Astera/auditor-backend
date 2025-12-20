@@ -3,14 +3,13 @@ from pydantic import AnyUrl, BaseSettings, PostgresDsn
 
 
 class Settings(BaseSettings):
-    # Пример: postgresql+psycopg2://user:password@localhost:5432/tri_s_audit
+    # Database
     DATABASE_URL: PostgresDsn
 
+    # Security
     SECRET_KEY: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     JWT_ALGORITHM: str = "HS256"
-
-    # Для проверки Telegram WebApp initData
     TELEGRAM_BOT_TOKEN: str | None = None
 
     # S3 / MinIO
@@ -21,13 +20,22 @@ class Settings(BaseSettings):
     S3_BUCKET_ADMIN_LAWS: str
     S3_BUCKET_CUSTOMER_DOCS: str
 
-    # Qdrant
-    QDRANT_URL: str
-    QDRANT_COLLECTION_NAME: str
-    QDRANT_VECTOR_SIZE: int = 1536
-
     # Redis / Arq
     REDIS_URL: AnyUrl = "redis://localhost:6379/0"
+
+    # Gemini AI
+    GEMINI_API_KEY: str
+
+    # LightRAG
+    LIGHTRAG_WORKING_DIR: str = "./lightrag_cache"
+    LIGHTRAG_EMBEDDING_MODEL: str = "models/text-embedding-004"
+    LIGHTRAG_LLM_MODEL: str = "gemini-1.5-pro"
+
+    # Indexing configuration
+    CHUNK_SIZE: int = 1500  # символов
+    MERGE_SIZE: int = 5  # чанков в один блок для LightRAG
+    QDRANT_BATCH_SIZE: int = 256
+    EMBEDDING_BATCH_SIZE: int = 32
 
     class Config(BaseSettings.Config):
         env_file = ".env"

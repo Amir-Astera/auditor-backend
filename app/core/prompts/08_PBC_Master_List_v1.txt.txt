@@ -1,0 +1,255 @@
+08_PBC_Master_List_v1.txt
+Author: Igor Tilepin
+Trusted Source: TRI-S-AUDIT
+
+─────────────────────────────────────────────
+DOCUMENT: PBC (Prepared-By-Client) MASTER LIST — ISA-GUIDED, B4-LEVEL
+
+Purpose
+-------
+This document is the master catalogue of client deliverables required for an ISA-compliant audit. It defines:
+- WHAT to obtain (by audit cycle and industry addenda),
+- HOW it must be delivered (format, fields, quality gates),
+- WHEN it is due (phase-based calendar),
+- WHO is responsible (client owner / audit owner),
+- TRACEABILITY to working papers, legal matrix, materiality, and reporting.
+
+Standards & Cross-References
+- ISA 210, 230, 240, 250, 260/265, 300, 315/540, 330, 501, 505, 520, 530, 560, 570, 580
+- IFRS focus: IAS 1, 2, 7, 10, 12, 16, 19, 21, 23, 24, 36, 37, 38, 40; IFRS 15, 16, 17 (for insurers)
+Links to internal files:
+- 02_StyleGuide, 03_ISA_RoutingPrompts, 04_Risk_Library_by_Cycle, 05_Materiality_Playbook,
+  06_Sampling_Methods_ISA530, 07_Legal_Matrix_ISA560_501, 09_Audit_Templates,
+  10_Management_Rep_Full_ISA580, 11_TCWG_Communication_Pack, 12_KAM_Skeletons_ISA701,
+  13_Forensic_RedFlags, 14_Glossary_EN-RU-UZ, 15_Model_IO_Guide
+
+Scope Notes
+- This Master List is **entity-agnostic** with industry addenda. Banking presets are **excluded**; an Insurance addendum is included.
+- Use with Materiality: all items inherit thresholds, sampling bases, and scoping rules from 05_Materiality_Playbook.
+- Data privacy & security: use secure portal/OneDrive/SFTP; avoid email for bulk datasets; include access revocation plan post-engagement.
+
+─────────────────────────────────────────────
+GLOBAL ACCEPTANCE CRITERIA (QUALITY GATES)
+------------------------------------------
+A. File Hygiene
+- Formats: XLSX/CSV (UTF-8, comma or semicolon), PDF (searchable), DOCX; NO images for primary data.
+- Naming: YYYYMMDD_PBCID_ShortName_vNN.ext  (e.g., 20250901_PBC-GL01_GL_Detail_v02.csv)
+- Versioning: supply full replacement files; avoid partial deltas unless agreed.
+
+B. Data Integrity
+- TB ties to FS; provide comparative periods; no rounding in source data.
+- Each data table includes: unique row ID, Document Date, Posting Date, Doc No, Account Code+Name, Amount DC, Currency, Source Module, UserID, Counterparty ID/Name.
+- Master data dictionaries for codes (CoA, product, customer, vendor, location).
+
+C. Completeness & Cut-off
+- Close calendars (hard close/soft close dates); through-date for subsequent events (ISA 560).
+- Reconciliations provided and signed by process owner.
+
+D. Evidence & Authorization
+- PDFs are scanned at 300+ dpi, text-searchable; approval signatures legible.
+- Provide policy/procedure documents referenced in data (credit policy, revenue recognition memos, inventory policy, capitalization policy, etc.).
+
+Status Codes (lifecycle)
+- NR (Not Requested), RQ (Requested), RC (Received), RV (In Review), AC (Accepted), RJ (Rejected), SP (Superseded)
+
+Priority
+- C (Critical), H (High), M (Medium), L (Low)
+
+─────────────────────────────────────────────
+PBC MASTER REGISTER — TABLE TEMPLATE
+------------------------------------
+| PBC ID | Cycle | Request Title | Description / Fields Required | Source System(s) | Period(s) | Format | Priority | Due (Phase) | Client Owner | Audit Owner | Dependencies | Acceptance Tests | Status | Delivered File(s) | WP Ref |
+
+Use phases: PLN (planning/interim), YE (year-end), CL (close), BR (bring-down).
+
+─────────────────────────────────────────────
+CORE REQUESTS BY CYCLE (BASELINE)
+---------------------------------
+
+ENTITY & GOVERNANCE
+- PBC-GOV01 Board/Audit Committee Minutes — FY+post-balance to report date; agendas, decisions, approvals (capital, div, litigation). Format: PDF searchable. Tests: completeness vs calendar.
+- PBC-GOV02 Organizational Chart & Legal Structure — entities, ownership %, change log. XLSX + org PDF.
+- PBC-GOV03 Policies — Accounting manual, revenue, credit, inventory, FA, impairment, FX, leases, CapEx, procurement, whistleblowing (NOCLAR). PDF.
+
+LEGAL & SUBSEQUENT EVENTS (tie to 07_Legal_Matrix)
+- PBC-LEG01 Legal Matters Register — asserted/unasserted claims, counterparties, probability, ranges. XLSX (fields per Legal Matrix).
+- PBC-LEG02 External Counsel Letters — law firms list & confirmations; bring-down before report date.
+- PBC-LEG03 Regulatory Correspondence — tax/regulatory notices, fines, inspections. PDF.
+- PBC-LEG04 Subsequent Events Log — from balance date to report date, including approvals, M&A, impairments, financing. XLSX.
+
+FINANCIAL STATEMENTS & CLOSING
+- PBC-FS01 Trial Balance — year-end & comparatives, pre/post-adjustments; mapping to FS lines. XLSX.
+- PBC-FS02 Chart of Accounts — code, name, type, parent, IFRS map. XLSX.
+- PBC-FS03 Posting Period Calendar — open/close status by module. XLSX.
+- PBC-FS04 Journal Entry Listing — full FY; fields: JE ID, date, user, source, amounts DC, description, reversal flag. CSV/XLSX.
+- PBC-FS05 Manual JEs (Top Adjustments) — management entries > materiality; rationale & approvals. XLSX+PDF.
+- PBC-FS06 FS Draft & Notes — latest management draft with note numbers. DOCX/PDF.
+
+CASH & BANK (ISA 505)
+- PBC-CB01 Bank Account Master & Signatories — list w/ currencies, banks, IBAN/SWIFT. XLSX.
+- PBC-CB02 Bank Statements — FY + Jan/Feb after YE for roll-forward. PDF/e-statements.
+- PBC-CB03 Bank Reconciliations — YE reconciliations, outstanding items aging. XLSX.
+- PBC-CB04 External Bank Confirmations — contact sheet for confirms; letters to be sent by auditor. XLSX/PDF.
+
+REVENUE & ACCOUNTS RECEIVABLE (IFRS 15)
+- PBC-REV01 Revenue by Month/Product/Customer — net/gross, discounts, returns, VAT. XLSX.
+- PBC-REV02 Contract/Order Repository — top N contracts (by value/risk), standard T&Cs, rebate programs. PDF.
+- PBC-REV03 AR Subledger & Aging — customer ID, terms, credit limit, balance aging buckets. XLSX.
+- PBC-REV04 Price Lists, Rebates, Bonuses — schemes, accrual calcs. XLSX/PDF.
+- PBC-REV05 Shipping/Delivery Docs (Sample Pulls) — invoices, delivery notes, CMR/waybills per audit samples. PDF.
+
+PURCHASING & ACCOUNTS PAYABLE
+- PBC-AP01 Vendor Master & Blacklist/Related Flags — vendor ID, tax ID, bank, related-party flag. XLSX.
+- PBC-AP02 AP Subledger & Aging — supplier balances, terms; GR/IR clearing. XLSX.
+- PBC-AP03 Top Suppliers Contracts — pricing, penalties, delivery incoterms. PDF.
+- PBC-AP04 Three-Way Match Evidence (Sample Pulls) — PO, GRN, invoice. PDF.
+- PBC-AP05 Expense Policies — travel/entertainment, approvals. PDF.
+
+INVENTORY & COGS (IAS 2)
+- PBC-INV01 Inventory Listing — SKU, location, quantity, cost method, NRV adjustments. XLSX.
+- PBC-INV02 Cycle Counts / YE Count Instructions & Results — count sheets, variances, approvals. PDF/XLSX.
+- PBC-INV03 Obsolescence Analysis — aging, slow-move criteria, write-down calc. XLSX.
+- PBC-INV04 Standard Cost Build-ups / BOM — for manufacturing. XLSX/PDF.
+
+PROPERTY, PLANT & EQUIPMENT / INTANGIBLES
+- PBC-FA01 Fixed Asset Register — asset ID, location, useful life, depn method, additions/disposals, CWIP. XLSX.
+- PBC-FA02 Supporting Docs for Additions/Disposals — PO, contracts, acceptance acts, sale docs. PDF.
+- PBC-FA03 CapEx Approval Packs — board approvals, budgets. PDF.
+- PBC-FA04 Impairment Assessment (IAS 36) — CGU model, assumptions, sensitivities. XLSX/PDF.
+- PBC-FA05 Leases (IFRS 16) — lease register, contracts, payment schedules, incremental borrowing rate memo. XLSX/PDF.
+
+EQUITY, BORROWINGS & FINANCIAL INSTRUMENTS
+- PBC-EQ01 Share Register & Changes — minutes, filings. PDF.
+- PBC-DEBT01 Loan Agreements & Covenants — schedules, covenant calc packs, waivers. PDF/XLSX.
+- PBC-DEBT02 Interest Schedules — accruals, EIR calcs if applicable. XLSX.
+
+PROVISIONS, CONTINGENCIES & OTHER
+- PBC-PROV01 Provisions Roll-forward — opening, add, used, released; basis memos (warranties, ARO, restructuring). XLSX/PDF.
+- PBC-PROV02 Environmental/Decommissioning (IAS 37/IAS 16) — assumptions, discount rates. XLSX/PDF.
+
+TAXES (IAS 12)
+- PBC-TAX01 Corporate Income Tax Return & Trial Calc — current tax, adjustments. XLSX/PDF.
+- PBC-TAX02 Deferred Tax Roll-forward — temporary differences, tax rates, lapses. XLSX.
+- PBC-TAX03 VAT/GST/Sales Tax Reconciliations — to GL. XLSX.
+- PBC-TAX04 Transfer Pricing Files — local/master file, intercompany agreements. PDF.
+
+RELATED PARTIES (IAS 24)
+- PBC-RP01 Related Party Register — entities, individuals, relationships, terms. XLSX.
+- PBC-RP02 Intercompany Balances & Transactions — confirmations, eliminations. XLSX/PDF.
+
+PAYROLL & HR (IAS 19)
+- PBC-HR01 Payroll Master & Monthly Runs — gross/net, taxes, benefits. XLSX.
+- PBC-HR02 Headcount & Org by Function — FTEs, joiners/leavers. XLSX.
+- PBC-HR03 Bonuses/Share-based Plans — schemes, approvals, calcs. PDF/XLSX.
+- PBC-HR04 Actuarial Reports (if post-employment) — assumptions, sensitivities. PDF.
+
+IT GENERAL CONTROLS / DATA ACCESS
+- PBC-IT01 ERP Access Listing (SoD flags) — users, roles, last login. XLSX.
+- PBC-IT02 Change Management & Patch Logs — major releases affecting posting. PDF/XLSX.
+- PBC-IT03 Data Dictionaries & Export Protocols — tables, field descriptions, extraction SQL if applicable. DOCX.
+
+GOING CONCERN (ISA 570)
+- PBC-GC01 Cash Flow Forecast 12+ months — base case + downside, covenant headroom. XLSX.
+- PBC-GC02 Financing Plans — signed/refinancing status, term sheets. PDF.
+- PBC-GC03 Sensitivity Models — shocks to revenue, margins, FX, rates. XLSX.
+
+CONFIRMATIONS (EXTERNAL)
+- PBC-CONF01 Bank, Legal, AR, AP, Loan, Lawyer — contact sheets and consent letters. XLSX/PDF.
+
+MANAGEMENT REPRESENTATIONS (ISA 580)
+- PBC-REP01 Draft Management Representation Letter — tailored to engagement scope and legal matters. DOCX.
+
+─────────────────────────────────────────────
+INDUSTRY ADDENDA (PRESETS)
+--------------------------
+
+A. INSURANCE (Non-bank; IFRS 17)
+- PBC-INS01 Policy Data Extract — policy ID, issue/renewal dates, premiums, claims history, coverage, reinsurance tags. CSV.
+- PBC-INS02 IFRS 17 Measurement Files — GMM/PAA/LFRA model outputs, groupings, cohorts, discount curves, RA methodology. XLSX.
+- PBC-INS03 Claims Triangle & Development — by LoB, AY/OY, IBNR calc rationale. XLSX.
+- PBC-INS04 Reinsurance Agreements & Cessions — treaties, bordereaux, recoverables aging. PDF/XLSX.
+- PBC-INS05 Liability Adequacy & Onerous Groups Assessment — memos, sensitivities. PDF/XLSX.
+- PBC-INS06 Regulatory Capital/Reporting Packs (non-bank insurance) — local prudential returns, if applicable. PDF.
+
+B. MINING & ENERGY
+- PBC-ME01 Reserves/Resources Reports — qualified person reports, price decks. PDF.
+- PBC-ME02 Decommissioning/ARO Models — discount rates, timing, regulator filings. XLSX/PDF.
+- PBC-ME03 Exploration & Evaluation (IFRS 6) — capitalization policy, E&E ledger, impairment triggers. XLSX/PDF.
+- PBC-ME04 Power/Fuel Purchase Agreements — take-or-pay, indexation clauses. PDF.
+
+C. CONSTRUCTION / EPC
+- PBC-CN01 Contract Ledger (IFRS 15) — contract assets/liabilities, WIP, performance obligations, variable consideration. XLSX.
+- PBC-CN02 Site Diaries / Progress Certificates — engineer approvals, milestones. PDF.
+- PBC-CN03 Claims & Variations Register — status, probability, amounts. XLSX.
+
+D. DISTRIBUTION / FMCG
+- PBC-FMCG01 Trade Terms Matrix — rebates, slotting fees, promos by key customers. XLSX.
+- PBC-FMCG02 Returns & Allowances Analytics — by SKU/channel; reverse logistics docs. XLSX/PDF.
+- PBC-FMCG03 Route-to-Market Evidence — distributors, sub-distributors, consignment arrangements. PDF.
+
+─────────────────────────────────────────────
+PBC CALENDAR (PHASE-BASED)
+--------------------------
+Planning / Interim (PLN)
+- GOV01-03, FS01-06, IT01-03, REV01-02, AP01-03, INV01/03, FA01/03, TAX01 draft, RP01
+Year-End (YE)
+- Full ledgers (FS04/05), reconciliations (CB03, AP02, REV03), confirmations setup (CONF01), inventory counts (INV02), lease packs (FA05), provisions (PROV01/02)
+Close (CL)
+- FS draft (FS06), impairment files (FA04), tax final (TAX01-03), going concern (GC01-03), legal letters (LEG02), subsequent events log (LEG04)
+Bring-down (BR)
+- Updates: LEG04, LEG02, CONF01 statuses, GC forecasts refresh, covenant calculations, post-YE bank statements (CB02)
+
+─────────────────────────────────────────────
+DEPENDENCY MAP (EXAMPLES)
+-------------------------
+- FS01 TB → prerequisite for sampling scopes in 06_Sampling_Methods; drives 05_Materiality thresholds application.
+- LEG01 Register ↔ 07_Legal_Matrix (single source of truth).
+- REV01/03 ↔ KAM selection (12_KAM_Skeletons) if revenue risk is significant.
+- FA05 Leases ↔ note disclosures and right-of-use asset test of impairment.
+- GC01-03 ↔ emphasis of matter or material uncertainty per ISA 570.
+
+─────────────────────────────────────────────
+PBC REQUEST PACK — EMAIL/LETTER TEMPLATE
+----------------------------------------
+Subject: Audit PBC Request — [Client] — [FY End] — Wave [#]
+
+Dear [Name],
+Please find attached the PBC Master List (Wave [#]) with due dates and formats. Files should follow naming convention and be uploaded to [secure link]. For each item, ensure acceptance criteria are met. Contact [Audit Owner] for clarifications.
+
+Attachments:
+1) PBC Register extract (current wave)
+2) Sample formats (TB, GL, AR/AP, Inventory)
+3) Legal Matrix fields (for LEG01)
+
+Kind regards,
+TRI-S-AUDIT Team
+
+─────────────────────────────────────────────
+QUICK INSERT PHRASES (for drafting requests)
+--------------------------------------------
+- “For completeness, please provide the **full-year dataset** with **comparatives** and **unrounded** figures.”
+- “Kindly confirm that the **trial balance ties** to the draft FS and that **all subledgers reconcile** to GL.”
+- “Please ensure files are **searchable PDFs** or **XLSX/CSV**; screenshots are not acceptable for primary evidence.”
+- “Include **approval trails** and **policy references** where judgments were applied.”
+- “Update the **Subsequent Events Log** through **[date]** and reconfirm via legal counsel bring-down.”
+
+─────────────────────────────────────────────
+RUSSIAN SUMMARY (для внутреннего пользования)
+---------------------------------------------
+PBC-лист — это мастер-перечень документов и данных, которые клиент обязан подготовить для аудита. В этом файле:
+- Перечень по циклам (управление, юрвопросы, финансы, выручка/дебиторы, закупки/кредиторы, запасы, ОС/НМА, налоги, РП, ИТ, непрерывность).
+- Жёсткие критерии качества: форматы, поля, сопоставимость, выверки.
+- Календарь поставок по фазам: планирование, год-конец, закрытие, bring-down.
+- Отраслевые приложения: страхование (IFRS 17), горная/энергетика, строительство/EPC, дистрибуция/FMCG.
+- Связи с Legal Matrix, материалностью, KAM и шаблонами отчётности.
+
+─────────────────────────────────────────────
+USAGE NOTES FOR THE MODEL (internal)
+------------------------------------
+- When the user asks for a PBC wave, generate a **filtered register** by Cycle/Phase/Priority and attach acceptance tests.
+- Auto-insert cross-refs to 07_Legal_Matrix and 05_Materiality_Playbook where relevant.
+- For Insurance clients, **activate the INS addendum**; do not insert banking presets.
+- Enforce naming and acceptance criteria in all generated request emails.
+
+─────────────────────────────────────────────
+END OF DOCUMENT

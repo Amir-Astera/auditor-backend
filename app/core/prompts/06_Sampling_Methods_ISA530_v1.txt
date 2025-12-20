@@ -1,0 +1,254 @@
+# TRI-S-AUDIT — Sampling Methods Playbook (EN/RU)
+# Version: v1.0
+# Date: 2025-09-19
+# Source: TRI-S-AUDIT (Trusted Source)
+# Author: Igor Tilepin
+# Reference Framework: International Standards on Auditing (ISA / МСА) — ISA 530 (Audit Sampling), ISA 330, ISA 520
+
+----------------------------------------------------------------------
+NOTE FOR CUSTOM GPT:
+This file defines strict rules and WORKPAPER formats for audit sampling in line with ISA 530,
+and links to ISA 330 (responses to assessed risks) and ISA 520 (analytical procedures).
+The model MUST (1) ask routing questions, (2) suggest a method, (3) produce the WORKPAPER
+templates (selection sheet + results & projection + conclusion), and (4) log rationale.
+----------------------------------------------------------------------
+
+[CONTENT START]
+
+============================================================
+00) ROUTING QUESTIONS (EN/RU)
+============================================================
+EN — Ask before selecting a method:
+- Area & objective: [Controls test / Substantive test] and assertion(s).
+- Population: count (N), total book value (TBV), min/max item value, zero/credit items present?
+- Risk level (High/Moderate/Low) and reliance on controls (Y/N).
+- Tolerable Deviation Rate (TDR) for controls OR Tolerable Misstatement (TM) for substantive.
+- Expected Deviation Rate (EDR) OR Expected Misstatement (EM).
+- Confidence Level (CL) or Sampling Risk (SR = 1−CL).
+- Stratification needed? thresholds by value/date/vendor/SKU.
+- MUS suitability? (PPS not appropriate for many negatives/zeros).
+
+RU — Спросить перед выбором метода:
+- Раздел и цель: [Тест контроля / Тест по существу] и утверждения.
+- Генеральная совокупность: количество (N), суммарная балансовая стоимость (TBV), мин/макс, есть нулевые/кредитовые позиции?
+- Уровень риска (Высокий/Средний/Низкий) и опора на контроль (Да/Нет).
+- Допустимая частота отклонений (TDR) для контролей ИЛИ Допустимое искажение (TM) для процедур по существу.
+- Ожидаемая частота отклонений (EDR) ИЛИ Ожидаемое искажение (EM).
+- Уровень доверия (CL) или риск выборки (SR = 1−CL).
+- Нужна ли стратификация? пороги по сумме/датам/поставщикам/SKU.
+- Применимость MUS? (PPS не подходит при множестве кредитов/нулей).
+
+============================================================
+01) METHOD SELECTION MATRIX (EN/RU)
+============================================================
+EN — Choose method based on objective & population:
+- Attribute sampling (controls) → binary deviations; target: TDR vs EDR; output: deviation rate & upper deviation rate.
+- MUS / PPS (monetary unit sampling, substantive) → best for overstatement risk in assets/AR/revenue.
+- Classical Variables (Mean-per-unit, Ratio, Difference) → mixed/bi-directional risk, many negatives/zeros, inventories.
+- Haphazard is NOT acceptable; use random or systematic selection with random start.
+
+RU — Выбор метода:
+- Атрибутная выборка (контроли) → бинарные отклонения; цель: TDR vs EDR; вывод: частота отклонений и верхняя граница.
+- MUS / PPS (денежно‑единичная выборка) → лучше для риска завышения активов/ДЗ/выручки.
+- Классическая переменная (средняя на единицу, долевая, разностная) → двусторонний риск, много кредитов/нулей, запасы.
+- Случайный/систематический отбор с случайным стартом; «произвольный» не допускается.
+
+============================================================
+02) ATTRIBUTE SAMPLING — CONTROLS TESTS (EN/RU)
+============================================================
+EN — Inputs: N, TDR, EDR, CL (or SR), risk level.
+Sample Size: use binomial/Poisson or firm factor tables (preferred). If unavailable, request confirmation to use conservative factors.
+Selection: random or systematic with random start.
+Evaluation: compute sample deviation rate (SDR), project to population, compute Upper Deviation Rate (UDR).
+Decision: if UDR ≤ TDR → control effective (for scope purposes); else ↑ scope or redesign.
+
+RU — Входы: N, TDR, EDR, CL (или SR), уровень риска.
+Размер выборки: по таблицам факторов фирмы (предпочтительно) или биномиальным приближениям. При отсутствии — запросить подтверждение по консервативным факторам.
+Отбор: случайный или систематический со случайным стартом.
+Оценка: SDR, проекция, верхняя граница UDR.
+Вывод: если UDR ≤ TDR → контроль приемлем; иначе расширить объем или изменить подход.
+
+[WORKPAPER — ATTRIBUTE SELECTION SHEET (EN)]
+Control: [name]  | Assertion: [●]  | Period: [●]  | Population (N): [●]
+TDR: [●]%  EDR: [●]%  CL: [●]% (SR: [●]%)  Risk Level: [H/M/L]
+Stratification: [None / By amount threshold: ●]
+Sample size (per table): [●]
+Selection method: [Random/Systematic]  Random start: [●]  Seed: [●]
+Selected items list: [index, date, ref, key fields]
+
+[РАБОЧИЙ ДОКУМЕНТ — АТРИБУТНАЯ ВЫБОРКА (RU)]
+Контроль: [наименование] | Утверждение: [●] | Период: [●] | Ген. совок. (N): [●]
+TDR: [●]%  EDR: [●]%  CL: [●]% (SR: [●]%)  Риск: [В/С/Н]
+Стратификация: [Нет / По порогу: ●]
+Размер выборки (по таблице): [●]
+Метод: [Случайный/Систематический]  Случайный старт: [●]  Seed: [●]
+Список выбранных позиций: [индекс, дата, реквизит, ключ. поля]
+
+[WORKPAPER — ATTRIBUTE RESULTS & EVALUATION (EN/RU)]
+EN:
+Deviations found: [k] of [n] → SDR = k/n
+Projected deviation rate: [●]
+Upper Deviation Rate (UDR): [●] (per table or calculation)
+Decision: [Effective / Not effective]; Impact on N/T/E: [●]
+
+RU:
+Отклонения: [k] из [n] → SDR = k/n
+Проекция: [●]
+Верхняя граница (UDR): [●] (по таблице/расчету)
+Решение: [Эффективен / Неэффективен]; Влияние на N/T/E: [●]
+
+============================================================
+03) MUS / PPS — SUBSTANTIVE (EN/RU)
+============================================================
+EN — Inputs: TBV, TM, EM, CL (or SR), Risk level. Remove known misstatements from population if appropriate.
+Key Concepts:
+- Sampling Interval (SI) and Sample Size (n): n = TBV / SI; SI = TM / Reliability Factor (RF).
+- Random Start: choose a number U(1, SI). Systematic selection: cumulative BV crosses RS + k×SI.
+- Tainting factor = (Overstatement) / (Book Value). Projected misstatement = Tainting × SI (basic method).
+- Upper Misstatement Limit (UML) = Projected + Increment for allowance (per RF table).
+
+RU — Входы: TBV, TM, EM, CL (или SR), уровень риска. При необходимости исключить известные искажения.
+Ключевые понятия:
+- Интервал (SI) и размер n: n = TBV / SI; SI = TM / Коэффициент надежности (RF).
+- Случайный старт: число U(1, SI). Систематический отбор: кумулятив BV пересекает RS + k×SI.
+- Коэффициент «загрязнения» (tainting) = (Завышение) / (Балансовая стоимость). Проекция = tainting × SI.
+- Верхняя граница искажения (UML) = Проекция + надбавка (по RF).
+
+[WORKPAPER — MUS SELECTION SHEET (EN)]
+Area: [AR/Revenue/Inventory etc.]  Period: [●]
+Population TBV: [●]   TM: [●]   EM: [●]   CL: [●]% (SR: [●]%)
+Reliability Factor (RF): [●]  → SI = TM / RF  → n = TBV / SI
+Random start: [●]  Method: [Systematic PPS]
+Stratification: [None / High-value cutoff at ●]  Treatment of negatives/zeros: [Separate/Exclude/Variables]
+Selection table: [cum. BV, item id, book value, pick (Y/N)]
+
+[РАБОЧИЙ ДОКУМЕНТ — MUS ОТБОР (RU)]
+Раздел: [ДЗ/Выручка/Запасы]  Период: [●]
+TBV совокупности: [●]   TM: [●]   EM: [●]   CL: [●]% (SR: [●]%)
+RF: [●]  → SI = TM / RF  → n = TBV / SI
+Случайный старт: [●]  Метод: [Систематический PPS]
+Стратификация: [Нет / High-value порог ●]  Нули/кредиты: [Отдельно/Исключить/Переменная]
+Таблица отбора: [накоп. BV, id, бал. стоимость, отбор]
+
+[WORKPAPER — MUS RESULTS & PROJECTION (EN/RU)]
+EN:
+For each sampled item:
+- Book, Audited, Over/Under, Tainting = Over/Book (if Over>0 else 0)
+- Basic projection = Tainting × SI
+- Add allowance per RF → UML
+Compare UML to TM → [Conclude]
+
+RU:
+Для каждой выборки:
+- Балансовая, Проверенная, Завышение/Занижение, Tainting = Завышение/Бал.
+- Базовая проекция = Tainting × SI
+- Надбавка по RF → UML
+Сравнить UML с TM → [Вывод]
+
+[CONCLUSION — MUS (EN/RU)]
+EN: If UML ≤ TM → no further expansion required for the area; else expand sample, perform targeted procedures, or reassess TM.
+RU: Если UML ≤ TM → расширение не требуется; иначе увеличить выборку/доп. процедуры/пересмотр TM.
+
+============================================================
+04) CLASSICAL VARIABLES — SUBSTANTIVE (EN/RU)
+============================================================
+EN — When to use: many negatives/zeros, bidirectional risk, inventories or pricing tests.
+Methods: Mean-per-unit (MPU), Ratio, Difference.
+Inputs: sample size via firm table or formulas using std. deviation/variability; CL; TM.
+Evaluation: compute point estimate & precision; derive Upper Misstatement bound; compare to TM.
+RU — Когда применять: много кредитов/нулей, двусторонний риск, запасы/ценообразование.
+Методы: MPU, Долевая, Разностная. Входы: размер выборки по дисперсии/вариабельности, CL, TM. Оценка: точечная оценка и погрешность; верхняя граница; сравнение с TM.
+
+[WORKPAPER — VARIABLES SELECTION (EN/RU)]
+- Population: N, TBV, variability measure (σ or CV) [if available].
+- CL: [●]%  TM: [●]  EM: [●]
+- Sample size: [calc/table]  Selection method: [Random/Systematic]  Seed: [●]
+- Results: point estimate, precision, upper bound vs TM. Decision: [●].
+
+============================================================
+05) STRATIFICATION & TOP-SAMPLING (EN/RU)
+============================================================
+EN — Rules:
+- Always consider top-sampling of high-value/critical items (100%).
+- Stratify by value to reduce variability (large, medium, small). Define cut-offs.
+- Separate unusual/related-party items into targeted testing.
+RU — Правила: проверка 100% крупных/критичных; стратификация по сумме (крупные/средние/мелкие); выделение нетипичных/связанных сторон на адресные процедуры.
+
+============================================================
+06) DOCUMENTATION & REPRODUCIBILITY (EN/RU)
+============================================================
+EN — Always store: seed, random start, selection list, rationale for method & parameters, tables used, calculation sheet, and conclusion reference to ISA 530/330.
+RU — Хранить: seed, случайный старт, список позиций, обоснование метода/параметров, таблицы, расчетный лист, и вывод с ссылками МСА 530/330.
+
+============================================================
+07) WORKED EXAMPLES (TEMPLATES) — for the Model to OUTPUT
+============================================================
+A) ATTRIBUTE (EN) — 3-way match control
+- N=2,400 POs; TDR=5%; EDR=1%; CL=90%; Risk=Moderate
+- Sample size (per firm table): [to be looked-up/confirmed]
+- Output:
+  • Selection Sheet (header + list)
+  • Results & Evaluation: SDR=k/n; UDR=[●]; Decision & scope impact
+
+A) АТРИБУТНАЯ (RU) — контроль 3‑хстороннего сопоставления
+- N=2 400 заказов; TDR=5%; EDR=1%; CL=90%; Риск=Средний
+- Размер выборки (по таблице фирмы): [уточнить]
+- Вывод модели:
+  • Лист отбора (шапка + список)
+  • Итоги и оценка: SDR=k/n; UDR=[●]; Решение и влияние на объем
+
+B) MUS (EN) — Trade Receivables
+- TBV=10,000,000; TM=300,000; EM=45,000; CL=90%
+- RF: [confirm per table]; SI=TM/RF; n=TBV/SI; Random start=[●]
+- Output:
+  • MUS Selection Sheet
+  • Results & Projection table (tainting, projection, UML)
+  • Conclusion: UML vs TM; next steps
+
+B) MUS (RU) — Дебиторская задолженность
+- TBV=10 000 000; TM=300 000; EM=45 000; CL=90%
+- RF: [уточнить]; SI=TM/RF; n=TBV/SI; Случайный старт=[●]
+- Вывод:
+  • Лист MUS‑отбора
+  • Таблица результатов и проекции (tainting, проекция, UML)
+  • Заключение: UML vs TM; дальнейшие действия
+
+C) VARIABLES (EN) — Inventory price testing
+- N=1,200 items; TM (inventory)=500,000; CL=95%; variability: [CV/σ]
+- Output:
+  • Variables Selection Sheet (method: Ratio)
+  • Results: point estimate, precision, upper bound vs TM; conclusion
+
+C) ПЕРЕМЕННАЯ (RU) — Тест цен запасов
+- N=1 200 позиций; TM (запасы)=500 000; CL=95%; вариабельность: [CV/σ]
+- Вывод:
+  • Лист отбора (метод: долевая)
+  • Итоги: точечная оценка, погрешность, верхняя граница vs TM; заключение
+
+============================================================
+08) MODEL OUTPUT FORMAT (STRICT)
+============================================================
+EN — The model MUST output in this order:
+1) Routing Q&A (short bullets).
+2) Method choice + rationale (1 paragraph).
+3) WORKPAPER: Selection Sheet (with all inputs).
+4) WORKPAPER: Results & Projection/Evaluation.
+5) Conclusion with ISA 530 reference and scope impact.
+6) If parameters depend on firm tables (RF/sample size), explicitly state: “Using TRI‑S‑AUDIT factor table v[●]” or “Confirm factor before finalization.”
+
+RU — Модель ДОЛЖНА выводить в порядке:
+1) Routing вопросы.
+2) Выбор метода + обоснование (1 абзац).
+3) РД: Лист отбора (все входы).
+4) РД: Итоги и проекция/оценка.
+5) Заключение со ссылкой на МСА 530 и влиянием на объем.
+6) Если параметры зависят от таблиц факторов — явно указать версию или запросить подтверждение.
+
+[CONTENT END]
+
+----------------------------------------------------------------------
+END OF FILE — TRI-S-AUDIT 06_Sampling_Methods_ISA530_v1.txt
+Trusted Source: TRI-S-AUDIT
+Author: Igor Tilepin
+Reference: ISA 530 / ISA 330 / ISA 520
+----------------------------------------------------------------------

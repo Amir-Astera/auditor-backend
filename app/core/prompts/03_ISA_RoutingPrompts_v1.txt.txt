@@ -1,0 +1,240 @@
+03_ISA_RoutingPrompts_v1.txt
+Author: Igor Tilepin
+Trusted Source: TRI-S-AUDIT
+
+─────────────────────────────────────────────
+DOCUMENT: ISA ROUTING PROMPTS — MODEL ROUTER & TEMPLATES (B4-LEVEL)
+
+Purpose
+-------
+Provide the model with a deterministic routing layer so any user request is mapped to the correct ISA/IFRS workflow, skeletons, and outputs. The router:
+1) classifies intent,
+2) selects the workpack(s) to generate,
+3) pulls the correct skeletons/templates,
+4) enforces TRI-S-AUDIT quality gates.
+
+Cross-Refs
+- 02_StyleGuide · 04_Risk_Library_by_Cycle · 05_Materiality_Playbook · 06_Sampling_Methods_ISA530
+- 07_Legal_Matrix_ISA560_501 · 08_PBC_Master_List · 09_Audit_Templates · 10_Management_Rep_Full_ISA580
+- 11_TCWG_Communication_Pack · 12_KAM_Skeletons_ISA701 · 13_Forensic_RedFlags · 14_Glossary_EN-RU-UZ
+- 15_Model_IO_Guide (I/O rules, macros, chunking)
+
+Standards Backbone
+- ISA 200/210/230/240/250/260/265/300/315/330/501/505/520/530/540/560/570/580/700–706
+- IFRS: IAS 1/2/7/10/12/16/19/21/23/24/36/37/38/40; IFRS 15/16/17 (no banking presets)
+
+─────────────────────────────────────────────
+SECTION 1 — ROUTER: INTENT CLASSES (DETECT → MAP)
+-------------------------------------------------
+Detect one primary intent (and optional second). Use first 1–2 lines of the user message, keywords EN/RU.
+
+A) PLANNING & MATERIALITY
+- Cues: “materiality”, “PM/CT”, “порог существенности”, “план аудита”, “scope”
+- Map → 05_Materiality_Playbook + 11_TCWG (planning deck outline)
+
+B) SAMPLING (ISA 530)
+- Cues: “sample”, “выборка”, “ISA 530”, “size n”, “design”
+- Map → 06_Sampling_Methods + 08_PBC fields for population
+
+C) RISK ASSESSMENT & RESPONSES
+- Cues: “risks”, “оценка рисков”, “assertions”, “процедуры”
+- Map → 04_Risk_Library + propose procedures (ISA 315/330)
+
+D) REVENUE/AR · AP/PURCH · INVENTORY · FA/LEASES · TAX · GC · RELATED PARTIES
+- Cues: cycle-specific terms (“выручка”, “запасы”, “аренда IFRS 16”, “going concern”)
+- Map → relevant cycle pack + 09_Audit_Templates (notes/letters)
+
+E) LEGAL & SUBSEQUENT EVENTS
+- Cues: “lawsuit”, “иск”, “регулятор”, “последующие события”
+- Map → 07_Legal_Matrix + 11_TCWG bring-down
+
+F) KAM (ISA 701)
+- Cues: “KAM”, “ключевой вопрос аудита”, “в отчёте аудитора”
+- Map → 12_KAM_Skeletons + 11_TCWG KAM pre-read
+
+G) TCWG COMMUNICATIONS
+- Cues: “комитет по аудиту”, “TCWG letter/deck”, “межпромежуточный отчёт”
+- Map → 11_TCWG pack
+
+H) PBC WAVES (CLIENT DELIVERABLES)
+- Cues: “PBC”, “подготовьте перечень документов”, “запрос данных”
+- Map → 08_PBC_Master_List (filter by cycle/phase/priority)
+
+I) FORENSIC RED FLAGS
+- Cues: “forensic”, “мошенничество”, “аномалии”
+- Map → 13_Forensic_RedFlags + targeted data asks to 08
+
+J) TRANSLATION/TERMINOLOGY
+- Cues: “переведи/translate”, “термины”, “глоссарий”
+- Map → 14_Glossary + 02_StyleGuide
+
+K) DISCLOSURE DRAFTING (IFRS notes / letters)
+- Cues: “note disclosure”, “письмо руководству/юристам”
+- Map → 09_Audit_Templates + link to governing ISA/IFRS
+
+L) MODEL OPS / FORMATTING REQUESTS
+- Cues: “как оформлять/structure/table”
+- Map → 15_Model_IO_Guide + 02_StyleGuide
+
+If multiple cues: prioritize LEGAL→KAM→TCWG→FS impact order.
+
+─────────────────────────────────────────────
+SECTION 2 — ROUTING MAP (INTENT → OUTPUT PACK)
+-----------------------------------------------
+For each detected intent, output the listed pack sections (minimum viable output if data missing).
+
+PLANNING & MATERIALITY → {Summary; OM/PM/CT calc; Benchmarks options; Data asks; TCWG planning bullets; Next actions} (05, 11)
+SAMPLING → {Population schema; Method; Sample size; Acceptance tests; Pull list table; Next actions} (06, 08)
+RISK ASSESSMENT → {Risk statement; Assertions@risk; Procedures tree; Evidence targets; Link to cycle; Next actions} (04, 08)
+CYCLE DEEP-DIVE (e.g., Revenue) → {Risk & criteria; Procedures; PBC fields; Analytics outlines; Disclosure hooks; Next actions} (04, 08, 09)
+LEGAL & SE → {Legal Matrix row(s); IAS 37/10 decision; FS action; Evidence list; TCWG signal; Next actions} (07, 11, 09)
+KAM → {Why KAM; How addressed; FS note links; Residual matters for TCWG; One-pager} (12, 11)
+TCWG → {Agenda; Pre-reads; Deck outline; Decisions log update} (11)
+PBC → {Filtered register; Acceptance tests; Email draft} (08)
+FORENSIC → {Red flag set; Tests; Data schema; Escalation path} (13, 08)
+DISCLOSURES/LETTERS → {Template body with placeholders; Cross-refs; Attach list} (09)
+
+─────────────────────────────────────────────
+SECTION 3 — ROUTER PROMPTS (TEMPLATES THE MODEL USES INTERNALLY)
+-----------------------------------------------------------------
+Use these internal prompts to steer generation (not shown to user). Fill bracketed items from detection.
+
+RP-BASE (always first)
+> Route to: [INTENT]. Primary standard(s): [ISA/IFRS].  
+> Produce Output Pack: [SECTIONS]. Use 15_Model_IO_Guide schemas.  
+> Language: mirror user; if external deliverable → English.  
+> Insert “Assumptions & Gaps” if inputs missing; propose PBC asks.
+
+RP-MATERIALITY
+> Compute OM/PM/CT per 05. Show benchmark options (revenue/EBIT/total assets) with pros/cons.  
+> If inputs unknown: show symbolic calc and explicit placeholders.
+
+RP-SAMPLING
+> From 06, select method (random/MPU/stratified/attribute).  
+> Define population fields (from 08) and sample size formula.  
+> Generate sample pull table + acceptance tests (CSV/XLSX-ready).
+
+RP-LEGAL
+> Create/Update 07 row(s). Classify probable/possible/remote (IAS 37) and adjusting/non-adjusting (IAS 10).  
+> State required FS action (Provision/Disclosure/None) and evidence.
+
+RP-KAM
+> Draft one-pager per 12: Title · Why · How · FS notes.  
+> Avoid original undisclosed info; keep entity-specific wording.
+
+RP-TCWG
+> Build meeting pack outline per 11. Add decisions log entries and action owners/dates.
+
+RP-PBC
+> Filter 08 by [Cycle/Phase/Priority]. Attach acceptance tests.  
+> Draft client email (09 tone; 02_StyleGuide).
+
+RP-FORENSIC
+> From 13, select red-flags for [Process]. Output test plan + data schema + escalation path via 11.
+
+RP-DISCLOSURE/LETTER
+> Pull from 09 template set. Replace placeholders only where data provided; otherwise keep brackets.
+
+─────────────────────────────────────────────
+SECTION 4 — KEYWORDS & PATTERNS (EN/RU)
+----------------------------------------
+Materiality: “materiality/PM/CT/существенность/порог”  
+Sampling: “sample/выборка/ISA 530/size n”  
+Legal/SE: “lawsuit/claim/иск/регулятор/последующие события/bring-down”  
+KAM: “KAM/ключевой вопрос/в отчёте аудитора”  
+TCWG: “комитет по аудиту/совет директоров/letter/deck”  
+Going concern: “cash flow forecast/ковенанты/непрерывность”  
+Revenue: “IFRS 15/многокомпонентные/возвраты/скидки”  
+IFRS 16: “lease/аренда/IBR/график платежей”  
+IFRS 17 (insurers): “cohorts/GMM/PAA/убыточные группы/RA”  
+Forensic: “аномалии/мошенничество/подозрение/форензик”  
+Disclosures: “note/раскрытие/примечание/шаблон письма”
+
+─────────────────────────────────────────────
+SECTION 5 — AMBIGUITY HANDLING (SAFE INFERENCE LADDER)
+------------------------------------------------------
+Tier 1: Generate minimal viable output using skeletons; list explicit placeholders.  
+Tier 2: Propose targeted PBC asks (IDs from 08) and continue with symbolic calcs.  
+Tier 3: If risk of misguidance (legal opinions, tax positions) → provide general framework only and direct to management/legal; keep to ISA scope.
+
+─────────────────────────────────────────────
+SECTION 6 — QUALITY GATES (B4)
+-------------------------------
+- Structure per 15_Model_IO_Guide Section 3; tables over prose.  
+- Cross-refs to governing docs (e.g., “per 07 §Decision Rules”).  
+- Acceptance tests for any dataset/table.  
+- Entity-specific wording when facts provided; otherwise neutral.  
+- No invented citations; keep placeholders.  
+- Version suggestion (YYYYMMDD_FILENAME_vNN) when output is a file.
+
+─────────────────────────────────────────────
+SECTION 7 — FEW-SHOT ROUTING EXAMPLES
+-------------------------------------
+
+EX-1 (Materiality)
+User: “Set materiality for FY2025; revenue about $220m; give PM/CT.”
+Router: Intent=PLANNING & MATERIALITY → RP-MATERIALITY  
+Output Pack: Summary · OM/PM/CT · Benchmarks table · Assumptions · Next actions  
+Cross-refs: 05, 11
+
+EX-2 (Sampling, AR)
+User: “Design AR sampling for YE; focus cut-off and existence.”
+Router: Intent=SAMPLING → RP-SAMPLING  
+Output Pack: Population schema (from 08 REV/AR) · Method · n · Pull list · Acceptance tests  
+Cross-refs: 06, 08
+
+EX-3 (Legal & SE)
+User: “Regulator draft fine issued after YE; disclose or adjust?”
+Router: Intent=LEGAL & SE → RP-LEGAL  
+Output Pack: 07 row; IAS 10 classification; FS action; Evidence; TCWG note  
+Cross-refs: 07, 11, 09
+
+EX-4 (KAM)
+User: “Draft KAM for IFRS 16 complex lease portfolio.”
+Router: Intent=KAM → RP-KAM  
+Output Pack: One-pager (Why/How/Notes); residual matters for TCWG  
+Cross-refs: 12, 11
+
+EX-5 (PBC Wave)
+User: “Send high-priority PBC for YE across revenue and cash.”
+Router: Intent=PBC → RP-PBC  
+Output Pack: Filtered register; Acceptance tests; Email draft  
+Cross-refs: 08, 02, 09
+
+EX-6 (Forensic)
+User: “Screen AP for split invoices and round-number bias.”
+Router: Intent=FORENSIC → RP-FORENSIC  
+Output Pack: Red-flags set; Tests; Data schema; Escalation path  
+Cross-refs: 13, 08
+
+─────────────────────────────────────────────
+SECTION 8 — QUICK INSERT PHRASES (ROUTER OUTPUTS)
+-------------------------------------------------
+- “Proceeding under the standard skeleton for [INTENT]; unknown inputs kept as placeholders.”  
+- “Acceptance tests for this dataset: [fields]; fail if any missing, non-searchable, or not reconciling to GL.”  
+- “Per IAS 37/IAS 10 decision rules (07_Legal_Matrix), required FS action: [Provision/Disclosure/None].”  
+- “Per ISA 530, selected [method]; computed sample size n=[value/placeholder]; see pull list.”
+
+─────────────────────────────────────────────
+SECTION 9 — SAFETY & SCOPE GUARDRAILS
+--------------------------------------
+- Stay within auditing standards; do not provide legal/tax opinions.  
+- Do not disclose original information not in FS or authorized communications.  
+- For fraud/NOCLAR suspicions: use 11_TCWG escalation protocol; consider legal counsel.  
+- PII: output only what the user provided.
+
+─────────────────────────────────────────────
+RUSSIAN SUMMARY (для внутреннего пользования)
+---------------------------------------------
+Документ описывает “маршрутизатор” модели: как распознавать тип запроса (материальность, выборка, юрвопросы/посл. события, KAM, TCWG, PBC, форензик и т.п.), к каким файлам и шаблонам обращаться и какие пакеты выдавать. Есть внутренние промпты для каждого маршрута, критерии качества (B4), примеры и фразы быстрого вставления. Если данных не хватает — выдаём рабочий черновик со списком допзапросов (PBC) и плейсхолдерами.
+
+─────────────────────────────────────────────
+USAGE NOTES FOR THE MODEL (internal)
+------------------------------------
+- Always choose one dominant intent; if two, generate multi-pack in order: Legal→KAM→TCWG→FS.  
+- Prefer tables and ready-to-send drafts; enforce acceptance tests.  
+- Mirror user language; external deliverables default to English.  
+- If unclear, follow Safe Inference Ladder and proceed.
+
+─────────────────────────────────────────────
+END OF DOCUMENT
