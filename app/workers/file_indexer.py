@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-import asyncio
+from datetime import datetime
 from typing import Any
 
-from arq import cron
-from arq.connections import ArqRedis, RedisSettings, create_pool
+from arq.connections import RedisSettings
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
@@ -12,19 +11,24 @@ from app.core.db import SessionLocal
 from app.core.logging import configure_logging, get_logger
 from app.modules.files.models import FileIndexStatus, StoredFile
 from app.modules.files.qdrant_client import QdrantVectorStore
-from app.modules.files.service import EmbeddingProvider, FileService
+from app.modules.files.service_hybrid import HybridFileService
 from app.modules.files.storage import FileStorage, S3Config
+from app.modules.rag.gemini import GeminiAPI
+from app.modules.rag.lightrag_integration import (
+    LightRAGService,
+    create_lightrag_service,
+)
 
 logger = get_logger(__name__)
 
 
 async def startup(ctx: dict[str, Any]) -> None:
     """
-    Инициализация контекста воркера.
-    Здесь можно подготовить тяжёлые клиенты, если нужно.
+    Worker startup hook.
+    Prepares reusable clients/config in context.
     """
     configure_logging()
-    logger.info("File indexer worker starting up")
+    logger.info("Hybrid file indexer worker starting up")
 
     ctx["storage_cfg"] = S3Config(
         endpoint_url=settings.S3_ENDPOINT_URL,
@@ -35,64 +39,99 @@ async def startup(ctx: dict[str, Any]) -> None:
         bucket_customer_docs=settings.S3_BUCKET_CUSTOMER_DOCS,
     )
 
+    # Gemini client (LLM + embeddings)
+    ctx["gemini"] = GeminiAPI()
+
+    # Qdrant vector store (hybrid retrieval)
     ctx["qdrant"] = QdrantVectorStore(
         url=settings.QDRANT_URL,
         collection_name=settings.QDRANT_COLLECTION_NAME,
         vector_size=settings.QDRANT_VECTOR_SIZE,
     )
 
+    # LightRAG (graph-based RAG). Optional.
+    try:
+        ctx["lightrag"] = create_lightrag_service(
+            working_dir=settings.LIGHTRAG_WORKING_DIR,
+            gemini_api=ctx["gemini"],
+        )
+        logger.info("LightRAG initialized in worker context")
+    except Exception as e:
+        ctx["lightrag"] = None
+        logger.warning(
+            "LightRAG is not available; worker will index only to Qdrant",
+            extra={"error": str(e)},
+        )
+
 
 async def shutdown(ctx: dict[str, Any]) -> None:
-    logger.info("File indexer worker shutting down")
+    logger.info("Hybrid file indexer worker shutting down")
 
 
 async def index_file_task(ctx: dict[str, Any], file_id: str) -> None:
     """
-    Основная задача Arq для индексации файла.
+    Main Arq job: indexes a StoredFile into Qdrant and LightRAG.
+
+    - Updates StoredFile.index_status
+    - Writes StoredFile.index_error on failures
     """
     configure_logging()
     logger.info("Index file task started", extra={"file_id": file_id})
 
-    db: Session = SessionLocal()  # новая сессия для воркера
+    db: Session = SessionLocal()
     try:
-        storage = FileStorage(cfg=ctx["storage_cfg"])
-        vector_store: QdrantVectorStore = ctx["qdrant"]
-        embedding_provider = EmbeddingProvider(settings.QDRANT_VECTOR_SIZE)
-
-        service = FileService(
-            db=db,
-            storage=storage,
-            vector_store=vector_store,
-            embedding_provider=embedding_provider,
-        )
-
-        # Обновляем статус файла -> RUNNING
         stored_file: StoredFile | None = db.query(StoredFile).get(file_id)
         if not stored_file:
             logger.warning("Stored file not found", extra={"file_id": file_id})
             return
 
         stored_file.index_status = FileIndexStatus.RUNNING
+        stored_file.index_error = None
         db.commit()
 
-        # Синхронная индексация внутри воркера (можно асинхронизировать позже)
-        service.index_file(file_id)
+        storage = FileStorage(cfg=ctx["storage_cfg"])
+        gemini: GeminiAPI = ctx["gemini"]
+        qdrant: QdrantVectorStore = ctx["qdrant"]
+        lightrag: LightRAGService | None = ctx.get("lightrag")
 
-        # index_file сам проставляет is_indexed/index_error, здесь можно добить статус/время
+        indexer = HybridFileService(
+            db=db,
+            storage=storage,
+            vector_store=qdrant,
+            lightrag_service=lightrag,
+            gemini_api=gemini,
+        )
+
+        metrics = indexer.index_file(stored_file.id)
+
+        # Determine success: at least one backend succeeded.
+        q_ok = metrics.get("qdrant_status") in (None, "success")
+        l_ok = metrics.get("lightrag_status") in (None, "success")
+
         stored_file = db.query(StoredFile).get(file_id)
-        if stored_file and stored_file.is_indexed and not stored_file.index_error:
-            from datetime import datetime
-
-            stored_file.index_status = FileIndexStatus.DONE
+        if stored_file:
+            stored_file.is_indexed = bool(q_ok or l_ok)
+            stored_file.index_status = (
+                FileIndexStatus.DONE
+                if stored_file.is_indexed
+                else FileIndexStatus.ERROR
+            )
+            stored_file.index_error = (
+                None
+                if stored_file.is_indexed
+                else (
+                    metrics.get("error")
+                    or metrics.get("qdrant_error")
+                    or metrics.get("lightrag_error")
+                    or "Indexing failed"
+                )
+            )
             stored_file.indexed_at = datetime.utcnow()
             db.commit()
 
         logger.info(
             "Index file task completed",
-            extra={
-                "file_id": file_id,
-                "status": stored_file.index_status if stored_file else None,
-            },
+            extra={"file_id": file_id, "metrics": metrics},
         )
 
     except Exception as exc:
@@ -100,13 +139,14 @@ async def index_file_task(ctx: dict[str, Any], file_id: str) -> None:
             "Index file task failed",
             extra={"file_id": file_id, "error": str(exc)},
         )
-        # Пытаемся зафиксировать ошибку в БД
+
         try:
             stored_file = db.query(StoredFile).get(file_id)
             if stored_file:
                 stored_file.index_status = FileIndexStatus.ERROR
                 stored_file.is_indexed = False
                 stored_file.index_error = str(exc)
+                stored_file.indexed_at = datetime.utcnow()
                 db.commit()
         except Exception as inner_exc:
             logger.error(
@@ -122,10 +162,5 @@ class WorkerSettings:
     on_startup = startup
     on_shutdown = shutdown
 
-    # Передаём либо RedisSettings, либо именно строку (но не AnyUrl)
+    # Arq expects RedisSettings (not Pydantic AnyUrl)
     redis_settings = RedisSettings.from_dsn(str(settings.REDIS_URL))
-
-
-async def create_redis_pool() -> ArqRedis:
-    return await create_pool(settings.REDIS_URL)
-

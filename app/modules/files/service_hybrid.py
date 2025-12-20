@@ -34,14 +34,14 @@ class EmbeddingProvider:
 
     def embed(self, text: str) -> List[float]:
         """Embed single text."""
-        return self.gemini.embed_text(text, task_type="retrieval_document")
+        return self.gemini.embed_document(text)
 
     def embed_batch(self, texts: List[str]) -> List[List[float]]:
-        """Batch embed multiple texts (FAST!)."""
-        return self.gemini.embed_text(texts, task_type="retrieval_document")
+        """Batch embed multiple texts."""
+        return self.gemini.embed_documents(texts)
 
 
-def chunk_text(text: str, chunk_size: int = None) -> List[str]:
+def chunk_text(text: str, chunk_size: int | None = None) -> List[str]:
     """Разбивает текст на чанки."""
     if chunk_size is None:
         chunk_size = settings.CHUNK_SIZE
@@ -218,7 +218,7 @@ class HybridFileService:
 
             if hasattr(obj, "close"):
                 obj.close()
-            if hasattr(obj, "release_conn"):  # type: ignore[attr-defined]
+            if hasattr(obj, "release_conn"):
                 obj.release_conn()
 
             metrics["times"]["download"] = time.time() - t_start
@@ -411,6 +411,8 @@ class HybridFileService:
 
         for i in range(0, len(qdrant_points), batch_size):
             batch = qdrant_points[i : i + batch_size]
+            if self.vector_store is None:
+                raise RuntimeError("vector_store is not configured")
             self.vector_store.upsert_vectors(batch)
 
         metrics["times"]["qdrant_upsert"] = time.time() - t_start
@@ -446,6 +448,8 @@ class HybridFileService:
         t_start = time.time()
 
         for large_idx, large_chunk in enumerate(large_chunks):
+            if self.lightrag is None:
+                raise RuntimeError("lightrag service is not configured")
             node_id = self.lightrag.insert(
                 text=large_chunk,
                 metadata={

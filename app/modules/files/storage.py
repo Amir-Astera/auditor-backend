@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import BinaryIO
+from typing import Any, BinaryIO
 
 from minio import Minio
 from minio.error import S3Error
@@ -63,16 +63,23 @@ class FileStorage:
             content_type=content_type,
         )
 
-    def download_file(self, bucket: str, object_key: str) -> BinaryIO:
+    def download_file(self, bucket: str, object_key: str) -> Any:
+        """
+        Downloads an object from MinIO.
+
+        Note:
+        MinIO returns an HTTP response-like object (supports .read(), .close(), and often .release_conn()).
+        Returning Any avoids incorrect static typing (BinaryIO) that breaks callers when they safely
+        access response-specific helpers like release_conn().
+        """
         try:
             response = self._client.get_object(bucket, object_key)
-
         except S3Error as exc:  # pragma: no cover - network bound
             raise FileNotFoundError(
                 f"Object {object_key} not found in bucket {bucket}"
             ) from exc
 
-        return response  # type: ignore[return-value]
+        return response
 
     def _put_object(
         self, bucket: str, object_key: str, file_obj: BinaryIO, content_type: str | None
@@ -89,6 +96,4 @@ class FileStorage:
             length=-1,
             part_size=10 * 1024 * 1024,
             content_type=ct,
-
         )
-

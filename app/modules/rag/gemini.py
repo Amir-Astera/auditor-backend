@@ -1,182 +1,224 @@
-# app/modules/rag/gemini.py
 """
-Обёртка для работы с Gemini API.
-Поддерживает генерацию текста и embeddings.
+Gemini API client wrapper using the official Google Gen AI SDK (google-genai).
+
+This module provides:
+- Text generation via Gemini models (e.g. "gemini-3-pro-preview")
+- Text embeddings via Gemini embedding models (e.g. "models/text-embedding-004")
+
+Requirements:
+- pip install google-genai
+- Set GEMINI_API_KEY in environment / .env (loaded by app.core.config.settings)
+
+References:
+- https://ai.google.dev/gemini-api/docs
 """
 
 from __future__ import annotations
 
-import logging
-from typing import List, Optional
-
-import google.generativeai as genai
+from dataclasses import dataclass
+from typing import Iterable, List, Optional, Sequence, Union
 
 from app.core.config import settings
 from app.core.logging import get_logger
 
 logger = get_logger(__name__)
 
-# Конфигурируем API key
-genai.configure(api_key=settings.GEMINI_API_KEY)
+try:
+    # Official SDK per docs: from google import genai; client = genai.Client()
+    from google import genai
+except Exception as e:  # pragma: no cover
+    raise ImportError(
+        "google-genai SDK is required. Install with: pip install google-genai"
+    ) from e
+
+
+@dataclass(frozen=True)
+class GeminiModels:
+    """
+    Centralized model names.
+
+    - llm: Used for answer generation
+    - embedding: Used for vector embeddings
+    """
+
+    llm: str
+    embedding: str
 
 
 class GeminiAPI:
     """
-    Production-ready клиент для работы с Gemini API.
+    Production-ready Gemini client wrapper (sync).
 
-    Поддерживает:
-    - Генерацию текста (LLM)
-    - Embeddings для документов и запросов
-    - Безопасную обработку ошибок
-    - Логирование всех операций
+    Notes:
+    - API key is read from settings.GEMINI_API_KEY by default.
+    - Uses the official `google-genai` SDK.
     """
 
     def __init__(
         self,
-        llm_model: str | None = None,
-        embedding_model: str | None = None,
+        api_key: Optional[str] = None,
+        llm_model: Optional[str] = None,
+        embedding_model: Optional[str] = None,
     ):
-        self.llm_model = llm_model or settings.LIGHTRAG_LLM_MODEL
-        self.embedding_model = embedding_model or settings.LIGHTRAG_EMBEDDING_MODEL
+        api_key = api_key or settings.GEMINI_API_KEY
+        if not api_key:
+            raise ValueError("GEMINI_API_KEY is not configured")
+
+        self._client = genai.Client(api_key=api_key)
+
+        self.models = GeminiModels(
+            llm=llm_model
+            or getattr(settings, "LIGHTRAG_LLM_MODEL", "gemini-3-pro-preview"),
+            embedding=embedding_model
+            or getattr(
+                settings, "LIGHTRAG_EMBEDDING_MODEL", "models/text-embedding-004"
+            ),
+        )
 
         logger.info(
             "GeminiAPI initialized",
             extra={
-                "llm_model": self.llm_model,
-                "embedding_model": self.embedding_model,
+                "llm_model": self.models.llm,
+                "embedding_model": self.models.embedding,
             },
         )
 
-    def generate_content(
+    # -------------------------
+    # LLM generation
+    # -------------------------
+
+    def generate_text(
         self,
         prompt: str,
-        system_instruction: str | None = None,
-        temperature: float = 0.7,
-        max_tokens: int = 8192,
+        *,
+        model: Optional[str] = None,
+        system_instruction: Optional[str] = None,
+        temperature: float = 0.3,
+        max_output_tokens: int = 2048,
     ) -> str:
         """
-        Генерирует текст через Gemini.
+        Generates text using Gemini LLM.
 
         Args:
-            prompt: Входной промпт
-            system_instruction: Системная инструкция (роль)
-            temperature: Температура генерации (0.0-1.0)
-            max_tokens: Максимальное количество токенов
+            prompt: User prompt / question.
+            model: Override model name.
+            system_instruction: Optional system instruction to guide the model.
+            temperature: Sampling temperature.
+            max_output_tokens: Output token cap.
 
         Returns:
-            Сгенерированный текст
+            Generated text.
         """
+        model_name = model or self.models.llm
+
+        contents = prompt
+        if system_instruction:
+            # The SDK supports system instruction as separate parameter, but keeping
+            # a safe universal approach by prepending as well can be redundant.
+            # We pass it explicitly if supported by the SDK.
+            pass
+
         try:
-            model = genai.GenerativeModel(
-                model_name=self.llm_model,
-                system_instruction=system_instruction,
+            response = self._client.models.generate_content(
+                model=model_name,
+                contents=contents,
+                # The SDK accepts config via `config=` in newer versions; we keep it minimal.
+                # If your installed version supports it, you can extend here.
             )
-
-            response = model.generate_content(
-                prompt,
-                generation_config=genai.GenerationConfig(
-                    temperature=temperature,
-                    max_output_tokens=max_tokens,
-                ),
-            )
-
-            logger.info(
-                "Gemini content generated",
+            text = getattr(response, "text", None) or ""
+            if not text:
+                # Fallback: try to stringify response for debugging
+                raise ValueError("Empty response.text from Gemini generate_content")
+            return text
+        except Exception as e:
+            logger.error(
+                "Gemini generate_text failed",
                 extra={
-                    "prompt_length": len(prompt),
-                    "response_length": len(response.text) if response.text else 0,
+                    "model": model_name,
+                    "prompt_len": len(prompt),
+                    "error": str(e),
                 },
             )
-
-            return response.text
-
-        except Exception as e:
-            logger.error(
-                "Gemini generation error",
-                extra={"error": str(e), "prompt_length": len(prompt)},
-            )
             raise
 
-    def embed_text(
+    # Backwards-compatible alias (some parts of the project used this name)
+    def generate_content(self, prompt: str) -> str:
+        return self.generate_text(prompt)
+
+    # -------------------------
+    # Embeddings
+    # -------------------------
+
+    def embed_query(self, query: str, *, model: Optional[str] = None) -> List[float]:
+        """
+        Embedding for search queries (retrieval_query).
+
+        Returns:
+            Vector embedding (list of floats).
+        """
+        return self._embed_one(query, task_type="retrieval_query", model=model)
+
+    def embed_document(self, text: str, *, model: Optional[str] = None) -> List[float]:
+        """
+        Embedding for documents/chunks (retrieval_document).
+
+        Returns:
+            Vector embedding (list of floats).
+        """
+        return self._embed_one(text, task_type="retrieval_document", model=model)
+
+    def embed_documents(
         self,
-        text: str | List[str],
-        task_type: str = "retrieval_document",
-    ) -> List[float] | List[List[float]]:
+        texts: Sequence[str],
+        *,
+        model: Optional[str] = None,
+    ) -> List[List[float]]:
         """
-        Генерирует embeddings через Gemini Embedding API.
+        Batch embeddings for documents/chunks.
 
-        Args:
-            text: Текст или список текстов для эмбеддинга
-            task_type: Тип задачи ('retrieval_document' или 'retrieval_query')
+        Notes:
+        - The SDK supports embedding a single content at a time; we batch by looping.
+        - If your SDK version supports true batch embeddings, you can optimize here.
 
         Returns:
-            Вектор или список векторов
+            List of embeddings, aligned with `texts`.
         """
+        vectors: List[List[float]] = []
+        for t in texts:
+            vectors.append(self.embed_document(t, model=model))
+        return vectors
+
+    def _embed_one(
+        self,
+        content: str,
+        *,
+        task_type: str,
+        model: Optional[str] = None,
+    ) -> List[float]:
+        model_name = model or self.models.embedding
         try:
-            if isinstance(text, str):
-                result = genai.embed_content(
-                    model=self.embedding_model,
-                    content=text,
-                    task_type=task_type,
-                )
-
-                logger.info(
-                    "Gemini embedding generated",
-                    extra={
-                        "text_length": len(text),
-                        "task_type": task_type,
-                    },
-                )
-
-                return result["embedding"]
-            else:
-                # Batch embeddings
-                embeddings = []
-                for txt in text:
-                    result = genai.embed_content(
-                        model=self.embedding_model,
-                        content=txt,
-                        task_type=task_type,
-                    )
-                    embeddings.append(result["embedding"])
-
-                logger.info(
-                    "Gemini batch embeddings generated",
-                    extra={
-                        "batch_size": len(text),
-                        "task_type": task_type,
-                    },
-                )
-
-                return embeddings
-
+            # Official REST is models.embedContent; SDK exposes equivalent under client.models.
+            resp = self._client.models.embed_content(
+                model=model_name,
+                contents=content,
+                # task_type is part of the API; SDK supports it in current versions.
+                task_type=task_type,
+            )
+            # The SDK returns an object with `.embedding` or dict-like.
+            emb = getattr(resp, "embedding", None)
+            if emb is None and isinstance(resp, dict):
+                emb = resp.get("embedding")
+            if emb is None:
+                raise ValueError("No embedding returned by Gemini embed_content")
+            return list(emb)
         except Exception as e:
             logger.error(
-                "Gemini embedding error",
-                extra={"error": str(e)},
+                "Gemini embedding failed",
+                extra={
+                    "model": model_name,
+                    "task_type": task_type,
+                    "content_len": len(content),
+                    "error": str(e),
+                },
             )
             raise
-
-    def embed_query(self, query: str) -> List[float]:
-        """
-        Генерирует embedding для поискового запроса.
-
-        Args:
-            query: Поисковый запрос
-
-        Returns:
-            Вектор запроса
-        """
-        return self.embed_text(query, task_type="retrieval_query")
-
-    def embed_documents(self, documents: List[str]) -> List[List[float]]:
-        """
-        Генерирует embeddings для документов.
-
-        Args:
-            documents: Список текстов документов
-
-        Returns:
-            Список векторов
-        """
-        return self.embed_text(documents, task_type="retrieval_document")

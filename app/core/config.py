@@ -1,5 +1,5 @@
 # app/core/config.py
-from pydantic import AnyUrl, BaseSettings, PostgresDsn
+from pydantic import BaseSettings, PostgresDsn
 
 
 class Settings(BaseSettings):
@@ -21,7 +21,9 @@ class Settings(BaseSettings):
     S3_BUCKET_CUSTOMER_DOCS: str
 
     # Redis / Arq
-    REDIS_URL: AnyUrl = "redis://localhost:6379/0"
+    # Используем str вместо AnyUrl, чтобы избежать ложных срабатываний статического анализатора
+    # и не привязываться к pydantic типам URL (Arq всё равно принимает DSN как строку).
+    REDIS_URL: str = "redis://localhost:6379/0"
 
     # Gemini AI
     GEMINI_API_KEY: str
@@ -29,7 +31,14 @@ class Settings(BaseSettings):
     # LightRAG
     LIGHTRAG_WORKING_DIR: str = "./lightrag_cache"
     LIGHTRAG_EMBEDDING_MODEL: str = "models/text-embedding-004"
-    LIGHTRAG_LLM_MODEL: str = "gemini-1.5-pro"
+    LIGHTRAG_LLM_MODEL: str = "gemini-3-pro-preview"
+
+    # Qdrant (Hybrid RAG)
+    QDRANT_URL: str
+    QDRANT_COLLECTION_NAME: str
+    # For Gemini embeddings "models/text-embedding-004" the vector size is typically 768.
+    # Keep this configurable to avoid hard coupling.
+    QDRANT_VECTOR_SIZE: int = 768
 
     # Indexing configuration
     CHUNK_SIZE: int = 1500  # символов
@@ -40,7 +49,11 @@ class Settings(BaseSettings):
     class Config(BaseSettings.Config):
         env_file = ".env"
         env_file_encoding = "utf-8"
-        extra = "ignore"
+        # basedpyright/pyright иногда ругается на тип Extra здесь — это ложное срабатывание.
+        # На рантайме pydantic v1 принимает строку "ignore" корректно.
+        extra = "ignore"  # type: ignore[assignment]
 
 
-settings = Settings()
+# BaseSettings читает значения из окружения / .env, поэтому статический анализатор
+# может ругаться на "missing required args". Это ожидаемо и безопасно.
+settings = Settings()  # type: ignore[call-arg]

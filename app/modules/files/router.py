@@ -15,14 +15,13 @@ from app.modules.auth.router import (
     get_current_employee,
     get_current_user,
 )
-from app.modules.files.models import FileScope
-from app.modules.files.qdrant_client import QdrantVectorStore
+from app.modules.files.models import FileChunk
 from app.modules.files.schemas import (
-    ChunkSearchResponse,
     FileListResponse,
+    FileStatusResponse,
     FileUploadResponse,
 )
-from app.modules.files.service import EmbeddingProvider, FileService
+from app.modules.files.service import FileService
 from app.modules.files.storage import FileStorage, S3Config
 
 logger = get_logger(__name__)
@@ -43,20 +42,9 @@ def _get_file_service(db: Session = Depends(get_db)) -> FileService:
         )
     )
 
-    vector_store = QdrantVectorStore(
-        url=settings.QDRANT_URL,
-        collection_name=settings.QDRANT_COLLECTION_NAME,
-        vector_size=settings.QDRANT_VECTOR_SIZE,
-    )
-
-    embedding_provider = EmbeddingProvider(vector_size=settings.QDRANT_VECTOR_SIZE)
-
-    return FileService(
-        db=db,
-        storage=storage,
-        vector_store=vector_store,
-        embedding_provider=embedding_provider,
-    )
+    # Важно: поиск и RAG вынесены в /rag (LightRAG + Gemini + гибрид).
+    # В файловом роутере держим только загрузку/листинг/скачивание.
+    return FileService(db=db, storage=storage)
 
 
 @router.post("/admin", status_code=201)
@@ -129,6 +117,93 @@ def list_customer_files(
 
 
 @router.get(
+    "/{file_id}",
+    response_model=FileStatusResponse,
+    summary="Статус файла (индексация)",
+)
+def get_file_status(
+    file_id: UUID,
+    user=Depends(get_current_user),
+    service: FileService = Depends(_get_file_service),
+):
+    stored_file = service.get_file(file_id)
+    if not stored_file:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="File not found"
+        )
+
+    # Доступ: админ видит все, сотрудник — только свои customer docs
+    if not getattr(user, "is_admin", False):
+        if stored_file.scope.name == "ADMIN_LAW":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden"
+            )
+        if stored_file.owner_id != user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden"
+            )
+
+    return stored_file
+
+
+@router.get(
+    "/{file_id}/chunks",
+    summary="Чанки файла (для отладки и трассируемости)",
+)
+def list_file_chunks(
+    file_id: UUID,
+    limit: int = Query(200, ge=1, le=1000, description="Лимит чанков"),
+    offset: int = Query(0, ge=0, description="Смещение"),
+    user=Depends(get_current_user),
+    service: FileService = Depends(_get_file_service),
+):
+    stored_file = service.get_file(file_id)
+    if not stored_file:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="File not found"
+        )
+
+    # Доступ: админ видит все, сотрудник — только свои customer docs
+    if not getattr(user, "is_admin", False):
+        if stored_file.scope.name == "ADMIN_LAW":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden"
+            )
+        if stored_file.owner_id != user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden"
+            )
+
+    q = (
+        service.db.query(FileChunk)
+        .filter(FileChunk.file_id == stored_file.id)
+        .order_by(FileChunk.chunk_index.asc())
+        .limit(limit)
+        .offset(offset)
+    )
+    chunks = q.all()
+
+    return {
+        "items": [
+            {
+                "chunk_index": c.chunk_index,
+                "text": c.text,
+                "qdrant_point_id": getattr(c, "qdrant_point_id", None),
+                "lightrag_node_id": getattr(c, "lightrag_node_id", None),
+                "created_at": c.created_at.isoformat()
+                if getattr(c, "created_at", None)
+                else None,
+            }
+            for c in chunks
+        ],
+        "total": len(chunks),
+        "limit": limit,
+        "offset": offset,
+        "file_id": str(file_id),
+    }
+
+
+@router.get(
     "/{file_id}/download",
     response_class=StreamingResponse,
     summary="Скачать файл",
@@ -159,9 +234,8 @@ def download_file(
     if hasattr(obj, "close"):
         obj.close()
 
-    # объект может быть HTTP-ответом minio, у которого есть release_conn, но
-    # статический анализатор видит BinaryIO, поэтому доступны проверка и вызов только в рантайме
-    if hasattr(obj, "release_conn"):  # type: ignore[attr-defined]
+    # объект может быть HTTP-ответом minio, у которого есть release_conn
+    if hasattr(obj, "release_conn"):
         obj.release_conn()
 
     headers = {
@@ -174,28 +248,6 @@ def download_file(
     )
 
 
-@router.get(
-    "/admin/search",
-    response_model=ChunkSearchResponse,
-    summary="Поиск по административным файлам (семантический)",
-)
-def search_admin_files(
-    query: str = Query(..., description="Поисковый запрос"),
-    limit: int = Query(5, ge=1, le=50),
-    user: User = Depends(get_current_admin),
-    service: FileService = Depends(_get_file_service),
-):
-    """
-    Семантический поиск по проиндексированным административным файлам.
-    """
-    results = service.search_chunks(
-        query=query,
-        limit=limit,
-        scope=FileScope.ADMIN_LAW,
-    )
-    return {
-        "items": results,
-        "total": len(results),
-
-    }
-
+# Поиск по базе и генерация ответов теперь доступны через /rag/query.
+# Здесь эндпоинт /files/admin/search удалён, чтобы не дублировать логику
+# и не держать зависимость от векторного стора в файловом модуле.

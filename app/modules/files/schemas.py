@@ -9,6 +9,13 @@ class FileScope(str, Enum):
     CUSTOMER_DOC = "CUSTOMER_DOC"
 
 
+class FileIndexStatus(str, Enum):
+    QUEUED = "QUEUED"
+    RUNNING = "RUNNING"
+    DONE = "DONE"
+    ERROR = "ERROR"
+
+
 class FileUploadResponse(BaseModel):
     id: str
     scope: FileScope
@@ -17,6 +24,8 @@ class FileUploadResponse(BaseModel):
     object_key: str
     original_filename: str
     is_indexed: bool
+    index_status: Optional[FileIndexStatus] = None
+    index_error: Optional[str] = None
 
     class Config:
         orm_mode = True
@@ -32,6 +41,19 @@ class FileListResponse(BaseModel):
     total: int
 
 
+class FileStatusResponse(BaseModel):
+    id: str
+    scope: FileScope
+    customer_id: Optional[str] = None
+    original_filename: str
+    is_indexed: bool
+    index_status: Optional[FileIndexStatus] = None
+    index_error: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+
+
 class ChunkSearchResult(BaseModel):
     score: float
     file_id: str
@@ -45,6 +67,4 @@ class ChunkSearchResult(BaseModel):
 
 class ChunkSearchResponse(BaseModel):
     items: list[ChunkSearchResult]
-
     total: int
-
