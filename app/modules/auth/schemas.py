@@ -1,28 +1,16 @@
 """Pydantic schemas for authentication endpoints."""
-<<<<<<< HEAD
-from pydantic import BaseModel, EmailStr, Field, validator
-
-# Максимальная длина пароля для bcrypt (72 байта)
-# Для ASCII символов это 72 символа, для Unicode может быть меньше
-MAX_PASSWORD_BYTES = 72
-
-
-def validate_password_length(value: str) -> str:
-    """Проверка длины пароля в байтах (bcrypt ограничение 72 байта)."""
-    if isinstance(value, str):
-        password_bytes = value.encode("utf-8")
-        if len(password_bytes) > MAX_PASSWORD_BYTES:
-            raise ValueError(
-                f"Пароль слишком длинный. Максимум {MAX_PASSWORD_BYTES} байт "
-                f"({len(value)} символов). Для ASCII это примерно {MAX_PASSWORD_BYTES} символов."
-            )
-    return value
-=======
 
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr, Field
->>>>>>> origin/test
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
+
+
+def validate_password_length(password: str) -> str:
+    """
+    Валидация длины пароля.
+    Field уже проверяет min_length/max_length, эта функция просто возвращает значение.
+    """
+    return password 
 
 
 class TokenResponse(BaseModel):
@@ -38,7 +26,8 @@ class AdminLoginRequest(BaseModel):
         description="Административный пароль (минимум 8 символов, максимум 72 байта)"
     )
 
-    @validator("password")
+    @field_validator("password")
+    @classmethod
     def validate_password(cls, v: str) -> str:
         return validate_password_length(v)
 
@@ -47,7 +36,8 @@ class TelegramLoginRequest(BaseModel):
     phone: str = Field(description="Номер телефона в формате Telegram")
     password: str = Field(min_length=8, max_length=72)
 
-    @validator("password")
+    @field_validator("password")
+    @classmethod
     def validate_password(cls, v: str) -> str:
         return validate_password_length(v)
 
@@ -64,7 +54,8 @@ class UserCreateRequest(BaseModel):
     telegram_user_id: int | None = None
     is_admin: bool = False
 
-    @validator("password")
+    @field_validator("password")
+    @classmethod
     def validate_password(cls, v: str) -> str:
         return validate_password_length(v)
 
@@ -78,5 +69,4 @@ class UserBase(BaseModel):
     is_admin: bool
     is_active: bool
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

@@ -1,5 +1,6 @@
 # app/core/config.py
-from pydantic import BaseSettings, PostgresDsn
+from pydantic import PostgresDsn
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -46,12 +47,11 @@ class Settings(BaseSettings):
     QDRANT_BATCH_SIZE: int = 256
     EMBEDDING_BATCH_SIZE: int = 32
 
-    class Config(BaseSettings.Config):
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        # basedpyright/pyright иногда ругается на тип Extra здесь — это ложное срабатывание.
-        # На рантайме pydantic v1 принимает строку "ignore" корректно.
-        extra = "ignore"  # type: ignore[assignment]
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
 
 
 # BaseSettings читает значения из окружения / .env, поэтому статический анализатор

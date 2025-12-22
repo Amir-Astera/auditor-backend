@@ -62,7 +62,7 @@ def extract_text_from_docx(file_bytes: bytes, filename: str | None = None) -> st
     """
     Извлекает текст из DOCX файла с помощью python-docx.
     """
-    logger.info("Extracting text from DOCX file", extra={"filename": filename})
+    logger.info("Extracting text from DOCX file", extra={"file_name": filename})
 
     with io.BytesIO(file_bytes) as buffer:
         document = Document(buffer)
@@ -88,7 +88,7 @@ def extract_text_from_docx(file_bytes: bytes, filename: str | None = None) -> st
     logger.info(
         "DOCX text extracted",
         extra={
-            "filename": filename,
+            "file_name": filename,
             "chars_raw": len(raw_text),
             "chars_normalized": len(normalized),
         },
@@ -101,7 +101,7 @@ def extract_text_from_pdf(file_bytes: bytes, filename: str | None = None) -> str
     """
     Извлекает текст из PDF с помощью pypdf.
     """
-    logger.info("Extracting text from PDF file", extra={"filename": filename})
+    logger.info("Extracting text from PDF file", extra={"file_name": filename})
 
     with io.BytesIO(file_bytes) as buffer:
         reader = PdfReader(buffer)
@@ -114,7 +114,7 @@ def extract_text_from_pdf(file_bytes: bytes, filename: str | None = None) -> str
                 logger.warning(
                     "Failed to extract text from PDF page",
                     extra={
-                        "filename": filename,
+                        "file_name": filename,
                         "page_index": page_index,
                         "error": str(exc),
                     },
@@ -130,7 +130,7 @@ def extract_text_from_pdf(file_bytes: bytes, filename: str | None = None) -> str
     logger.info(
         "PDF text extracted",
         extra={
-            "filename": filename,
+            "file_name": filename,
             "pages": len(reader.pages),
             "chars_raw": len(raw_text),
             "chars_normalized": len(normalized),
@@ -150,7 +150,7 @@ def extract_text_from_plain(
     """
     logger.info(
         "Extracting text from plain text file",
-        extra={"filename": filename, "encoding": encoding},
+        extra={"file_name": filename, "encoding": encoding},
     )
 
     try:
@@ -158,7 +158,7 @@ def extract_text_from_plain(
     except Exception as exc:
         logger.warning(
             "Failed to decode text file with encoding, using errors='ignore'",
-            extra={"filename": filename, "encoding": encoding, "error": str(exc)},
+            extra={"file_name": filename, "encoding": encoding, "error": str(exc)},
         )
         text = file_bytes.decode(encoding, errors="ignore")
 
@@ -167,7 +167,7 @@ def extract_text_from_plain(
     logger.info(
         "Plain text extracted",
         extra={
-            "filename": filename,
+            "file_name": filename,
             "chars_raw": len(text),
             "chars_normalized": len(normalized),
         },
@@ -187,7 +187,7 @@ def extract_text(
 
     logger.info(
         "Starting text extraction",
-        extra={"filename": filename, "content_type": content_type},
+        extra={"file_name": filename, "content_type": content_type},
     )
 
     try:
@@ -208,7 +208,7 @@ def extract_text(
         # Fallback: пробуем как текстовый файл
         logger.info(
             "Falling back to plain text extractor for unknown content type",
-            extra={"filename": filename, "content_type": content_type},
+            extra={"file_name": filename, "content_type": content_type},
         )
         return extract_text_from_plain(file_bytes, filename=filename)
     except Exception as exc:
@@ -216,7 +216,7 @@ def extract_text(
         logger.error(
             "Failed to extract text from file",
             extra={
-                "filename": filename,
+                "file_name": filename,
                 "content_type": content_type,
                 "error": str(exc),
             },

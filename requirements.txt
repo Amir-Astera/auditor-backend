@@ -1,10 +1,10 @@
-# FastAPI 0.110.0+ requires Pydantic v2, but the project currently depends on
-# Pydantic v1.x, so we pin FastAPI to the latest compatible release.
-fastapi>=0.109.0,<0.110.0
+# FastAPI 0.110.0+ requires Pydantic v2
+fastapi>=0.109.0
 uvicorn[standard]>=0.23.0
 SQLAlchemy>=2.0.0
-pydantic>=1.10.0,<2.0.0
-pydantic[email]>=1.10.0,<2.0.0
+pydantic>=2.0.0
+pydantic[email]>=2.0.0
+pydantic-settings>=2.0.0
 PyJWT>=2.8.0
 bcrypt>=3.2.0,<4.0.0
 passlib[bcrypt]>=1.7.4
@@ -19,8 +19,8 @@ arq>=0.25.0
 redis>=5.0.0
 
 # RAG with LightRAG + Gemini
-lightrag>=0.0.5
-google-generativeai>=0.3.0
+lightrag-hku
+google-genai>=0.4.0
 networkx>=3.0
 nano-vectordb>=0.1.0
 openai>=1.0.0

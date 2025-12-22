@@ -94,6 +94,8 @@ class QdrantVectorStore:
     ) -> List[ScoredPoint]:
         """
         Ищет ближайшие вектора по query_vector с опциональным фильтром по payload.
+        
+        Использует query_points для новых версий qdrant-client или fallback на старый API.
         """
         logger.info(
             "Searching in Qdrant",
@@ -104,13 +106,74 @@ class QdrantVectorStore:
             },
         )
 
-        results: List[ScoredPoint] = self._client.search(
-            collection_name=self._collection_name,
-            query_vector=query_vector,
-            limit=limit,
-            query_filter=filter_,
-        )
-        return results
+        # Try new API first (query_points - can accept vector directly or NearestQuery)
+        try:
+            # First try: pass vector directly (simplest approach)
+            response = self._client.query_points(
+                collection_name=self._collection_name,
+                query=query_vector,  # Direct vector as query
+                query_filter=filter_,
+                limit=limit,
+                with_payload=True,
+                with_vectors=False,
+            )
+            
+            # Extract ScoredPoint from QueryResponse
+            if hasattr(response, "points"):
+                return list(response.points)
+            elif hasattr(response, "result") and hasattr(response.result, "points"):
+                return list(response.result.points)
+            elif isinstance(response, list):
+                return response
+            else:
+                # Try to get points from response attributes
+                for attr in ["points", "result", "data"]:
+                    if hasattr(response, attr):
+                        points = getattr(response, attr)
+                        if isinstance(points, list):
+                            return points
+                logger.warning(
+                    "Unknown response structure from query_points",
+                    extra={"response_type": type(response).__name__},
+                )
+                return []
+        except (AttributeError, TypeError, ValueError) as e:
+            # Fallback: try passing vector directly (some SDK versions)
+            try:
+                response = self._client.query_points(
+                    collection_name=self._collection_name,
+                    query=query_vector,  # Direct vector
+                    query_filter=filter_,
+                    limit=limit,
+                    with_payload=True,
+                    with_vectors=False,
+                )
+                if hasattr(response, "points"):
+                    return list(response.points)
+                elif isinstance(response, list):
+                    return response
+                return []
+            except Exception as e2:
+                # Fallback to old API if query_points doesn't work
+                logger.warning(
+                    "query_points failed, trying legacy search API",
+                    extra={"error": str(e), "error2": str(e2)},
+                )
+                try:
+                    # Try legacy search method (for older qdrant-client versions)
+                    results: List[ScoredPoint] = self._client.search(
+                        collection_name=self._collection_name,
+                        query_vector=query_vector,
+                        limit=limit,
+                        query_filter=filter_,
+                    )
+                    return results
+                except AttributeError:
+                    # If neither works, raise with helpful message
+                    raise AttributeError(
+                        f"QdrantClient does not have 'search' or 'query_points' method. "
+                        f"Available methods: {[m for m in dir(self._client) if not m.startswith('_')][:20]}"
+                    ) from e2
 
     @staticmethod
     def build_filter(

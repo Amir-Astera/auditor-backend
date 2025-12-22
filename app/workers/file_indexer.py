@@ -23,12 +23,17 @@ logger = get_logger(__name__)
 
 
 async def startup(ctx: dict[str, Any]) -> None:
-    """
-    Worker startup hook.
-    Prepares reusable clients/config in context.
-    """
     configure_logging()
     logger.info("Hybrid file indexer worker starting up")
+
+    # Debug: confirm interpreter + package location
+    import sys
+    logger.info("PYTHON executable: %s", sys.executable)
+    try:
+        import lightrag
+        logger.info("lightrag module file: %s", lightrag.__file__)
+    except Exception as e:
+        logger.warning("Could not import lightrag in worker startup: %s", e)
 
     ctx["storage_cfg"] = S3Config(
         endpoint_url=settings.S3_ENDPOINT_URL,
@@ -39,7 +44,7 @@ async def startup(ctx: dict[str, Any]) -> None:
         bucket_customer_docs=settings.S3_BUCKET_CUSTOMER_DOCS,
     )
 
-    # Gemini client (LLM + embeddings)
+    # Gemini client (LLM + embeddings) - used by HybridFileService (Qdrant pipeline)
     ctx["gemini"] = GeminiAPI()
 
     # Qdrant vector store (hybrid retrieval)
@@ -51,17 +56,23 @@ async def startup(ctx: dict[str, Any]) -> None:
 
     # LightRAG (graph-based RAG). Optional.
     try:
-        ctx["lightrag"] = create_lightrag_service(
+        # IMPORTANT: our production LightRAG integration is self-contained and
+        # does NOT accept gemini_api instance (avoids pickle/thread locks and API mismatch).
+        service = create_lightrag_service(
             working_dir=settings.LIGHTRAG_WORKING_DIR,
-            gemini_api=ctx["gemini"],
         )
-        logger.info("LightRAG initialized in worker context")
-    except Exception as e:
+
+        # If integration returns disabled service, treat as unavailable
+        if hasattr(service, "is_ready") and not service.is_ready():
+            ctx["lightrag"] = None
+            logger.warning("LightRAG created but not ready; fallback to Qdrant-only")
+        else:
+            ctx["lightrag"] = service
+            logger.info("LightRAG initialized in worker context")
+
+    except Exception:
         ctx["lightrag"] = None
-        logger.warning(
-            "LightRAG is not available; worker will index only to Qdrant",
-            extra={"error": str(e)},
-        )
+        logger.exception("LightRAG init failed; worker will index only to Qdrant")
 
 
 async def shutdown(ctx: dict[str, Any]) -> None:
@@ -69,12 +80,6 @@ async def shutdown(ctx: dict[str, Any]) -> None:
 
 
 async def index_file_task(ctx: dict[str, Any], file_id: str) -> None:
-    """
-    Main Arq job: indexes a StoredFile into Qdrant and LightRAG.
-
-    - Updates StoredFile.index_status
-    - Writes StoredFile.index_error on failures
-    """
     configure_logging()
     logger.info("Index file task started", extra={"file_id": file_id})
 
@@ -104,63 +109,50 @@ async def index_file_task(ctx: dict[str, Any], file_id: str) -> None:
 
         metrics = indexer.index_file(stored_file.id)
 
-        # Determine success: at least one backend succeeded.
-        q_ok = metrics.get("qdrant_status") in (None, "success")
-        l_ok = metrics.get("lightrag_status") in (None, "success")
+        if metrics.get("status") != "success":
+            raise RuntimeError(f"Indexing failed: {metrics.get('error')}")
+
+
+        q_ok = metrics.get("qdrant_status") == "success"
+        l_ok = metrics.get("lightrag_status") == "success"
 
         stored_file = db.query(StoredFile).get(file_id)
         if stored_file:
             stored_file.is_indexed = bool(q_ok or l_ok)
-            stored_file.index_status = (
-                FileIndexStatus.DONE
-                if stored_file.is_indexed
-                else FileIndexStatus.ERROR
-            )
-            stored_file.index_error = (
-                None
-                if stored_file.is_indexed
-                else (
-                    metrics.get("error")
-                    or metrics.get("qdrant_error")
-                    or metrics.get("lightrag_error")
-                    or "Indexing failed"
-                )
+            stored_file.index_status = FileIndexStatus.DONE if stored_file.is_indexed else FileIndexStatus.ERROR
+            stored_file.index_error = None if stored_file.is_indexed else (
+                metrics.get("error")
+                or metrics.get("qdrant_error")
+                or metrics.get("lightrag_error")
+                or "Indexing failed"
             )
             stored_file.indexed_at = datetime.utcnow()
             db.commit()
 
-        logger.info(
-            "Index file task completed",
-            extra={"file_id": file_id, "metrics": metrics},
-        )
+        logger.info("Index file task completed", extra={"file_id": file_id, "metrics": metrics})
 
-    except Exception as exc:
-        logger.error(
-            "Index file task failed",
-            extra={"file_id": file_id, "error": str(exc)},
-        )
+    except Exception:
+        logger.exception("Index file task failed", extra={"file_id": file_id})
 
         try:
-            stored_file = db.query(StoredFile).get(file_id)
+            db.rollback()  # 🔴 обязательно
+            stored_file = db.get(StoredFile, file_id)
             if stored_file:
                 stored_file.index_status = FileIndexStatus.ERROR
                 stored_file.is_indexed = False
-                stored_file.index_error = str(exc)
+                stored_file.index_error = "Index file task failed (see logs)"
                 stored_file.indexed_at = datetime.utcnow()
                 db.commit()
-        except Exception as inner_exc:
-            logger.error(
+        except Exception:
+            logger.exception(
                 "Failed to update stored_file error status",
-                extra={"file_id": file_id, "error": str(inner_exc)},
+                extra={"file_id": file_id},
             )
-    finally:
-        db.close()
+
 
 
 class WorkerSettings:
     functions = [index_file_task]
     on_startup = startup
     on_shutdown = shutdown
-
-    # Arq expects RedisSettings (not Pydantic AnyUrl)
     redis_settings = RedisSettings.from_dsn(str(settings.REDIS_URL))

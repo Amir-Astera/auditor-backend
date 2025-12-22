@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class FileScope(str, Enum):
@@ -27,8 +27,7 @@ class FileUploadResponse(BaseModel):
     index_status: Optional[FileIndexStatus] = None
     index_error: Optional[str] = None
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class FileInfo(FileUploadResponse):
@@ -50,8 +49,24 @@ class FileStatusResponse(BaseModel):
     index_status: Optional[FileIndexStatus] = None
     index_error: Optional[str] = None
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
+    
+    @classmethod
+    def model_validate(cls, obj, *, strict=None, from_attributes=None, context=None):
+        """Override to convert UUID id to string."""
+        if hasattr(obj, 'id') and hasattr(obj.id, '__str__'):
+            # Create a dict with id as string
+            data = {
+                "id": str(obj.id),
+                "scope": obj.scope,
+                "customer_id": obj.customer_id,
+                "original_filename": obj.original_filename,
+                "is_indexed": obj.is_indexed,
+                "index_status": obj.index_status,
+                "index_error": obj.index_error,
+            }
+            return cls(**data)
+        return super().model_validate(obj, strict=strict, from_attributes=from_attributes, context=context)
 
 
 class ChunkSearchResult(BaseModel):
