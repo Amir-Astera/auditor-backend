@@ -9,6 +9,7 @@ from __future__ import annotations
 import io
 import time
 import uuid
+from datetime import datetime
 from typing import Any, Dict, List
 
 from qdrant_client.models import PointStruct
@@ -73,13 +74,15 @@ class HybridFileService:
         self,
         db: Session,
         storage: FileStorage,
-        vector_store: QdrantVectorStore | None,
+        vector_store_admin: QdrantVectorStore | None,
+        vector_store_client: QdrantVectorStore | None,
         lightrag_service: LightRAGService | None,
         gemini_api: GeminiAPI,
     ):
         self.db = db
         self.storage = storage
-        self.vector_store = vector_store
+        self.vector_store_admin = vector_store_admin
+        self.vector_store_client = vector_store_client
         self.lightrag = lightrag_service
         self.embedding_provider = EmbeddingProvider(gemini_api)
 
@@ -202,7 +205,7 @@ class HybridFileService:
             "Starting hybrid indexing",
             extra={
                 "file_id": str(file_id),
-                "filename": stored_file.original_filename,
+                "file_name": stored_file.original_filename,
                 "size_bytes": stored_file.size_bytes,
             },
         )
@@ -266,12 +269,20 @@ class HybridFileService:
                 "customer_id": stored_file.customer_id,
                 "owner_id": str(stored_file.owner_id),
                 "filename": stored_file.original_filename,
+                "tenant_id": None,
+                "source_type": stored_file.content_type,
             }
 
             # ═══════════════════════════════════════════
             # ШАГ 4: ИНДЕКСАЦИЯ В QDRANT
             # ═══════════════════════════════════════════
-            if self.vector_store:
+            vector_store: QdrantVectorStore | None
+            if stored_file.scope == FileScope.ADMIN_LAW:
+                vector_store = self.vector_store_admin
+            else:
+                vector_store = self.vector_store_client
+
+            if vector_store:
                 t_start = time.time()
 
                 try:
@@ -280,18 +291,23 @@ class HybridFileService:
                         chunks=chunks,
                         base_metadata=base_metadata,
                         metrics=metrics,
+                        vector_store=vector_store,
                     )
 
                     metrics["times"]["qdrant_total"] = time.time() - t_start
                     metrics["qdrant_status"] = "success"
 
                 except Exception as e:
-                    logger.error(
-                        "Qdrant indexing failed",
-                        extra={"file_id": str(file_id), "error": str(e)},
-                    )
+                    logger.exception("Qdrant indexing failed", extra={"file_id": str(file_id)})
+
                     metrics["qdrant_status"] = "failed"
                     metrics["qdrant_error"] = str(e)
+            else:
+                logger.warning(
+                    "Qdrant vector store not available, skipping Qdrant indexing",
+                    extra={"file_id": str(file_id)},
+                )
+                metrics["qdrant_status"] = "skipped"
 
             # ═══════════════════════════════════════════
             # ШАГ 5: ИНДЕКСАЦИЯ В LIGHTRAG
@@ -311,19 +327,25 @@ class HybridFileService:
                     metrics["lightrag_status"] = "success"
 
                 except Exception as e:
-                    logger.error(
-                        "LightRAG indexing failed",
-                        extra={"file_id": str(file_id), "error": str(e)},
-                    )
+                    logger.exception("LightRAG indexing failed",
+                     extra={"file_id": str(file_id)}
+                     )
+
                     metrics["lightrag_status"] = "failed"
                     metrics["lightrag_error"] = str(e)
+            else:
+                logger.debug(
+                    "LightRAG not available, skipping LightRAG indexing",
+                    extra={"file_id": str(file_id)},
+                )
+                metrics["lightrag_status"] = "skipped"
 
             # ═══════════════════════════════════════════
             # ФИНАЛИЗАЦИЯ
             # ═══════════════════════════════════════════
             stored_file.is_indexed = True
             stored_file.index_status = FileIndexStatus.DONE
-            stored_file.indexed_at = time.time()
+            stored_file.indexed_at = datetime.utcnow()
             self.db.commit()
 
             metrics["total_time"] = time.time() - metrics["started_at"]
@@ -341,14 +363,16 @@ class HybridFileService:
             return metrics
 
         except Exception as exc:
-            logger.error(
+            logger.exception(
                 "Hybrid indexing failed",
-                extra={"file_id": str(file_id), "error": str(exc)},
+                extra={"file_id": str(file_id)},
             )
+
 
             stored_file.is_indexed = False
             stored_file.index_error = str(exc)
             stored_file.index_status = FileIndexStatus.ERROR
+            stored_file.indexed_at = datetime.utcnow()
             self.db.commit()
 
             metrics["status"] = "error"
@@ -361,6 +385,7 @@ class HybridFileService:
         chunks: List[str],
         base_metadata: Dict[str, Any],
         metrics: Dict[str, Any],
+        vector_store: QdrantVectorStore,
     ) -> None:
         """Индексация в Qdrant с batch embeddings."""
 
@@ -374,17 +399,29 @@ class HybridFileService:
         # ШАГ 2: Создание FileChunk + PointStruct
         t_start = time.time()
 
-        qdrant_points = []
+        qdrant_points: List[PointStruct] = []
+        chunk_rows: List[FileChunk] = []
 
-        for idx, (chunk_text, embedding) in enumerate(zip(chunks, embeddings)):
+        for idx, (chunk_text, _embedding) in enumerate(zip(chunks, embeddings)):
             chunk = FileChunk(
                 file_id=stored_file.id,
                 chunk_index=idx,
                 text=chunk_text,
+                tenant_id=None,
+                customer_id=stored_file.customer_id,
+                owner_id=str(stored_file.owner_id),
+                scope=stored_file.scope.value,
+                source_type=stored_file.content_type or None,
             )
             self.db.add(chunk)
+            chunk_rows.append(chunk)
 
-            point_id = str(uuid.uuid4())
+        # Ensure UUIDs are generated before we reference chunk.id
+        self.db.flush()
+
+        for chunk, embedding in zip(chunk_rows, embeddings):
+            chunk_id = str(chunk.id)
+            point_id = chunk_id
             chunk.qdrant_point_id = point_id
 
             qdrant_points.append(
@@ -393,8 +430,10 @@ class HybridFileService:
                     vector=embedding,
                     payload={
                         **base_metadata,
-                        "chunk_index": idx,
-                        "text": chunk_text,
+                        "chunk_id": chunk_id,
+                        "file_id": str(chunk.file_id),
+                        "chunk_index": int(chunk.chunk_index),
+                        "text": chunk.text,
                     },
                 )
             )
@@ -411,9 +450,7 @@ class HybridFileService:
 
         for i in range(0, len(qdrant_points), batch_size):
             batch = qdrant_points[i : i + batch_size]
-            if self.vector_store is None:
-                raise RuntimeError("vector_store is not configured")
-            self.vector_store.upsert_vectors(batch)
+            vector_store.upsert_vectors(batch)
 
         metrics["times"]["qdrant_upsert"] = time.time() - t_start
         metrics["qdrant_batches"] = num_batches
@@ -429,40 +466,64 @@ class HybridFileService:
         base_metadata: Dict[str, Any],
         metrics: Dict[str, Any],
     ) -> None:
-        """Индексация в LightRAG с merge chunks."""
+        """Индексация в LightRAG с merge chunks.
+        Важно: в insert() передаём СТРОКУ large_chunk, а не функцию chunk_text.
+        """
 
-        # Объединяем мелкие чанки в крупные блоки
-        t_start = time.time()
+        # Нечего индексировать
+        if not chunks:
+            metrics["lightrag_large_chunks"] = 0
+            metrics["times"]["lightrag_merge"] = 0.0
+            metrics["times"]["lightrag_insert"] = 0.0
+            logger.info("LightRAG: no chunks to index")
+            return
+
+        # 1) Объединяем мелкие чанки в крупные блоки + запоминаем диапазоны индексов
+        t_merge = time.time()
 
         merge_size = settings.MERGE_SIZE
-        large_chunks = []
+        large_chunks: List[str] = []
+        ranges: List[tuple[int, int]] = []
 
-        for i in range(0, len(chunks), merge_size):
-            merged = "\n\n".join(chunks[i : i + merge_size])
-            large_chunks.append(merged)
+        for start_idx in range(0, len(chunks), merge_size):
+            end_idx = min(start_idx + merge_size - 1, len(chunks) - 1)
+            merged_text = "\n\n".join(chunks[start_idx : end_idx + 1])
+            large_chunks.append(merged_text)
+            ranges.append((start_idx, end_idx))
 
         metrics["lightrag_large_chunks"] = len(large_chunks)
-        metrics["times"]["lightrag_merge"] = time.time() - t_start
+        metrics["times"]["lightrag_merge"] = time.time() - t_merge
 
-        # Вставляем в LightRAG
-        t_start = time.time()
+        # 2) Вставляем в LightRAG и проставляем lightrag_node_id для соответствующих FileChunk
+        if self.lightrag is None:
+            raise RuntimeError("lightrag service is not configured")
 
-        for large_idx, large_chunk in enumerate(large_chunks):
-            if self.lightrag is None:
-                raise RuntimeError("lightrag service is not configured")
-            node_id = self.lightrag.insert(
-                text=large_chunk,
-                metadata={
-                    **base_metadata,
-                    "chunk_group": large_idx,
-                },
+        t_insert = time.time()
+
+        for group_idx, (large_chunk, (start_idx, end_idx)) in enumerate(zip(large_chunks, ranges)):
+            # пропускаем пустые блоки
+            if not large_chunk or not large_chunk.strip():
+                logger.debug(f"LightRAG: skip empty large_chunk group={group_idx}")
+                continue
+
+            node_id = self.lightrag.insert(large_chunk)  # ✅ ВАЖНО: передаём строку
+
+            # ✅ Проставляем node_id всем мелким чанкам этой группы
+            self.db.query(FileChunk).filter(
+                FileChunk.file_id == stored_file.id,
+                FileChunk.chunk_index >= start_idx,
+                FileChunk.chunk_index <= end_idx,
+            ).update({"lightrag_node_id": node_id}, synchronize_session=False)
+
+            logger.debug(
+                f"LightRAG insert: chunk_group={group_idx}, node_id={node_id}, range=({start_idx}-{end_idx})"
             )
 
-            logger.debug(f"LightRAG insert: chunk_group={large_idx}, node_id={node_id}")
+        self.db.commit()
 
-        metrics["times"]["lightrag_insert"] = time.time() - t_start
-
+        metrics["times"]["lightrag_insert"] = time.time() - t_insert
         logger.info(f"Indexed to LightRAG: {len(large_chunks)} large chunks")
+
 
     def get_file(self, file_id: uuid.UUID) -> StoredFile | None:
         """Получить файл по ID."""

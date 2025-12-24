@@ -1,8 +1,15 @@
 # app/core/config.py
-from pydantic import BaseSettings, PostgresDsn
+from pydantic import PostgresDsn
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
     # Database
     DATABASE_URL: PostgresDsn
 
@@ -31,11 +38,16 @@ class Settings(BaseSettings):
     # LightRAG
     LIGHTRAG_WORKING_DIR: str = "./lightrag_cache"
     LIGHTRAG_EMBEDDING_MODEL: str = "models/text-embedding-004"
-    LIGHTRAG_LLM_MODEL: str = "gemini-3-pro-preview"
+    LIGHTRAG_LLM_MODEL: str = "gemini-2.5-flash"
+    LIGHTRAG_EMBED_DIM: int = 3072
+    LIGHTRAG_EMBED_MAX_TOKENS: int = 8192
+    LIGHTRAG_SEND_DIMENSIONS: bool = False
 
     # Qdrant (Hybrid RAG)
     QDRANT_URL: str
     QDRANT_COLLECTION_NAME: str
+    QDRANT_COLLECTION_ADMIN: str | None = None
+    QDRANT_COLLECTION_CLIENT: str | None = None
     # For Gemini embeddings "models/text-embedding-004" the vector size is typically 768.
     # Keep this configurable to avoid hard coupling.
     QDRANT_VECTOR_SIZE: int = 768
@@ -45,14 +57,6 @@ class Settings(BaseSettings):
     MERGE_SIZE: int = 5  # чанков в один блок для LightRAG
     QDRANT_BATCH_SIZE: int = 256
     EMBEDDING_BATCH_SIZE: int = 32
-
-    class Config(BaseSettings.Config):
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        # basedpyright/pyright иногда ругается на тип Extra здесь — это ложное срабатывание.
-        # На рантайме pydantic v1 принимает строку "ignore" корректно.
-        extra = "ignore"  # type: ignore[assignment]
-
 
 # BaseSettings читает значения из окружения / .env, поэтому статический анализатор
 # может ругаться на "missing required args". Это ожидаемо и безопасно.

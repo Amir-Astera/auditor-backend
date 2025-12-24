@@ -56,6 +56,9 @@ class RAGQueryResponse(BaseModel):
         default_factory=list, description="Связи графа (если доступно)"
     )
     mode: str = Field(..., description="Использованный режим")
+    debug: Optional[Dict[str, Any]] = Field(
+        default=None, description="Отладочная информация: роутинг/план/реранк/трассировка"
+    )
 
 
 class RAGEvidenceRequest(BaseModel):
@@ -96,6 +99,9 @@ class RAGEvidenceResponse(BaseModel):
         default_factory=list, description="Связи графа (если доступно)"
     )
     mode: str = Field(..., description="Использованный режим")
+    debug: Optional[Dict[str, Any]] = Field(
+        default=None, description="Отладочная информация: роутинг/план/реранк/трассировка"
+    )
 
 
 class RAGInsertRequest(BaseModel):

@@ -44,12 +44,18 @@ Typing note:
 
 from __future__ import annotations
 
+import json
+import re
+import uuid
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Protocol, Sequence, runtime_checkable
+
+from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.logging import get_logger
 from app.modules.files.models import FileScope
+from app.modules.files.models import FileChunk
 from app.modules.files.qdrant_client import QdrantVectorStore
 from app.modules.prompts.models import PromptType
 from app.modules.rag.gemini import GeminiAPI
@@ -67,6 +73,7 @@ class PromptsProvider(Protocol):
 class HybridRAGQuery:
     question: str
     customer_id: Optional[str] = None
+    owner_id: Optional[str] = None
     include_admin_laws: bool = True
     include_customer_docs: bool = True
     top_k: int = 8
@@ -81,6 +88,7 @@ class HybridRAGResult:
     nodes: List[Dict[str, Any]]
     edges: List[Dict[str, Any]]
     mode: str
+    debug: Optional[Dict[str, Any]] = None
 
 
 class HybridRAGService:
@@ -93,14 +101,18 @@ class HybridRAGService:
 
     def __init__(
         self,
+        db: Session | None,
         gemini: GeminiAPI,
         prompts: PromptsProvider,
-        qdrant: QdrantVectorStore,
+        qdrant_admin: QdrantVectorStore,
+        qdrant_client: QdrantVectorStore,
         lightrag: LightRAGService | None = None,
     ):
+        self._db = db
         self._gemini = gemini
         self._prompts = prompts
-        self._qdrant = qdrant
+        self._qdrant_admin = qdrant_admin
+        self._qdrant_client = qdrant_client
         self._lightrag = lightrag
 
     # ---------------------------
@@ -114,14 +126,44 @@ class HybridRAGService:
         top_k = max(1, min(int(q.top_k), 30))
         temperature = float(q.temperature)
 
-        # 1) Retrieve evidence from Qdrant (evidence must include citations)
-        evidence = self._retrieve_evidence(
-            question=q.question,
-            top_k=top_k,
+        policy = self._policy_gate(
+            owner_id=q.owner_id,
             customer_id=q.customer_id,
             include_admin_laws=q.include_admin_laws,
             include_customer_docs=q.include_customer_docs,
+        )
+
+        router = self._route_question(
+            question=q.question,
+            customer_id=q.customer_id,
+            owner_id=q.owner_id,
+            include_admin_laws=q.include_admin_laws,
+            include_customer_docs=q.include_customer_docs,
+        )
+
+        plan = self._build_query_plan(
+            question=q.question,
+            router=router,
+        )
+
+        retrieved = self._retrieve_multi(
+            plan=plan,
+            policy=policy,
+            include_admin_laws=router.get("include_admin_laws", False),
+            include_customer_docs=router.get("include_customer_docs", False),
+            retrieve_k=30,
             mode=q.mode,
+        )
+
+        reranked = self._rerank_llm(
+            question=q.question,
+            candidates=retrieved,
+            final_k=min(top_k, 5),
+        )
+
+        evidence = self._build_evidence_sql(
+            seeds=reranked,
+            policy=policy,
         )
 
         # 2) Optional LightRAG enrichment
@@ -175,6 +217,14 @@ class HybridRAGService:
             nodes=nodes,
             edges=edges,
             mode=mode_used,
+            debug={
+                "policy": policy,
+                "router": router,
+                "plan": plan,
+                "retrieved_count": len(retrieved),
+                "reranked_count": len(reranked),
+                "evidence_count": len(evidence),
+            },
         )
 
     def evidence_only(self, q: HybridRAGQuery) -> Dict[str, Any]:
@@ -192,13 +242,44 @@ class HybridRAGService:
         """
         top_k = max(1, min(int(q.top_k), 50))
 
-        evidence = self._retrieve_evidence(
-            question=q.question,
-            top_k=top_k,
+        policy = self._policy_gate(
+            owner_id=q.owner_id,
             customer_id=q.customer_id,
             include_admin_laws=q.include_admin_laws,
             include_customer_docs=q.include_customer_docs,
+        )
+
+        router = self._route_question(
+            question=q.question,
+            customer_id=q.customer_id,
+            owner_id=q.owner_id,
+            include_admin_laws=q.include_admin_laws,
+            include_customer_docs=q.include_customer_docs,
+        )
+
+        plan = self._build_query_plan(
+            question=q.question,
+            router=router,
+        )
+
+        retrieved = self._retrieve_multi(
+            plan=plan,
+            policy=policy,
+            include_admin_laws=router.get("include_admin_laws", False),
+            include_customer_docs=router.get("include_customer_docs", False),
+            retrieve_k=30,
             mode=q.mode,
+        )
+
+        reranked = self._rerank_llm(
+            question=q.question,
+            candidates=retrieved,
+            final_k=min(top_k, 5),
+        )
+
+        evidence = self._build_evidence_sql(
+            seeds=reranked,
+            policy=policy,
         )
 
         nodes: List[Dict[str, Any]] = []
@@ -220,7 +301,350 @@ class HybridRAGService:
                     extra={"error": str(e)},
                 )
 
-        return {"context": evidence, "nodes": nodes, "edges": edges, "mode": q.mode}
+        return {
+            "context": evidence,
+            "nodes": nodes,
+            "edges": edges,
+            "mode": q.mode,
+            "debug": {
+                "policy": policy,
+                "router": router,
+                "plan": plan,
+                "retrieved_count": len(retrieved),
+                "reranked_count": len(reranked),
+                "evidence_count": len(evidence),
+            },
+        }
+
+    def _policy_gate(
+        self,
+        *,
+        owner_id: Optional[str],
+        customer_id: Optional[str],
+        include_admin_laws: bool,
+        include_customer_docs: bool,
+    ) -> Dict[str, Any]:
+        allowed_scopes: List[str] = []
+        if include_admin_laws and owner_id is None:
+            allowed_scopes.append(FileScope.ADMIN_LAW.value)
+        if include_customer_docs and customer_id:
+            allowed_scopes.append(FileScope.CUSTOMER_DOC.value)
+
+        return {
+            "tenant_id": None,
+            "customer_id": customer_id,
+            "allowed_scopes": allowed_scopes,
+            "filters": {
+                "tenant_id": None,
+                "customer_id": customer_id,
+                "owner_id": owner_id,
+                "scope": allowed_scopes,
+            },
+        }
+
+    def _route_question(
+        self,
+        *,
+        question: str,
+        customer_id: Optional[str],
+        owner_id: Optional[str],
+        include_admin_laws: bool,
+        include_customer_docs: bool,
+    ) -> Dict[str, Any]:
+        q = (question or "").lower()
+        legal_kw = (
+            "isa",
+            "ifrs",
+            "фсбу",
+            "закон",
+            "кодекс",
+            "постанов",
+            "54-фз",
+            "54 фз",
+            "пбу",
+            "гк",
+            "нк",
+        )
+        finance_kw = (
+            "выруч",
+            "ндс",
+            "дивид",
+            "сумм",
+            "оборот",
+            "платеж",
+            "выписк",
+            "контраг",
+            "транзак",
+            "банк",
+        )
+
+        is_legal = any(k in q for k in legal_kw)
+        is_finance = any(k in q for k in finance_kw)
+
+        domain = "both" if (is_legal and is_finance) else "legal" if is_legal else "finance" if is_finance else "both"
+
+        resolved_customer_docs = bool(include_customer_docs and customer_id)
+        resolved_admin_laws = bool(include_admin_laws)
+
+        required_sources: List[str] = []
+        if resolved_admin_laws:
+            required_sources.append("kb_admin")
+        if resolved_customer_docs:
+            required_sources.append("client_docs")
+
+        required_tools: List[str] = ["qdrant"]
+        if domain in ("legal", "both"):
+            required_tools.append("lightrag")
+
+        ambiguity_tier = 1
+        if domain == "both":
+            ambiguity_tier = 2
+        if resolved_customer_docs and not customer_id:
+            ambiguity_tier = 3
+
+        return {
+            "domain": domain,
+            "required_sources": required_sources,
+            "required_tools": required_tools,
+            "filters": {
+                "customer_id": customer_id,
+                "owner_id": owner_id,
+            },
+            "include_admin_laws": resolved_admin_laws,
+            "include_customer_docs": resolved_customer_docs,
+            "ambiguity_tier": ambiguity_tier,
+        }
+
+    def _build_query_plan(self, *, question: str, router: Dict[str, Any]) -> Dict[str, Any]:
+        """Gemini-prompted planner. Returns {subqueries:[], must_find:[]}"""
+        prompt = (
+            "You are a retrieval planner for an audit-grade RAG system.\n"
+            "Return STRICT JSON only.\n\n"
+            f"Question: {question}\n"
+            f"Domain: {router.get('domain')}\n"
+            "Task: produce 3-6 short search subqueries and 2-6 'must_find' items.\n"
+            "JSON schema: {\"subqueries\": [..], \"must_find\": [..]}\n"
+        )
+        try:
+            txt = self._gemini.generate_text(
+                prompt,
+                model=getattr(settings, "LIGHTRAG_LLM_MODEL", "gemini-3-pro-preview"),
+                temperature=0.2,
+                max_output_tokens=512,
+            )
+            data = self._safe_json_extract(txt)
+            subq = [str(x).strip() for x in (data.get("subqueries") or []) if str(x).strip()]
+            must = [str(x).strip() for x in (data.get("must_find") or []) if str(x).strip()]
+            if not subq:
+                subq = [question]
+            return {"subqueries": subq[:6], "must_find": must[:6]}
+        except Exception as e:
+            logger.warning("Planner failed; fallback to single query", extra={"error": str(e)})
+            return {"subqueries": [question], "must_find": []}
+
+    def _retrieve_multi(
+        self,
+        *,
+        plan: Dict[str, Any],
+        policy: Dict[str, Any],
+        include_admin_laws: bool,
+        include_customer_docs: bool,
+        retrieve_k: int,
+        mode: str,
+    ) -> List[Dict[str, Any]]:
+        if mode == "lightrag":
+            return []
+
+        subqueries = list(plan.get("subqueries") or [])
+        if not subqueries:
+            subqueries = []
+
+        merged: Dict[str, Dict[str, Any]] = {}
+        for sq in subqueries[:6]:
+            sq_text = str(sq).strip()
+            if not sq_text:
+                continue
+            query_vector = self._gemini.embed_query(sq_text)
+
+            if include_admin_laws:
+                filt = self._qdrant_admin.build_filter(scope=FileScope.ADMIN_LAW.value)
+                hits = self._qdrant_admin.search(
+                    query_vector=query_vector,
+                    limit=retrieve_k,
+                    filter_=filt,
+                )
+                for it in self._normalize_qdrant_hits(hits, scope=FileScope.ADMIN_LAW.value):
+                    key = str(it.get("chunk_id") or "")
+                    prev = merged.get(key)
+                    if prev is None or float(it.get("score") or 0.0) > float(prev.get("score") or 0.0):
+                        merged[key] = it
+
+            if include_customer_docs and policy.get("customer_id"):
+                customer_id = policy.get("customer_id")
+                owner_id = (policy.get("filters") or {}).get("owner_id")
+                filt = self._qdrant_client.build_filter(
+                    scope=FileScope.CUSTOMER_DOC.value,
+                    customer_id=customer_id,
+                    owner_id=owner_id,
+                )
+                hits = self._qdrant_client.search(
+                    query_vector=query_vector,
+                    limit=retrieve_k,
+                    filter_=filt,
+                )
+                for it in self._normalize_qdrant_hits(hits, scope=FileScope.CUSTOMER_DOC.value):
+                    key = str(it.get("chunk_id") or "")
+                    prev = merged.get(key)
+                    if prev is None or float(it.get("score") or 0.0) > float(prev.get("score") or 0.0):
+                        merged[key] = it
+
+        items = list(merged.values())
+        items.sort(key=lambda x: float(x.get("score") or 0.0), reverse=True)
+        for it in items:
+            it["citation"] = self._format_citation(it)
+        return items[: max(retrieve_k, 30)]
+
+    def _rerank_llm(
+        self,
+        *,
+        question: str,
+        candidates: List[Dict[str, Any]],
+        final_k: int,
+    ) -> List[Dict[str, Any]]:
+        final_k = max(1, int(final_k))
+        if not candidates:
+            return []
+        if len(candidates) <= final_k:
+            return candidates
+
+        items = candidates[:30]
+        lines: List[str] = []
+        for i, c in enumerate(items, start=1):
+            txt = (c.get("text") or "").strip()
+            if len(txt) > 400:
+                txt = txt[:400] + "..."
+            lines.append(f"[{i}] {c.get('citation')}\n{txt}")
+
+        prompt = (
+            "You are a reranker. Return STRICT JSON only.\n"
+            "Select the best items to answer the question.\n"
+            f"Return schema: {{\"selected\": [1,2,..]}} with {final_k} ids.\n\n"
+            f"QUESTION:\n{question}\n\n"
+            "CANDIDATES:\n" + "\n\n".join(lines)
+        )
+
+        try:
+            txt = self._gemini.generate_text(
+                prompt,
+                model=getattr(settings, "LIGHTRAG_LLM_MODEL", "gemini-3-pro-preview"),
+                temperature=0.0,
+                max_output_tokens=256,
+            )
+            data = self._safe_json_extract(txt)
+            sel = data.get("selected") or []
+            idxs: List[int] = []
+            for x in sel:
+                try:
+                    xi = int(x)
+                    if 1 <= xi <= len(items):
+                        idxs.append(xi)
+                except Exception:
+                    continue
+            if not idxs:
+                return items[:final_k]
+            dedup: List[Dict[str, Any]] = []
+            seen: set[int] = set()
+            for xi in idxs:
+                if xi in seen:
+                    continue
+                seen.add(xi)
+                dedup.append(items[xi - 1])
+                if len(dedup) >= final_k:
+                    break
+            if len(dedup) < final_k:
+                for c in items:
+                    if len(dedup) >= final_k:
+                        break
+                    if c not in dedup:
+                        dedup.append(c)
+            return dedup
+        except Exception as e:
+            logger.warning("LLM rerank failed; fallback by score", extra={"error": str(e)})
+            return items[:final_k]
+
+    def _expand_neighbors(
+        self,
+        *,
+        seeds: List[Dict[str, Any]],
+        customer_id: Optional[str],
+        owner_id: Optional[str],
+        neighbor_window: int,
+    ) -> List[Dict[str, Any]]:
+        if not seeds:
+            return []
+
+        out: Dict[str, Dict[str, Any]] = {}
+        for s in seeds:
+            file_id = s.get("file_id")
+            chunk_index = s.get("chunk_index")
+            scope = s.get("scope")
+            if not file_id or chunk_index is None:
+                key = f"{scope}::{file_id}::{chunk_index}"
+                out[key] = s
+                continue
+
+            start = max(0, int(chunk_index) - int(neighbor_window))
+            end = int(chunk_index) + int(neighbor_window)
+
+            store = self._qdrant_admin if scope == FileScope.ADMIN_LAW.value else self._qdrant_client
+            filt = store.build_file_chunk_range_filter(
+                file_id=str(file_id),
+                chunk_start=start,
+                chunk_end=end,
+                scope=str(scope) if scope else None,
+                customer_id=customer_id if scope == FileScope.CUSTOMER_DOC.value else None,
+                owner_id=owner_id if scope == FileScope.CUSTOMER_DOC.value else None,
+            )
+            points = store.scroll(filter_=filt, limit=25)
+            for p in points:
+                payload = getattr(p, "payload", None) or {}
+                it = {
+                    "source": "qdrant",
+                    "scope": scope,
+                    "score": float(s.get("score") or 0.0),
+                    "file_id": payload.get("file_id"),
+                    "chunk_index": payload.get("chunk_index"),
+                    "filename": payload.get("filename"),
+                    "customer_id": payload.get("customer_id"),
+                    "owner_id": payload.get("owner_id"),
+                    "text": payload.get("text") or "",
+                }
+                key = f"{it.get('scope')}::{it.get('file_id')}::{it.get('chunk_index')}"
+                it["citation"] = self._format_citation(it)
+                out[key] = it
+
+        items = list(out.values())
+        items.sort(key=lambda x: (x.get("scope") or "", str(x.get("file_id") or ""), int(x.get("chunk_index") or 0)))
+        return items
+
+    def _safe_json_extract(self, text: str) -> Dict[str, Any]:
+        if not text:
+            return {}
+        s = text.strip()
+        try:
+            obj = json.loads(s)
+            return obj if isinstance(obj, dict) else {}
+        except Exception:
+            pass
+
+        m = re.search(r"\{[\s\S]*\}", s)
+        if not m:
+            return {}
+        try:
+            obj = json.loads(m.group(0))
+            return obj if isinstance(obj, dict) else {}
+        except Exception:
+            return {}
 
     # ---------------------------
     # Retrieval
@@ -232,6 +656,7 @@ class HybridRAGService:
         question: str,
         top_k: int,
         customer_id: Optional[str],
+        owner_id: Optional[str],
         include_admin_laws: bool,
         include_customer_docs: bool,
         mode: str,
@@ -260,8 +685,8 @@ class HybridRAGService:
         items: List[Dict[str, Any]] = []
 
         if include_admin_laws:
-            filt = self._qdrant.build_filter(scope=FileScope.ADMIN_LAW.value)
-            hits = self._qdrant.search(
+            filt = self._qdrant_admin.build_filter(scope=FileScope.ADMIN_LAW.value)
+            hits = self._qdrant_admin.search(
                 query_vector=query_vector, limit=top_k, filter_=filt
             )
             items.extend(
@@ -269,10 +694,12 @@ class HybridRAGService:
             )
 
         if include_customer_docs and customer_id:
-            filt = self._qdrant.build_filter(
-                scope=FileScope.CUSTOMER_DOC.value, customer_id=customer_id
+            filt = self._qdrant_client.build_filter(
+                scope=FileScope.CUSTOMER_DOC.value,
+                customer_id=customer_id,
+                owner_id=owner_id,
             )
-            hits = self._qdrant.search(
+            hits = self._qdrant_client.search(
                 query_vector=query_vector, limit=top_k, filter_=filt
             )
             items.extend(
@@ -308,6 +735,7 @@ class HybridRAGService:
                     "source": "qdrant",
                     "scope": scope,
                     "score": float(getattr(h, "score", 0.0) or 0.0),
+                    "chunk_id": payload.get("chunk_id"),
                     "file_id": payload.get("file_id"),
                     "chunk_index": payload.get("chunk_index"),
                     "filename": payload.get("filename"),
@@ -316,6 +744,105 @@ class HybridRAGService:
                     "text": text,
                 }
             )
+        return out
+
+    def _build_evidence_sql(self, *, seeds: List[Dict[str, Any]], policy: Dict[str, Any]) -> List[Dict[str, Any]]:
+        if not seeds:
+            return []
+        if self._db is None:
+            return seeds
+
+        out: List[Dict[str, Any]] = []
+        seen: set[str] = set()
+
+        customer_id = policy.get("customer_id")
+        owner_id = (policy.get("filters") or {}).get("owner_id")
+
+        for s in seeds:
+            chunk_id = s.get("chunk_id")
+            file_id = s.get("file_id")
+            chunk_index = s.get("chunk_index")
+            scope = s.get("scope")
+            score = float(s.get("score") or 0.0)
+
+            if chunk_id:
+                try:
+                    chunk_uuid = uuid.UUID(str(chunk_id))
+                except Exception:
+                    chunk_uuid = None
+
+                row = self._db.get(FileChunk, chunk_uuid) if chunk_uuid is not None else None
+                if row is not None:
+                    file_id = row.file_id
+                    chunk_index = int(row.chunk_index)
+                    scope = row.scope or scope
+
+            if not file_id or chunk_index is None:
+                continue
+
+            k = 1
+            base_text = (s.get("text") or "").strip()
+            if base_text and (
+                (len(base_text) > 0 and base_text[-1] not in ".?!:)" )
+                or (len(base_text) > 0 and base_text[0].islower())
+            ):
+                k = 2
+
+            start = max(0, int(chunk_index) - k)
+            end = int(chunk_index) + k
+
+            try:
+                file_uuid = file_id if isinstance(file_id, uuid.UUID) else uuid.UUID(str(file_id))
+            except Exception:
+                continue
+
+            q = self._db.query(FileChunk).filter(
+                FileChunk.file_id == file_uuid,
+                FileChunk.chunk_index >= start,
+                FileChunk.chunk_index <= end,
+            )
+            if scope:
+                q = q.filter(FileChunk.scope == scope)
+            if scope == FileScope.CUSTOMER_DOC.value and customer_id:
+                q = q.filter(FileChunk.customer_id == customer_id)
+            if scope == FileScope.CUSTOMER_DOC.value and owner_id:
+                q = q.filter(FileChunk.owner_id == owner_id)
+
+            rows = q.order_by(FileChunk.chunk_index.asc()).all()
+            if not rows:
+                continue
+
+            citations = [
+                {
+                    "chunk_id": str(r.id),
+                    "file_id": str(r.file_id),
+                    "chunk_index": int(r.chunk_index),
+                }
+                for r in rows
+            ]
+            combined = "\n\n".join([str(r.text or "") for r in rows]).strip()
+
+            evidence_item = {
+                "source": "sql",
+                "scope": scope,
+                "score": score,
+                "chunk_id": str(rows[len(rows) // 2].id),
+                "file_id": str(rows[0].file_id),
+                "chunk_index": int(rows[0].chunk_index),
+                "chunk_index_range": [int(rows[0].chunk_index), int(rows[-1].chunk_index)],
+                "customer_id": rows[0].customer_id,
+                "owner_id": rows[0].owner_id,
+                "text": combined,
+                "citations": citations,
+            }
+            evidence_item["citation"] = self._format_citation(evidence_item)
+
+            dedup_key = f"{evidence_item.get('file_id')}::{evidence_item.get('chunk_index_range')}"
+            if dedup_key in seen:
+                continue
+            seen.add(dedup_key)
+            out.append(evidence_item)
+
         return out
 
     # ---------------------------

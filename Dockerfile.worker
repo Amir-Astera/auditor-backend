@@ -1,19 +1,34 @@
-FROM python:3.11-slim
+FROM python:3.11-slim-bookworm
+
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
-RUN apt-get update && apt-get install -y \
+# Установка системных зависимостей
+RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev \
+    gcc \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Обновление pip
+RUN pip install --upgrade pip
 
+# Копирование файлов зависимостей
+COPY requirements.txt .
+
+# Установка Python зависимостей
+RUN pip install --no-cache-dir --upgrade -r requirements.txt --use-deprecated=legacy-resolver
+
+# Копирование кода приложения
 COPY . .
+
+# Создание пользователя для запуска приложения
+RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+USER appuser
 
 # Запуск ARQ worker
 CMD ["arq", "app.workers.file_indexer.WorkerSettings"]

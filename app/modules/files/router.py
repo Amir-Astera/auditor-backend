@@ -143,7 +143,16 @@ def get_file_status(
                 status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden"
             )
 
-    return stored_file
+    # Convert UUID to string for response
+    return FileStatusResponse(
+        id=str(stored_file.id),
+        scope=stored_file.scope,
+        customer_id=stored_file.customer_id,
+        original_filename=stored_file.original_filename,
+        is_indexed=stored_file.is_indexed,
+        index_status=stored_file.index_status,
+        index_error=stored_file.index_error,
+    )
 
 
 @router.get(

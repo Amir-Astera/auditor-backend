@@ -7,7 +7,7 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.modules.prompts.models import PromptStatus, PromptType
 
@@ -58,16 +58,18 @@ class PromptBase(BaseModel):
     status: PromptStatus
     version: str
     description: Optional[str]
-    metadata_: Optional[str] = Field(None, alias="metadata")
+    metadata: Optional[str] = Field(
+        None,
+        validation_alias="metadata_",
+        serialization_alias="metadata",
+    )
     is_default: bool
     created_by_id: Optional[UUID]
     updated_by_id: Optional[UUID]
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        orm_mode = True
-        allow_population_by_field_name = True
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
 
 class PromptListItem(BaseModel):
@@ -82,8 +84,7 @@ class PromptListItem(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PromptListResponse(BaseModel):
@@ -99,8 +100,10 @@ class PromptContentResponse(BaseModel):
     type: PromptType
     content: str
     version: str
-    metadata_: Optional[str] = Field(None, alias="metadata")
+    metadata: Optional[str] = Field(
+        None,
+        validation_alias="metadata_",
+        serialization_alias="metadata",
+    )
 
-    class Config:
-        orm_mode = True
-        allow_population_by_field_name = True
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)

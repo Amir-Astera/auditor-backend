@@ -1,31 +1,28 @@
 """Pydantic schemas for authentication endpoints."""
 
 from uuid import UUID
-from pydantic import BaseModel, EmailStr, Field, field_validator
 
-# Максимальная длина пароля для bcrypt (72 байта)
-MAX_PASSWORD_BYTES = 72
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
-def validate_password_length(value: str) -> str:
-    """Проверка длины пароля в байтах (bcrypt ограничение 72 байта)."""
-    if isinstance(value, str):
-        password_bytes = value.encode("utf-8")
-        if len(password_bytes) > MAX_PASSWORD_BYTES:
-            raise ValueError(
-                f"Пароль слишком длинный. Максимум {MAX_PASSWORD_BYTES} байт. "
-                f"Текущая длина в байтах: {len(password_bytes)}."
-            )
-    return value
+
+def validate_password_length(password: str) -> str:
+    """
+    Валидация длины пароля.
+    Field уже проверяет min_length/max_length, эта функция просто возвращает значение.
+    """
+    return password 
+
 
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
 
+
 class AdminLoginRequest(BaseModel):
     email: EmailStr
     password: str = Field(
         min_length=8,
-        max_length=72,
+        max_length=72,  # Примерная длина для ASCII
         description="Административный пароль (минимум 8 символов, максимум 72 байта)"
     )
 
@@ -33,6 +30,7 @@ class AdminLoginRequest(BaseModel):
     @classmethod
     def validate_password(cls, v: str) -> str:
         return validate_password_length(v)
+
 
 class TelegramLoginRequest(BaseModel):
     phone: str = Field(description="Номер телефона в формате Telegram")
@@ -42,6 +40,7 @@ class TelegramLoginRequest(BaseModel):
     @classmethod
     def validate_password(cls, v: str) -> str:
         return validate_password_length(v)
+
 
 class UserCreateRequest(BaseModel):
     email: EmailStr | None = None
@@ -60,6 +59,7 @@ class UserCreateRequest(BaseModel):
     def validate_password(cls, v: str) -> str:
         return validate_password_length(v)
 
+
 class UserBase(BaseModel):
     id: UUID
     email: EmailStr | None = None
@@ -69,4 +69,4 @@ class UserBase(BaseModel):
     is_admin: bool
     is_active: bool
 
-    model_config = {"from_attributes": True}
+    model_config = ConfigDict(from_attributes=True)

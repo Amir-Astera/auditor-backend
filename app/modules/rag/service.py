@@ -28,6 +28,8 @@ from __future__ import annotations
 import logging
 from typing import Any, Dict, Optional
 
+from sqlalchemy.orm import Session
+
 from app.core.config import settings
 from app.modules.files.qdrant_client import QdrantVectorStore
 from app.modules.rag.gemini import GeminiAPI
@@ -59,33 +61,26 @@ class RAGService:
         gemini_api: Optional[GeminiAPI] = None,
         lightrag_working_dir: Optional[str] = None,
         prompts: Optional[PromptsProvider] = None,
-        qdrant: Optional[QdrantVectorStore] = None,
+        qdrant_admin: Optional[QdrantVectorStore] = None,
+        qdrant_client: Optional[QdrantVectorStore] = None,
+        db: Session | None = None,
     ):
         self.gemini_api = gemini_api or GeminiAPI()
+        self.db = db
 
         # Prompts: if not provided, we create a "file fallback only" PromptService-like shim.
         # The real PromptService requires DB session; routers should pass it in.
         self.prompts = prompts
 
-        # Qdrant for hybrid retrieval
-        self.qdrant = qdrant
-        if self.qdrant is None:
-            try:
-                self.qdrant = QdrantVectorStore(
-                    url=settings.QDRANT_URL,
-                    collection_name=settings.QDRANT_COLLECTION_NAME,
-                    vector_size=settings.QDRANT_VECTOR_SIZE,
-                )
-            except Exception as e:
-                logger.warning("Qdrant is not available: %s", e)
-                self.qdrant = None
+        # Qdrant for hybrid retrieval (admin vs client)
+        self.qdrant_admin = qdrant_admin
+        self.qdrant_client = qdrant_client
 
         # LightRAG (optional)
         self.lightrag = None
         try:
             self.lightrag = create_lightrag_service(
                 working_dir=lightrag_working_dir or settings.LIGHTRAG_WORKING_DIR,
-                gemini_api=self.gemini_api,
             )
             logger.info("LightRAG service initialized successfully")
         except Exception as e:
@@ -105,6 +100,7 @@ class RAGService:
         include_admin_laws: bool = True,
         include_customer_docs: bool = True,
         temperature: float = 0.3,
+        owner_id: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Executes hybrid RAG query.
@@ -130,7 +126,7 @@ class RAGService:
         else:
             prompts = self.prompts
 
-        if self.qdrant is None:
+        if self.qdrant_admin is None or self.qdrant_client is None:
             # No retrieval backend; fallback to direct Gemini generation.
             logger.warning(
                 "Qdrant not configured; falling back to direct Gemini generation"
@@ -150,9 +146,11 @@ class RAGService:
             }
 
         hybrid = HybridRAGService(
+            db=self.db,
             gemini=self.gemini_api,
             prompts=prompts,  # PromptService or fallback shim
-            qdrant=self.qdrant,
+            qdrant_admin=self.qdrant_admin,
+            qdrant_client=self.qdrant_client,
             lightrag=self.lightrag,
         )
 
@@ -160,6 +158,7 @@ class RAGService:
             HybridRAGQuery(
                 question=question,
                 customer_id=customer_id,
+                owner_id=owner_id,
                 include_admin_laws=include_admin_laws,
                 include_customer_docs=include_customer_docs,
                 top_k=top_k,
@@ -174,6 +173,7 @@ class RAGService:
             "nodes": result.nodes,
             "edges": result.edges,
             "mode": result.mode,
+            "debug": result.debug,
         }
 
     def evidence(
@@ -184,6 +184,7 @@ class RAGService:
         customer_id: Optional[str] = None,
         include_admin_laws: bool = True,
         include_customer_docs: bool = True,
+        owner_id: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Retrieval-only (no generation). Intended for /rag/evidence endpoint.
@@ -206,14 +207,16 @@ class RAGService:
         else:
             prompts = self.prompts
 
-        if self.qdrant is None:
+        if self.qdrant_admin is None or self.qdrant_client is None:
             logger.warning("Qdrant not configured; returning empty evidence set")
             return {"context": [], "nodes": [], "edges": [], "mode": mode}
 
         hybrid = HybridRAGService(
+            db=self.db,
             gemini=self.gemini_api,
             prompts=prompts,  # PromptsProvider
-            qdrant=self.qdrant,
+            qdrant_admin=self.qdrant_admin,
+            qdrant_client=self.qdrant_client,
             lightrag=self.lightrag,
         )
 
@@ -221,6 +224,7 @@ class RAGService:
             HybridRAGQuery(
                 question=question,
                 customer_id=customer_id,
+                owner_id=owner_id,
                 include_admin_laws=include_admin_laws,
                 include_customer_docs=include_customer_docs,
                 top_k=top_k,
@@ -235,6 +239,7 @@ class RAGService:
             "nodes": payload.get("nodes", []),
             "edges": payload.get("edges", []),
             "mode": payload.get("mode", mode),
+            "debug": payload.get("debug"),
         }
 
     # -------------------------

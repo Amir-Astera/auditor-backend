@@ -14,6 +14,7 @@ from app.core.config import settings
 class Base(DeclarativeBase):
     pass
 
+import app.models
 
 def _create_engine():
     """Create a SQLAlchemy engine with UTF-8 enforced.
@@ -25,8 +26,10 @@ def _create_engine():
     """
 
     try:
+        # Convert PostgresDsn to string for SQLAlchemy
+        database_url = str(settings.DATABASE_URL)
         return create_engine(
-            settings.DATABASE_URL,
+            database_url,
             pool_pre_ping=True,
             connect_args={"client_encoding": "utf8"},
         )

@@ -10,9 +10,11 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 from uuid import UUID
 
+from sqlalchemy.exc import ProgrammingError
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
+from app.core.db import Base, engine
 from app.core.logging import get_logger
 from app.modules.prompts.models import Prompt, PromptStatus, PromptType
 from app.modules.prompts.schemas import PromptCreate, PromptUpdate
@@ -38,12 +40,23 @@ class PromptService:
         self.db = db
         self._cache: Dict[PromptType, str] = {}
 
+    def _ensure_prompts_table(self) -> None:
+        try:
+            Base.metadata.create_all(bind=engine, tables=[Prompt.__table__])
+        except Exception as e:
+            logger.warning(
+                "Failed to ensure prompts table",
+                extra={"error": str(e)},
+            )
+
     def create_prompt(
         self,
         prompt_data: PromptCreate,
         created_by_id: UUID | None = None,
     ) -> Prompt:
         """Создать новый промпт."""
+        self._ensure_prompts_table()
+
         prompt = Prompt(
             name=prompt_data.name,
             type=prompt_data.type,
@@ -61,9 +74,17 @@ class PromptService:
         if prompt.is_default:
             self._unset_default_for_type(prompt.type)
 
-        self.db.add(prompt)
-        self.db.commit()
-        self.db.refresh(prompt)
+        try:
+            self.db.add(prompt)
+            self.db.commit()
+            self.db.refresh(prompt)
+        except ProgrammingError as e:
+            self.db.rollback()
+            logger.warning(
+                "Prompt DB create failed",
+                extra={"type": prompt.type.value, "error": str(e)},
+            )
+            raise
 
         # Сбрасываем кеш для этого типа
         self._cache.pop(prompt.type, None)
@@ -73,7 +94,7 @@ class PromptService:
             extra={
                 "prompt_id": str(prompt.id),
                 "type": prompt.type.value,
-                "name": prompt.name,
+                "prompt_name": prompt.name,
             },
         )
 
@@ -145,7 +166,20 @@ class PromptService:
         query = query.order_by(Prompt.created_at.desc())
         query = query.limit(limit).offset(offset)
 
-        return query.all()
+        try:
+            return query.all()
+        except ProgrammingError as e:
+            self.db.rollback()
+            logger.warning(
+                "Prompt DB list_prompts failed; returning empty list",
+                extra={
+                    "type": prompt_type.value if prompt_type else None,
+                    "status": status.value if status else None,
+                    "is_default": is_default,
+                    "error": str(e),
+                },
+            )
+            return []
 
     def delete_prompt(self, prompt_id: UUID) -> bool:
         """Удалить промпт (мягкое удаление - перевод в ARCHIVED)."""
@@ -181,15 +215,23 @@ class PromptService:
             return self._cache[prompt_type]
 
         # Ищем в БД
-        prompt = (
-            self.db.query(Prompt)
-            .filter(
-                Prompt.type == prompt_type,
-                Prompt.status == PromptStatus.ACTIVE,
-                Prompt.is_default == True,
+        try:
+            prompt = (
+                self.db.query(Prompt)
+                .filter(
+                    Prompt.type == prompt_type,
+                    Prompt.status == PromptStatus.ACTIVE,
+                    Prompt.is_default == True,
+                )
+                .first()
             )
-            .first()
-        )
+        except ProgrammingError as e:
+            self.db.rollback()
+            logger.warning(
+                "Prompt DB lookup failed; falling back to file prompts",
+                extra={"type": prompt_type.value, "error": str(e)},
+            )
+            prompt = None
 
         if prompt:
             content = prompt.content
@@ -260,10 +302,18 @@ class PromptService:
 
     def _unset_default_for_type(self, prompt_type: PromptType) -> None:
         """Убрать флаг is_default у всех промптов данного типа."""
-        self.db.query(Prompt).filter(
-            Prompt.type == prompt_type,
-            Prompt.is_default == True,
-        ).update({"is_default": False})
+        try:
+            self.db.query(Prompt).filter(
+                Prompt.type == prompt_type,
+                Prompt.is_default == True,
+            ).update({"is_default": False})
+        except ProgrammingError as e:
+            self.db.rollback()
+            logger.warning(
+                "Prompt DB unset default failed",
+                extra={"type": prompt_type.value, "error": str(e)},
+            )
+            self._ensure_prompts_table()
 
     def seed_from_files(self) -> int:
         """
@@ -272,6 +322,8 @@ class PromptService:
         Используется при первом запуске или для восстановления.
         Возвращает количество созданных промптов.
         """
+        self._ensure_prompts_table()
+
         created_count = 0
 
         file_mapping = {

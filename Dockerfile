@@ -1,7 +1,8 @@
-FROM python:3.11-slim
+FROM python:3.11-slim-bookworm
+
 
 # Установка системных зависимостей
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     postgresql-client \
     curl \
@@ -17,7 +18,8 @@ RUN pip install --upgrade pip
 COPY requirements.txt .
 
 # Установка Python зависимостей
-RUN pip install --no-cache-dir --upgrade -r requirements.txt
+RUN pip install --no-cache-dir --upgrade -r requirements.txt --use-deprecated=legacy-resolver
+
 
 # Копирование кода приложения
 COPY . .

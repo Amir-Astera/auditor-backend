@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.db import get_db
+from app.modules.auth.models import User
 from app.modules.auth.router import get_current_user
 from app.modules.files.qdrant_client import QdrantVectorStore
 from app.modules.prompts.service import PromptService
@@ -32,17 +33,27 @@ def _get_rag_service(db: Session = Depends(get_db)) -> RAGService:
 
     prompts = PromptService(db)
 
-    qdrant = QdrantVectorStore(
+    admin_collection = settings.QDRANT_COLLECTION_ADMIN or settings.QDRANT_COLLECTION_NAME
+    client_collection = settings.QDRANT_COLLECTION_CLIENT or settings.QDRANT_COLLECTION_NAME
+
+    qdrant_admin = QdrantVectorStore(
         url=settings.QDRANT_URL,
-        collection_name=settings.QDRANT_COLLECTION_NAME,
+        collection_name=admin_collection,
+        vector_size=settings.QDRANT_VECTOR_SIZE,
+    )
+    qdrant_client = QdrantVectorStore(
+        url=settings.QDRANT_URL,
+        collection_name=client_collection,
         vector_size=settings.QDRANT_VECTOR_SIZE,
     )
 
     return RAGService(
         gemini_api=gemini_api,
         prompts=prompts,
-        qdrant=qdrant,
+        qdrant_admin=qdrant_admin,
+        qdrant_client=qdrant_client,
         lightrag_working_dir=settings.LIGHTRAG_WORKING_DIR,
+        db=db,
     )
 
 
@@ -55,7 +66,7 @@ def _get_rag_service(db: Session = Depends(get_db)) -> RAGService:
 async def query_rag(
     request: RAGQueryRequest,
     service: RAGService = Depends(_get_rag_service),
-    _=Depends(get_current_user),
+    user: User = Depends(get_current_user),
 ):
     """
     Выполняет запрос к RAG системе.
@@ -66,6 +77,13 @@ async def query_rag(
     - lightrag: только LightRAG (если доступен) + Gemini generation/fallback
     """
     try:
+        owner_id = None if getattr(user, "is_admin", False) else str(user.id)
+        if owner_id is not None and request.include_admin_laws:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Forbidden: employees cannot query admin laws",
+            )
+
         result = service.query(
             question=request.question,
             mode=request.mode,
@@ -74,6 +92,7 @@ async def query_rag(
             include_admin_laws=request.include_admin_laws,
             include_customer_docs=request.include_customer_docs,
             temperature=request.temperature,
+            owner_id=owner_id,
         )
         return RAGQueryResponse(**result)
     except Exception as e:
@@ -92,12 +111,19 @@ async def query_rag(
 async def rag_evidence(
     request: RAGEvidenceRequest,
     service: RAGService = Depends(_get_rag_service),
-    _=Depends(get_current_user),
+    user: User = Depends(get_current_user),
 ):
     """
     Retrieval-only endpoint для отладки и трассируемости.
     """
     try:
+        owner_id = None if getattr(user, "is_admin", False) else str(user.id)
+        if owner_id is not None and request.include_admin_laws:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Forbidden: employees cannot query admin laws",
+            )
+
         result = service.evidence(
             question=request.question,
             mode=request.mode,
@@ -105,6 +131,7 @@ async def rag_evidence(
             customer_id=request.customer_id,
             include_admin_laws=request.include_admin_laws,
             include_customer_docs=request.include_customer_docs,
+            owner_id=owner_id,
         )
         return RAGEvidenceResponse(**result)
     except Exception as e:

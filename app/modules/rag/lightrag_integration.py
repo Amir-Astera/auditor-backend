@@ -1,190 +1,409 @@
 """
-Интеграция LIGHTRAG в модуль RAG проекта.
+Интеграция LightRAG (lightrag-hku) в проект.
 
-LIGHTRAG - это легковесная реализация RAG с использованием графа знаний.
-Интегрируется с существующей инфраструктурой: Gemini API, MinIO, Postgres.
+ВАЖНО:
+- lightrag-hku используется как БИБЛИОТЕКА: никаких отдельных сервисов/портов запускать не нужно.
+- Для корректной работы LightRAG embedding_func должен быть экземпляром dataclass EmbeddingFunc.
+  Иначе падает с: "replace() should be called on dataclass instances"
 
-Цели этого модуля:
-- корректно работать даже если `lightrag` не установлен
-- не падать при импорте (важно для uvicorn reload / CI)
-- быть дружелюбным к статическому анализатору типов
+Данный модуль:
+- безопасно импортирует LightRAG (может отключиться, если пакета нет)
+- предоставляет LightRAGService для insert/query
+- использует Google GenAI SDK (google-genai) для LLM и Embeddings
+- устойчив к ошибкам сети (retries), не вводит в заблуждение логами
+
+ФИКС ДЛЯ ARQ/ASYNCIO:
+- LightRAG.insert() внутри делает loop.run_until_complete(...), что падает внутри уже запущенного event loop:
+  RuntimeError: This event loop is already running
+- Поэтому если asyncio loop уже запущен (arq/uvicorn/FastAPI), выполняем ainsert/aquery
+  в ОТДЕЛЬНОМ потоке через asyncio.run().
 """
 
+from __future__ import annotations
+
+import asyncio
 import logging
+import os
+from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Sequence, Union
 
-try:
-    # Попытка импорта LIGHTRAG.
-    # Важно: в средах без установленного пакета (или без type stubs) статический анализатор
-    # может ругаться на "Import could not be resolved". Это безопасно для рантайма, так как
-    # импорт находится внутри try/except и корректно обрабатывается.
-    from lightrag import LightRAG as _LightRAG  # type: ignore[import-not-found]
-    from lightrag import QueryParam as _QueryParam  # type: ignore[import-not-found]
-
-    LIGHTRAG_AVAILABLE = True
-except Exception:
-    _LightRAG = None  # type: ignore[assignment]
-    _QueryParam = None  # type: ignore[assignment]
-    LIGHTRAG_AVAILABLE = False
-
-if not LIGHTRAG_AVAILABLE:
-    logging.warning("LIGHTRAG not installed. Install with: pip install lightrag")
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 from app.core.config import settings
-from app.modules.rag.gemini import GeminiAPI
 
 logger = logging.getLogger(__name__)
 
+# -----------------------------
+# Safe imports: LightRAG
+# -----------------------------
+try:
+    from lightrag import LightRAG as _LightRAG  # type: ignore
+    from lightrag import QueryParam as _QueryParam  # type: ignore
+    from lightrag.base import EmbeddingFunc as _EmbeddingFunc  # type: ignore
 
-class GeminiLLMAdapter:
-    """Адаптер для использования GeminiAPI с LIGHTRAG."""
+    LIGHTRAG_AVAILABLE = True
+except Exception as e:
+    _LightRAG = None  # type: ignore
+    _QueryParam = None  # type: ignore
+    _EmbeddingFunc = None  # type: ignore
+    LIGHTRAG_AVAILABLE = False
+    logger.warning(
+        "LightRAG import failed: %s. LightRAG features will be disabled.", e, exc_info=True
+    )
 
-    def __init__(self, gemini_api: GeminiAPI):
-        self.gemini_api = gemini_api
-
-    def complete(
-        self, prompt: str, system_prompt: Optional[str] = None, **kwargs
-    ) -> str:
-        """
-        Выполняет запрос к Gemini LLM.
-
-        Важно:
-        - Новый GeminiAPI возвращает строку (а не JSON candidates).
-        """
-        full_prompt = prompt
-        if system_prompt:
-            full_prompt = f"{system_prompt}\n\n{prompt}"
-
-        try:
-            # GeminiAPI.generate_content оставлен как алиас и возвращает str
-            return self.gemini_api.generate_content(full_prompt)
-        except Exception as e:
-            logger.error(f"Error calling Gemini API: {e}")
-            raise
+# -----------------------------
+# Safe imports: Google GenAI
+# -----------------------------
+try:
+    from google import genai  # type: ignore
+except Exception as e:
+    genai = None  # type: ignore
+    logger.warning("google-genai import failed: %s", e, exc_info=True)
 
 
-class LightRAGService:
-    """Сервис для работы с LIGHTRAG."""
+@dataclass(frozen=True)
+class LightRAGConfig:
+    working_dir: str
+    llm_model: str
+    embedding_model: str
+    embedding_dim: int = 3072
+    max_token_size: int = 8192
+    send_dimensions: bool = False
+
+
+class GeminiGenAI:
+    """
+    Тонкая обёртка над google-genai.
+    Создаёт клиент на каждый вызов (статлес), чтобы не держать state/locks в воркере.
+    """
 
     def __init__(
         self,
-        working_dir: str = "./lightrag_cache",
-        gemini_api: Optional[GeminiAPI] = None,
-    ):
-        if not LIGHTRAG_AVAILABLE or _LightRAG is None or _QueryParam is None:
-            raise ImportError(
-                "LIGHTRAG not installed. Install with: pip install lightrag"
+        api_key: Optional[str] = None,
+        llm_model: Optional[str] = None,
+        embedding_model: Optional[str] = None,
+        timeout_s: int = 60,
+    ) -> None:
+        if genai is None:
+            raise RuntimeError("google-genai is not installed / import failed")
+
+        self.api_key = api_key
+        self.llm_model = llm_model
+        self.embedding_model = embedding_model
+        self.timeout_s = timeout_s
+
+    def _client(self):
+        return genai.Client(api_key=self.api_key)
+
+    @retry(
+        reraise=True,
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=1, max=8),
+        retry=retry_if_exception_type(Exception),
+    )
+    def generate(self, prompt: str, system_prompt: Optional[str] = None) -> str:
+        client = self._client()
+        model = self.llm_model or "gemini-2.5-flash"
+        # google-genai обычно принимает system_instruction отдельно
+        # но у тебя в проекте уже есть рабочая схема — оставляем максимально нейтрально:
+        full_prompt = prompt if not system_prompt else f"{system_prompt}\n\n{prompt}"
+
+        resp = client.models.generate_content(
+            model=model,
+            contents=full_prompt,
+        )
+        # Библиотека возвращает разные структуры, но text — самый частый путь
+        return getattr(resp, "text", "") or ""
+
+    @retry(
+        reraise=True,
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=1, max=8),
+        retry=retry_if_exception_type(Exception),
+    )
+    def embed(self, texts: Sequence[str], dims: Optional[int] = None) -> List[List[float]]:
+        client = self._client()
+        model = self.embedding_model or "models/text-embedding-004"
+        if model == "models/text-embedding-001":
+            model = "models/text-embedding-004"
+
+        vectors: List[List[float]] = []
+        for t in texts:
+            if dims is not None:
+                resp = client.models.embed_content(
+                    model=model,
+                    contents=t,
+                    config={"output_dimensionality": dims},
+                )
+            else:
+                resp = client.models.embed_content(
+                    model=model,
+                    contents=t,
+                )
+
+            emb = getattr(resp, "embeddings", None)
+            if emb and isinstance(emb, list) and len(emb) > 0:
+                # типично resp.embeddings[0].values
+                v = getattr(emb[0], "values", None)
+                if v is None:
+                    v = getattr(emb[0], "embedding", None)
+                if v is None:
+                    raise RuntimeError("Unexpected embedding response shape")
+                vectors.append(list(v))
+            else:
+                # иногда бывает resp.embedding / resp.values
+                v = getattr(resp, "values", None) or getattr(resp, "embedding", None)
+                if v is None:
+                    raise RuntimeError("Unexpected embedding response shape")
+                vectors.append(list(v))
+
+        return vectors
+
+
+class LightRAGService:
+    """
+    Продакшн-обёртка LightRAG.
+    - Если LightRAG/зависимости не установлены, сервис отключается и методы insert/query кидают понятную ошибку.
+    - Исправляет проблему "This event loop is already running" внутри arq/asyncio.
+    """
+
+    def __init__(
+        self,
+        config: Optional[LightRAGConfig] = None,
+    ) -> None:
+        if not LIGHTRAG_AVAILABLE:
+            self.cfg = None
+            self.working_dir = None  # type: ignore
+            self.rag = None
+            logger.warning("LightRAG is not available, service is disabled.")
+            return
+
+        cfg = config or LightRAGConfig(
+            working_dir=getattr(settings, "LIGHTRAG_WORKING_DIR", "./lightrag_cache"),
+            llm_model=getattr(settings, "LIGHTRAG_LLM_MODEL", "gemini-2.5-flash"),
+            embedding_model=getattr(settings, "LIGHTRAG_EMBEDDING_MODEL", "models/text-embedding-004"),
+            embedding_dim=getattr(settings, "LIGHTRAG_EMBED_DIM", 3072),
+            max_token_size=getattr(settings, "LIGHTRAG_EMBED_MAX_TOKENS", 8192),
+            send_dimensions=getattr(settings, "LIGHTRAG_SEND_DIMENSIONS", False),
+        )
+
+        if cfg.embedding_model == "models/text-embedding-001":
+            cfg = LightRAGConfig(
+                working_dir=cfg.working_dir,
+                llm_model=cfg.llm_model,
+                embedding_model="models/text-embedding-004",
+                embedding_dim=cfg.embedding_dim,
+                max_token_size=cfg.max_token_size,
+                send_dimensions=cfg.send_dimensions,
             )
 
-        self.working_dir = Path(working_dir or settings.LIGHTRAG_WORKING_DIR)
+        self.cfg = cfg
+        self.working_dir = Path(cfg.working_dir)
         self.working_dir.mkdir(parents=True, exist_ok=True)
 
-        if gemini_api is None:
-            gemini_api = GeminiAPI()
-        self.gemini_adapter = GeminiLLMAdapter(gemini_api)
+        # LightRAG пишет в working_dir (граф/кэш). Чтобы избежать гонок при нескольких задачах,
+        # сериализуем insert/query через один поток.
+        self._executor = ThreadPoolExecutor(max_workers=1)
 
+        self._gemini = GeminiGenAI(
+            api_key=getattr(settings, "GEMINI_API_KEY", None),
+            llm_model=cfg.llm_model,
+            embedding_model=cfg.embedding_model,
+        )
+
+        # ---- LLM wrapper for LightRAG (expects callable(prompt, system_prompt?, **kwargs) -> str)
+        def llm_wrapper(prompt: str, system_prompt: Optional[str] = None, **kwargs) -> str:
+            return self._gemini.generate(prompt=prompt, system_prompt=system_prompt)
+
+        # ---- Embedding wrapper for LightRAG
+        # ВАЖНО: LightRAG ожидает EmbeddingFunc(dataclass) и внутри делает dataclasses.replace(...)
+        if _EmbeddingFunc is None:
+            raise RuntimeError("LightRAG EmbeddingFunc is not available")
+
+        embedding_func = _EmbeddingFunc(  # type: ignore
+            embedding_dim=cfg.embedding_dim,
+            max_token_size=cfg.max_token_size,
+            func=lambda texts: self._gemini.embed(
+                texts=texts,
+                dims=(cfg.embedding_dim if cfg.send_dimensions else None),
+            ),
+        )
+
+        self.rag = None
         try:
-            # используем локальные алиасы _LightRAG/_QueryParam, чтобы не было 'possibly unbound'
+            # Best-effort: force LightRAG to use Qdrant instead of NanoVectorDBStorage.
+            # This avoids having a parallel local vector store (nano-vectordb).
+            # LightRAG reads many storage settings from env vars.
+            try:
+                os.environ.setdefault("LIGHTRAG_VECTOR_STORAGE", "QdrantVectorDBStorage")
+                os.environ.setdefault("QDRANT_URL", getattr(settings, "QDRANT_URL", ""))
+            except Exception:
+                pass
+
             self.rag = _LightRAG(
                 working_dir=str(self.working_dir),
-                llm_model_func=self.gemini_adapter.complete,
+                llm_model_func=llm_wrapper,
+                embedding_func=embedding_func,
+            )
+
+            logger.info(
+                "LightRAG initialized OK. working_dir=%s llm_model=%s embed_model=%s dim=%s",
+                self.working_dir,
+                cfg.llm_model,
+                cfg.embedding_model,
+                cfg.embedding_dim,
             )
         except Exception as e:
-            logger.error(f"Error initializing LightRAG: {e}")
             self.rag = None
+            logger.error("LightRAG init failed (disabled). error=%s", e, exc_info=True)
 
-        logger.info(f"LightRAG initialized with working_dir: {self.working_dir}")
+    def is_ready(self) -> bool:
+        return self.rag is not None
 
-    def insert(self, text: str, metadata: Optional[Dict[str, Any]] = None) -> str:
-        """
-        Вставляет текст в граф знаний LIGHTRAG.
-
-        metadata пока не гарантированно используется LightRAG (зависит от версии),
-        но сохраняется на уровне вашего приложения при необходимости.
-        """
-        if not self.rag:
-            raise RuntimeError("LightRAG is not initialized")
-
+    @staticmethod
+    def _loop_is_running() -> bool:
+        """True, если сейчас мы внутри уже запущенного asyncio event loop."""
         try:
-            result = self.rag.insert(text)
-            logger.info(f"Text inserted into LightRAG graph: {len(text)} characters")
-            return str(result)
-        except Exception as e:
-            logger.error(f"Error inserting text into LightRAG: {e}")
-            raise
+            asyncio.get_running_loop()
+            return True
+        except RuntimeError:
+            return False
 
-    def query(
-        self, question: str, mode: str = "hybrid", top_k: int = 5, **kwargs
-    ) -> Dict[str, Any]:
+    def insert(self, text: str, metadata: Optional[Dict[str, Any]] = None) -> Any:
         """
-        Выполняет запрос к графу знаний.
+        Вставка текста в LightRAG (создание/обогащение KG и индексов внутри LightRAG).
+        """
+        _ = metadata
+        if not self.rag:
+            raise RuntimeError("LightRAG is disabled (init failed). Check logs.")
+        if not text or not text.strip():
+            raise ValueError("insert(): text is empty")
 
-        Возвращаемый формат адаптирован под RAG роутер.
+        # Если мы не внутри running-loop — можно безопасно вызывать синхронный insert()
+        if not self._loop_is_running():
+            return self.rag.insert(text)
+
+        # Если loop уже запущен (arq/uvicorn/FastAPI) — внутри LightRAG.insert есть run_until_complete,
+        # что приводит к: RuntimeError('This event loop is already running').
+        # Поэтому выполняем ainsert() в отдельном потоке через asyncio.run().
+        def _run_in_thread():
+            if hasattr(self.rag, "ainsert"):
+                return asyncio.run(self.rag.ainsert(text))
+            # fallback на синхронный insert (в отдельном потоке)
+            return self.rag.insert(text)
+
+        return self._executor.submit(_run_in_thread).result()
+
+    def delete(self, node_id: str) -> bool:
+        """Best-effort delete. Depends on LightRAG version."""
+        if not self.rag:
+            raise RuntimeError("LightRAG is disabled (init failed). Check logs.")
+
+        # Some versions expose delete_node/delete API. We try a few.
+        for attr in ("delete", "delete_node", "remove_node"):
+            fn = getattr(self.rag, attr, None)
+            if callable(fn):
+                try:
+                    res = fn(node_id)
+                    return bool(res) if res is not None else True
+                except Exception:
+                    logger.exception("LightRAG delete failed")
+                    return False
+        return False
+
+    def query(self, question: str, mode: str = "hybrid", top_k: int = 5, **kwargs) -> Dict[str, Any]:
+        """
+        Запрос к LightRAG.
+        Возвращает унифицированный dict.
         """
         if not self.rag:
-            raise RuntimeError("LightRAG is not initialized")
+            raise RuntimeError("LightRAG is disabled (init failed). Check logs.")
         if _QueryParam is None:
             raise RuntimeError("LightRAG QueryParam is not available")
 
+        qp = _QueryParam(
+            question=question,
+            mode=mode,
+            top_k=top_k,
+            **kwargs,
+        )
+
+        if not self._loop_is_running():
+            result = self.rag.query(qp)
+        else:
+            def _run_query_in_thread():
+                if hasattr(self.rag, "aquery"):
+                    return asyncio.run(self.rag.aquery(qp))
+                return self.rag.query(qp)
+
+            result = self._executor.submit(_run_query_in_thread).result()
+
+        if isinstance(result, dict):
+            return {
+                "answer": result.get("answer", ""),
+                "context": result.get("context", []),
+                "nodes": result.get("nodes", []),
+                "edges": result.get("edges", []),
+            }
+
+        return {"answer": str(result), "context": [], "nodes": [], "edges": []}
+
+    def close(self) -> None:
+        """Аккуратно закрыть thread pool (если нужно при shutdown)."""
         try:
-            query_param = _QueryParam(
-                question=question, mode=mode, top_k=top_k, **kwargs
-            )
-            result = self.rag.query(query_param)
-
-            logger.info(
-                f"LightRAG query completed: mode={mode}, question_length={len(question)}"
-            )
-
-            # Некоторые версии LightRAG возвращают dict, некоторые строку.
-            if isinstance(result, dict):
-                return {
-                    "answer": result.get("answer", ""),
-                    "context": result.get("context", []),
-                    "nodes": result.get("nodes", []),
-                    "edges": result.get("edges", []),
-                }
-
-            return {"answer": str(result), "context": [], "nodes": [], "edges": []}
-
-        except Exception as e:
-            logger.error(f"Error querying LightRAG: {e}")
-            raise
-
-    def delete(self, node_id: str) -> bool:
-        """Удаляет узел из графа знаний (best effort, зависит от версии LightRAG)."""
-        try:
-            logger.info(f"Deleting node from LightRAG: {node_id}")
-            return True
-        except Exception as e:
-            logger.error(f"Error deleting node from LightRAG: {e}")
-            return False
+            self._executor.shutdown(wait=True, cancel_futures=True)
+        except Exception:
+            pass
 
     def get_graph_stats(self) -> Dict[str, Any]:
-        """Возвращает статистику графа знаний."""
+        """Best-effort graph stats for /rag/stats."""
+        if not self.rag:
+            return {"nodes_count": 0, "edges_count": 0, "working_dir": str(self.working_dir)}
+
+        nodes_count = 0
+        edges_count = 0
         try:
-            return {
-                "working_dir": str(self.working_dir),
-                "nodes_count": 0,
-                "edges_count": 0,
-            }
-        except Exception as e:
-            logger.error(f"Error getting graph stats: {e}")
-            return {"error": str(e)}
+            # Some versions expose graph_storage with NetworkX-like graph.
+            gs = getattr(self.rag, "graph_storage", None)
+            g = getattr(gs, "graph", None) if gs is not None else getattr(self.rag, "graph", None)
+            if g is not None:
+                nodes_count = int(getattr(g, "number_of_nodes")()) if callable(getattr(g, "number_of_nodes", None)) else int(len(getattr(g, "nodes", [])))
+                edges_count = int(getattr(g, "number_of_edges")()) if callable(getattr(g, "number_of_edges", None)) else int(len(getattr(g, "edges", [])))
+        except Exception:
+            logger.exception("Failed to compute LightRAG graph stats")
+
+        return {
+            "nodes_count": nodes_count,
+            "edges_count": edges_count,
+            "working_dir": str(self.working_dir),
+        }
 
 
 def create_lightrag_service(
     working_dir: Optional[str] = None,
-    gemini_api: Optional[GeminiAPI] = None,
 ) -> LightRAGService:
     """
-    Фабрика для создания LightRAGService.
+    Фабрика. Можно подменить working_dir для тестов.
     """
-    if working_dir is None:
-        working_dir = settings.LIGHTRAG_WORKING_DIR
-
-    return LightRAGService(
-        working_dir=working_dir,
-        gemini_api=gemini_api,
+    cfg = LightRAGConfig(
+        working_dir=working_dir or getattr(settings, "LIGHTRAG_WORKING_DIR", "./lightrag_cache"),
+        llm_model=getattr(settings, "LIGHTRAG_LLM_MODEL", "gemini-2.5-flash"),
+        embedding_model=getattr(settings, "LIGHTRAG_EMBEDDING_MODEL", "models/text-embedding-004"),
+        embedding_dim=getattr(settings, "LIGHTRAG_EMBED_DIM", 3072),
+        max_token_size=getattr(settings, "LIGHTRAG_EMBED_MAX_TOKENS", 8192),
+        send_dimensions=getattr(settings, "LIGHTRAG_SEND_DIMENSIONS", False),
     )
+
+    if cfg.embedding_model == "models/text-embedding-001":
+        cfg = LightRAGConfig(
+            working_dir=cfg.working_dir,
+            llm_model=cfg.llm_model,
+            embedding_model="models/text-embedding-004",
+            embedding_dim=cfg.embedding_dim,
+            max_token_size=cfg.max_token_size,
+            send_dimensions=cfg.send_dimensions,
+        )
+
+    return LightRAGService(config=cfg)
