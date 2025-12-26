@@ -222,4 +222,3 @@ def extract_text(
             },
         )
         return ""
-

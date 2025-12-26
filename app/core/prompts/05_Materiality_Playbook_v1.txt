@@ -1,0 +1,283 @@
+# TRI-S-AUDIT — Materiality Playbook (EN/RU)
+# Version: v1.0
+# Date: 2025-09-19
+# Source: TRI-S-AUDIT (Trusted Source)
+# Author: Igor Tilepin
+# Reference Framework: International Standards on Auditing (ISA / МСА); firm policy anchored to ISA 320 & ISA 450
+
+----------------------------------------------------------------------
+NOTE FOR CUSTOM GPT:
+This file defines strict rules, calculations, and working-paper formats for determining
+materiality. It is aligned with ISA 320 and ISA 450 and embeds TRI-S-AUDIT policy.
+ALWAYS ask the routing questions first, then compute, then output the WORKPAPER.
+----------------------------------------------------------------------
+
+[CONTENT START]
+
+============================================================
+00) TRI-S-AUDIT POLICY (EN/RU)
+============================================================
+EN — Firm Policy (Overall Materiality, OM)
+- Default benchmark: **Revenue**.
+- Default range: **0.5%–1.5% of revenue**.
+- Choose a point-in-range using risk and context (see Section 02).
+- For PIE/listed entities → bias toward the **lower end** of the range.
+- If revenue is not appropriate (e.g., highly volatile sales, asset‑intensive entities, financials, NFP) → use an alternative benchmark per Section 01.
+- Document rationale in WORKPAPER.
+
+RU — Политика фирмы (Общая существенность, OM)
+- Базовый бенчмарк: **Выручка**.
+- Диапазон по умолчанию: **0,5%–1,5% от выручки**.
+- Точку в диапазоне выбирайте с учетом риска и контекста (см. раздел 02).
+- Для публичных/PIE → смещаемся к **нижней границе** диапазона.
+- Если выручка неуместна (сильная волатильность, активо‑емкие отрасли, финсектор, НКО) → альтернативы в разделе 01.
+- Обоснование фиксируйте в рабочем документе.
+
+============================================================
+01) ACCEPTABLE BENCHMARKS (EN/RU)
+============================================================
+EN — Benchmarks (use professional judgment; pick ONE primary, record alternatives tested):
+- Profit before tax (PBT) — typical range **5%–10%**.
+- Total assets — typical range **1%–2%**.
+- Equity/Net assets — typical range **2%–5%**.
+- Revenue (TRI-S-AUDIT default) — typical range **0.5%–1.5%** (firm policy).
+- For NFP/Cost‑centric entities — total expenses or revenue: **0.5%–3%**.
+
+RU — Допустимые бенчмарки (выберите ОДИН основной, альтернативы задокументируйте):
+- Прибыль до налогообложения (PBT) — типично **5%–10%**.
+- Совокупные активы — **1%–2%**.
+- Капитал/Чистые активы — **2%–5%**.
+- Выручка (политика TRI‑S‑AUDIT) — **0,5%–1,5%**.
+- Для НКО/затрато‑ориентированных — расходы или выручка: **0,5%–3%**.
+
+[INSTRUCTION] If profits are negative/volatile → avoid PBT; prefer Revenue or Assets.
+If margins are very thin with high volume (retail, distribution) → Revenue is often more relevant.
+If capital‑intensive (utilities, real estate) → Assets/Equity may be preferable.
+For banks/insurers → consider Assets or Total income depending on model. [/INSTRUCTION]
+
+============================================================
+02) RANGE SELECTION LOGIC (EN/RU)
+============================================================
+EN — Pick % within range using these levers:
+- Risk of material misstatement (higher risk → lower % of benchmark → lower OM).
+- Entity type: PIE/listed → lower end; SME/non‑listed → mid‑range unless risk dictates.
+- Volatility and covenants: high volatility or tight covenants → lower end.
+- Prior misstatements/control weaknesses → lower end.
+- Stable history/effective controls → consider mid‑to‑upper end.
+
+RU — Выбор процента в диапазоне:
+- Риск существенного искажения (выше риск → ниже % → ниже OM).
+- Тип: PIE/публичная → нижняя граница; некотируемая/МСБ → середина, если риск не требует снижения.
+- Волатильность/ковенанты: высокая волатильность или «чувствительные» ковенанты → нижняя граница.
+- История искажений/слабый контроль → нижняя граница.
+- Стабильная история/эффективные контроли → середина/верх диапазона.
+
+============================================================
+03) PERFORMANCE MATERIALITY (PM) & SPECIFIC MATERIALITY (SM)
+============================================================
+EN — PM = **50%–75%** of OM (set lower for higher risk; higher for lower risk).
+- High risk (frequent misstatements, weak ICFR) → **50%–60%** of OM.
+- Moderate risk → **60%–70%** of OM.
+- Low risk (effective controls, stable) → **70%–75%** of OM.
+
+RU — Рабочая существенность (PM) = **50%–75%** от OM.
+- Высокий риск → **50%–60%**.
+- Средний → **60%–70%**.
+- Низкий → **70%–75%**.
+
+EN — Specific Materiality (SM) for disclosures/line items of high sensitivity (e.g., related parties, covenants, EPS for listed, regulatory ratios). SM may be **lower than OM**. Document rationale.
+
+RU — Специальная существенность (SM) для чувствительных раскрытий (связанные стороны, ковенанты, EPS, регуляторные показатели) и может быть **ниже OM**. Обосновать.
+
+============================================================
+04) CLEARLY TRIVIAL THRESHOLD (CTT)
+============================================================
+EN — CTT = **3%–5% of OM** (default **5%** if history is clean; use **3%** if risk/misstatements history suggests).
+RU — Порог «очевидной тривиальности» (CTT) = **3%–5% от OM** (по умолчанию **5%**, при повышенном риске — **3%**).
+[INSTRUCTION] Misstatements below CTT are not accumulated. All others are accumulated and evaluated under ISA 450. [/INSTRUCTION]
+
+============================================================
+05) GROUP & COMPONENT MATERIALITY (ISA 600)
+============================================================
+EN — Steps:
+- Determine Group OM (per Sections 01–02).
+- Allocate Component OM so that the **sum of component misstatements** cannot exceed Group OM (headroom required).
+- Set Component PM (50%–75% of Component OM).
+- Consider **component significance** (qualitative/quantitative). Lower thresholds for significant components.
+- Communicate thresholds to component auditors; require alignment and timely revision if Group OM changes.
+
+RU — Шаги: определить групповую OM; распределить OM по компонентам с запасом; установить PM компонентов (50%–75%); учесть значимость компонентов; коммуницировать и при необходимости пересматривать.
+
+============================================================
+06) REVISION OF MATERIALITY
+============================================================
+EN — Revise OM/PM/SM when new information arises (actual results, restatements, disposals, errors, covenant changes). Document trigger, calculation, and impact on scope.
+RU — Пересматривать OM/PM/SM при появлении новой информации. Документировать повод, расчет, влияние на объем процедур.
+
+============================================================
+07) ROUTING QUESTIONS (BEFORE CALCULATION)
+============================================================
+EN — Ask:
+- Is the entity PIE/listed? What framework? Year‑end date? Currency (functional/presentation)?
+- Last three years: revenue, PBT, total assets, equity; volatility; covenant sensitivity.
+- Control environment: significant deficiencies? prior uncorrected misstatements?
+- Industry specifics (banks/insurers, utilities, retail, NFP)?
+- Group audit? Components and significance?
+
+RU — Спросить:
+- PIE/публичная? Основание подготовки? Отчетная дата? Валюта (функ./през.)?
+- За 3 года: выручка, PBT, активы, капитал; волатильность; ковенанты.
+- Контрольная среда: недостатки? неоткорректированные искажения?
+- Отраслевые особенности (банки/страхование, энергетика, ритейл, НКО)?
+- Групповой аудит? Компоненты и значимость?
+
+============================================================
+08) WORKPAPER — CALCULATION SHEET (EN)
+============================================================
+[WP HEADER]
+Client: [●]   Period End: [●]   Framework: [●]   PIE: [Yes/No]
+Preparer: [●]   Reviewer: [●]   Date: [●]   Version: v1.0
+
+[A. INPUTS — FINANCIALS (3Y)]
+Year    Revenue    PBT     Total Assets   Equity   Notes
+[●]     [●]        [●]     [●]            [●]      [volatility/covenants]
+[●]     [●]        [●]     [●]            [●]      [●]
+[●]     [●]        [●]     [●]            [●]      [●]
+
+[B. BENCHMARK SELECTION]
+Primary benchmark: [Revenue / PBT / Total Assets / Equity / Expenses (NFP)]
+Rationale: [e.g., thin margins/high volume; PBT volatile; asset‑intensive; PIE; covenants]
+
+[C. RANGE & POINT SELECTION]
+Policy range for selected benchmark: [Revenue: 0.5%–1.5% | PBT: 5%–10% | Assets: 1%–2% | Equity: 2%–5% | Expenses: 0.5%–3%]
+Chosen %: [●]%   Justification: [risk, volatility, misstatements history, controls]
+
+[D. OVERALL MATERIALITY (OM)]
+OM = Benchmark × Chosen %  →  OM = [●] × [●%] = [●]
+
+[E. PERFORMANCE MATERIALITY (PM)]
+Risk band: [High/Moderate/Low] → PM % of OM: [50–75%]
+PM = OM × [●%] = [●]
+
+[F. SPECIFIC MATERIALITY (SM)]
+Disclosures/sensitive areas: [related parties, EPS, covenants, regulatory ratios, etc.]
+SM set at: [amounts per item], with rationale.
+
+[G. CLEARLY TRIVIAL THRESHOLD (CTT)]
+CTT % of OM: [3–5%] → CTT = OM × [●%] = [●]
+Policy default: 5% unless risk/history dictates lower.
+
+[H. GROUP / COMPONENT (if applicable)]
+Group OM: [●]   Allocations by component: [table]
+Component PM: [●]
+Communication to component auditors dated: [●]
+
+[I. REVIEW CONCLUSIONS]
+- Materiality basis is appropriate and consistent with TRI‑S‑AUDIT policy.
+- Impact on N/T/E (nature/timing/extent) of procedures: [●]
+- Need to revise later? Triggers & monitoring: [●]
+
+============================================================
+09) РАБОЧИЙ ДОКУМЕНТ — ЛИСТ РАСЧЕТА (RU)
+============================================================
+[ЗАГОЛОВОК РД]
+Клиент: [●]   Отчетная дата: [●]   Основание: [●]   PIE: [Да/Нет]
+Исполнитель: [●]   Рецензент: [●]   Дата: [●]   Версия: v1.0
+
+[A. ВХОДНЫЕ ДАННЫЕ — 3 ГОДА]
+Год    Выручка    PBT    Активы всего    Капитал    Примечания
+[●]    [●]        [●]    [●]            [●]        [волатильность/ковенанты]
+[●]    [●]        [●]    [●]            [●]        [●]
+[●]    [●]        [●]    [●]            [●]        [●]
+
+[B. ВЫБОР БЕНЧМАРКА]
+Основной бенчмарк: [Выручка / PBT / Активы / Капитал / Расходы (НКО)]
+Обоснование: [тонкая маржа/высокий объем; волатильный PBT; активо‑емкий бизнес; PIE; ковенанты]
+
+[C. ДИАПАЗОН И ВЫБОР ПРОЦЕНТА]
+Диапазон политики для бенчмарка: [Выручка 0,5%–1,5% | PBT 5%–10% | Активы 1%–2% | Капитал 2%–5% | Расходы 0,5%–3%]
+Выбранный %: [●]%   Обоснование: [риск, волатильность, история искажений, контроли]
+
+[D. ОБЩАЯ СУЩЕСТВЕННОСТЬ (OM)]
+OM = Бенчмарк × Выбранный %  →  OM = [●] × [●%] = [●]
+
+[E. РАБОЧАЯ СУЩЕСТВЕННОСТЬ (PM)]
+Уровень риска: [Высокий/Средний/Низкий] → PM как % от OM: [50–75%]
+PM = OM × [●%] = [●]
+
+[F. СПЕЦИАЛЬНАЯ СУЩЕСТВЕННОСТЬ (SM)]
+Чувствительные раскрытия: [связанные стороны, EPS, ковенанты, рег. показатели]
+SM установлена: [суммы по позициям], обоснование.
+
+[G. ПОРОГ ТРИВИАЛЬНОСТИ (CTT)]
+CTT % от OM: [3–5%] → CTT = OM × [●%] = [●]
+Политика по умолчанию: 5%, при повышенном риске — 3%.
+
+[H. ГРУППА / КОМПОНЕНТ (если применимо)]
+Групповая OM: [●]   Распределение по компонентам: [таблица]
+PM компонентов: [●]
+Коммуникация аудиторам компонентов от: [●]
+
+[I. ВЫВОДЫ РЕЦЕНЗИИ]
+- База существенности уместна и соответствует политике TRI‑S‑AUDIT.
+- Влияние на N/T/E процедур: [●]
+- Необходимость пересмотра: [●]
+
+============================================================
+10) WORKED EXAMPLE (EN) — REVENUE-BASED POLICY
+============================================================
+Facts:
+- Entity: listed retailer (PIE). Stable revenue, thin margins; volatile PBT; tight covenants.
+- FY Revenue = 100,000,000; PBT = 4,000,000; Total Assets = 60,000,000.
+- Controls: moderate; prior uncorrected misstatements: low.
+
+Step 1 — Benchmark: **Revenue** (policy; PBT volatile).
+Step 2 — Range: 0.5%–1.5% of revenue → choose **0.8%** (PIE, covenants).
+OM = 100,000,000 × 0.8% = **800,000**
+
+Step 3 — PM (risk moderate): **65%** of OM → PM = 800,000 × 65% = **520,000**
+
+Step 4 — CTT (clean history): **5%** of OM → CTT = 800,000 × 5% = **40,000**
+
+Step 5 — SM: related parties & covenants set at **250,000** with qualitative rationale.
+
+Step 6 — Documentation: complete WP sections A–I; communicate to TCWG per ISA 260.
+
+============================================================
+11) ПРИМЕР (RU) — ПОЛИТИКА ОТ ВЫРУЧКИ
+============================================================
+Факты:
+- Компания: публичный ритейлер (PIE). Стабильная выручка, низкая маржа; PBT волатилен; ковенанты чувствительны.
+- Выручка = 100 000 000; PBT = 4 000 000; Активы = 60 000 000.
+- Контроли: средние; неоткорректированные искажения: низкие.
+
+Шаг 1 — Бенчмарк: **Выручка** (политика; PBT волатилен).
+Шаг 2 — Диапазон 0,5%–1,5% → выбираем **0,8%** (PIE, ковенанты).
+OM = 100 000 000 × 0,8% = **800 000**
+
+Шаг 3 — PM (средний риск): **65%** от OM → PM = 800 000 × 65% = **520 000**
+
+Шаг 4 — CTT (чистая история): **5%** от OM → CTT = 800 000 × 5% = **40 000**
+
+Шаг 5 — SM: связанные стороны и ковенанты: **250 000** с качественным обоснованием.
+
+Шаг 6 — Документация: заполнить разделы A–I; сообщить ЛОКУ по МСА 260.
+
+============================================================
+12) MODEL OUTPUT FORMAT (STRICT)
+============================================================
+When user asks for materiality, output EXACTLY this order:
+1) Routing Q&A (bullet list, short).
+2) WORKPAPER (EN or RU as requested) sections A–I with numbers.
+3) Summary line: OM = [●]; PM = [●]; CTT = [●]; SM (key items) = [●].
+4) Rationale paragraph (<= 6 lines).
+5) If Group: add component allocations table.
+
+[CONTENT END]
+
+----------------------------------------------------------------------
+END OF FILE — TRI-S-AUDIT 05_Materiality_Playbook_v1.txt
+Trusted Source: TRI-S-AUDIT
+Author: Igor Tilepin
+Reference: ISA 320 / ISA 450 (МСА 320 / МСА 450); TRI-S-AUDIT policy
+----------------------------------------------------------------------

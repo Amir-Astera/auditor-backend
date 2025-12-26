@@ -9,6 +9,7 @@ from qdrant_client.models import (
     Filter,
     MatchValue,
     PointStruct,
+    Range,
     ScoredPoint,
     VectorParams,
 )
@@ -114,6 +115,8 @@ class QdrantVectorStore:
     ) -> List[ScoredPoint]:
         """
         Ищет ближайшие вектора по query_vector с опциональным фильтром по payload.
+        
+        Использует query_points для новых версий qdrant-client или fallback на старый API.
         """
         logger.info(
             "Searching in Qdrant",
@@ -198,3 +201,28 @@ class QdrantVectorStore:
 
         return Filter(must=conditions)
 
+    @staticmethod
+    def build_file_chunk_range_filter(
+        *,
+        file_id: str,
+        chunk_start: int,
+        chunk_end: int,
+        scope: str | None = None,
+        customer_id: str | None = None,
+        owner_id: str | None = None,
+    ) -> Filter:
+        """Build filter for fetching neighbor chunks within one file."""
+        conditions: list[FieldCondition] = [
+            FieldCondition(key="file_id", match=MatchValue(value=file_id)),
+            FieldCondition(key="chunk_index", range=Range(gte=int(chunk_start), lte=int(chunk_end))),
+        ]
+
+        base = QdrantVectorStore.build_filter(
+            scope=scope,
+            customer_id=customer_id,
+            owner_id=owner_id,
+        )
+        if base is not None:
+            conditions.extend(list(base.must or []))
+
+        return Filter(must=conditions)

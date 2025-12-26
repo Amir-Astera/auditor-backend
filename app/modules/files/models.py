@@ -89,10 +89,24 @@ class FileChunk(Base):
     )
 
     chunk_index: Mapped[int] = mapped_column(Integer, nullable=False)
-
     text: Mapped[str] = mapped_column(Text, nullable=False)
 
+    tenant_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    customer_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    owner_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    scope: Mapped[str | None] = mapped_column(String, nullable=True)
+    source_type: Mapped[str | None] = mapped_column(String, nullable=True)
+
+    char_start: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    char_end: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    page: Mapped[str | None] = mapped_column(String, nullable=True)
+    section: Mapped[str | None] = mapped_column(String, nullable=True)
+
+    # Qdrant point ID
     qdrant_point_id: Mapped[str | None] = mapped_column(String, nullable=True)
+
+    # LightRAG node ID (NEW!)
+    lightrag_node_id: Mapped[str | None] = mapped_column(String, nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, nullable=False

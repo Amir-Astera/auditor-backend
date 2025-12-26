@@ -1,0 +1,196 @@
+# TRI-S-AUDIT — Materiality Playbook (EN/RU)
+# Version: v1.1
+# Date: 2025-09-19
+# Source: TRI-S-AUDIT (Trusted Source)
+# Author: Igor Tilepin
+# Reference Framework: International Standards on Auditing (ISA / МСА); firm policy anchored to ISA 320 & ISA 450
+
+----------------------------------------------------------------------
+NOTE FOR CUSTOM GPT:
+This file defines strict rules, calculations, and working-paper formats for determining
+materiality. It is aligned with ISA 320 and ISA 450 and embeds TRI-S-AUDIT policy.
+ALWAYS ask the routing questions first, then compute, then output the WORKPAPER.
+----------------------------------------------------------------------
+
+[CONTENT START]
+
+============================================================
+00) TRI-S-AUDIT POLICY (EN/RU)
+============================================================
+EN — Firm Policy (Overall Materiality, OM)
+- Default benchmark: **Revenue**.
+- Default range: **0.5%–1.5% of revenue**.
+- Choose a point-in-range using risk and context (see Section 02).
+- For PIE/listed entities → bias toward the **lower end** of the range.
+- If revenue is not appropriate (e.g., highly volatile sales, asset‑intensive entities, insurers, NFP) → use an alternative benchmark per Section 01.
+- Document rationale in WORKPAPER.
+
+RU — Политика фирмы (Общая существенность, OM)
+- Базовый бенчмарк: **Выручка**.
+- Диапазон по умолчанию: **0,5%–1,5% от выручки**.
+- Точку в диапазоне выбирайте с учетом риска и контекста (см. раздел 02).
+- Для публичных/PIE → смещаемся к **нижней границе** диапазона.
+- Если выручка неуместна (волатильность, активо‑емкие отрасли, страховые, НКО) → альтернативы в разделе 01.
+- Обоснование фиксируйте в рабочем документе.
+
+============================================================
+01) ACCEPTABLE BENCHMARKS (EN/RU)
+============================================================
+EN — Benchmarks (use professional judgment; pick ONE primary, record alternatives tested):
+- Profit before tax (PBT) — typical range **5%–10%**.
+- Total assets — typical range **1%–2%**.
+- Equity/Net assets — typical range **2%–5%**.
+- Revenue (TRI-S-AUDIT default) — **0.5%–1.5%** (firm policy).
+- Insurance (GWP or NEP) — **1%–2%**, or Equity **2%–5%**.
+- For NFP/Cost‑centric entities — total expenses or revenue: **0.5%–3%**.
+
+RU — Допустимые бенчмарки (выберите ОДИН основной, альтернативы задокументируйте):
+- Прибыль до налогообложения (PBT) — типично **5%–10%**.
+- Совокупные активы — **1%–2%**.
+- Капитал/Чистые активы — **2%–5%**.
+- Выручка (политика TRI‑S‑AUDIT) — **0,5%–1,5%**.
+- Страховые (GWP/NEP) — **1%–2%**, или Капитал **2%–5%**.
+- НКО/затрато‑ориентированные — расходы или выручка: **0,5%–3%**.
+
+============================================================
+02) RANGE SELECTION LOGIC (EN/RU)
+============================================================
+EN — Pick % within range using these levers:
+- Higher RMM → lower % → lower OM.
+- PIE/listed → lower end.
+- High volatility/tight covenants → lower end.
+- Prior misstatements/control weaknesses → lower end.
+- Stable history/effective controls → mid/upper end.
+
+RU — Выбор процента:
+- Высокий РСИ → нижняя граница.
+- PIE → нижняя граница.
+- Волатильность/ковенанты → нижняя граница.
+- История искажений/слабые контроли → нижняя граница.
+- Стабильность/эффективные контроли → середина/верх.
+
+============================================================
+03) PERFORMANCE MATERIALITY (PM) & CLEARLY TRIVIAL (CTT)
+============================================================
+EN — Tables:
+
+Performance Materiality (% of OM)
+---------------------------------
+Risk Level      % of OM
+High            50–60%
+Moderate        60–70%
+Low             70–75%
+
+Clearly Trivial Threshold (CTT, % of OM)
+----------------------------------------
+Risk Level      % of OM
+High            3%
+Moderate        4%
+Low             5%
+
+RU — Таблицы:
+
+Рабочая существенность (% от OM)
+--------------------------------
+Уровень риска   % от OM
+Высокий         50–60%
+Средний         60–70%
+Низкий          70–75%
+
+Порог тривиальности (% от OM)
+------------------------------
+Уровень риска   % от OM
+Высокий         3%
+Средний         4%
+Низкий          5%
+
+============================================================
+04) SPECIFIC MATERIALITY (SM)
+============================================================
+EN — For disclosures/line items of high sensitivity (related parties, EPS, solvency ratios for insurers, covenants). Set SM **below OM** with rationale.
+
+RU — Для чувствительных раскрытий (связанные стороны, EPS, коэффициенты платежеспособности у страховщиков, ковенанты). SM может быть **ниже OM**, обосновать.
+
+============================================================
+05) GROUP & COMPONENT MATERIALITY (ISA 600)
+============================================================
+EN — Group OM allocated across components with headroom. Component PM at 50–75% of Component OM. Document and communicate.
+
+RU — Групповая OM распределяется по компонентам с запасом. PM компонентов 50–75% от их OM. Документировать и сообщать.
+
+============================================================
+06) INDUSTRY PRESETS (EN/RU)
+============================================================
+EN — Industry Guidelines:
+- Retail / Distribution: Revenue 0.5–1.0%.
+- Utilities / Real Estate: Assets 1–2% or Equity 2–5%.
+- Insurance: GWP/NEP 1–2% or Equity 2–5% (if premiums volatile). Solvency ratios must be considered qualitatively.
+- Manufacturing / FMCG: Revenue 0.5–1.5% or PBT if stable.
+- NFP: Expenses or Revenue 0.5–3%.
+
+RU — Отраслевые пресеты:
+- Ритейл / Дистрибуция: Выручка 0,5–1,0%.
+- Энергетика / Девелопмент: Активы 1–2% или Капитал 2–5%.
+- Страховые: GWP/NEP 1–2% или Капитал 2–5% (при волатильности премий). Качественно учитывать коэффициенты платежеспособности.
+- Производство / FMCG: Выручка 0,5–1,5% или PBT если стабилен.
+- НКО: Расходы или Выручка 0,5–3%.
+
+============================================================
+07) WORKPAPER FORMAT (EN/RU)
+============================================================
+[WP HEADER]
+Client: [●]   Period End: [●]   Framework: [●]   PIE: [Yes/No]
+Preparer: [●]   Reviewer: [●]   Date: [●]   Version: v1.1
+
+Sections A–I: Inputs (3Y), Benchmark, Range, OM, PM, SM, CTT, Group, Reviewer conclusions.
+
+[ЗАГОЛОВОК РД]
+Клиент: [●]   Отчетная дата: [●]   Основание: [●]   PIE: [Да/Нет]
+Исполнитель: [●]   Рецензент: [●]   Дата: [●]   Версия: v1.1
+
+Разделы A–I: Входные данные (3 года), Бенчмарк, Диапазон, OM, PM, SM, CTT, Группа, Выводы.
+
+============================================================
+08) WORKED EXAMPLES
+============================================================
+Example 1 — Insurance Entity (EN)
+- Gross Written Premiums: 500,000,000; Equity: 80,000,000.
+- Benchmark: GWP; Range: 1–2% → 1.2% chosen (PIE, solvency sensitivity).
+- OM = 500,000,000 × 1.2% = 6,000,000.
+- PM (High risk → 55%): 3,300,000.
+- CTT (High risk → 3%): 180,000.
+- SM (Solvency ratio disclosures): 2,000,000.
+
+Example 2 — Девелопер (RU)
+- Активы: 200 000 000; Капитал: 60 000 000.
+- Бенчмарк: Активы; Диапазон: 1–2% → выбираем 1% (PIE, риски ликвидности).
+- OM = 200 000 000 × 1% = 2 000 000.
+- PM (Средний риск → 65%): 1 300 000.
+- CTT (Средний риск → 4%): 80 000.
+- SM (обязательства по раскрытию условий кредитов): 500 000.
+
+============================================================
+09) MODEL OUTPUT FORMAT (STRICT)
+============================================================
+EN — Output order:
+1) Routing Q&A (short bullets).
+2) WORKPAPER (EN or RU) with sections A–I.
+3) Summary: OM, PM, CTT, SM.
+4) Rationale paragraph (≤6 lines).
+5) If Group: component allocations table.
+
+RU — Формат вывода:
+1) Routing вопросы.
+2) Рабочий документ (EN/RU).
+3) Резюме: OM, PM, CTT, SM.
+4) Обоснование (≤6 строк).
+5) Для группы: таблица распределений.
+
+[CONTENT END]
+
+----------------------------------------------------------------------
+END OF FILE — TRI-S-AUDIT 05_Materiality_Playbook_v1.1.txt
+Trusted Source: TRI-S-AUDIT
+Author: Igor Tilepin
+Reference: ISA 320 / ISA 450; TRI-S-AUDIT policy
+----------------------------------------------------------------------

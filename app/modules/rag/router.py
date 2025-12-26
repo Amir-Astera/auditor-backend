@@ -1,21 +1,26 @@
 """RAG router with LIGHTRAG endpoints."""
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.core.db import get_db
 from app.core.logging import get_logger
 from app.modules.auth.router import get_current_user
+from app.modules.files.qdrant_client import QdrantVectorStore
+from app.modules.prompts.service import PromptService
+from app.modules.rag.gemini import GeminiAPI
 from app.modules.rag.schemas import (
-    RAGQueryRequest,
-    RAGQueryResponse,
+    RAGDeleteResponse,
+    RAGEvidenceRequest,
+    RAGEvidenceResponse,
+    RAGGraphStatsResponse,
     RAGInsertRequest,
     RAGInsertResponse,
-    RAGDeleteRequest,
-    RAGDeleteResponse,
-    RAGGraphStatsResponse,
+    RAGQueryRequest,
+    RAGQueryResponse,
 )
 from app.modules.rag.service import RAGService
-from app.modules.rag.gemini import GeminiAPI
 
 logger = get_logger(__name__)
 
@@ -48,7 +53,7 @@ def _get_rag_service(db: Session = Depends(get_db)) -> RAGService:
     "/query",
     response_model=RAGQueryResponse,
     summary="Запрос к RAG системе",
-    description="Выполняет запрос к графу знаний LIGHTRAG и возвращает ответ с контекстом",
+    description="Выполняет гибридный RAG-запрос (Qdrant evidence + Gemini) и возвращает ответ с контекстом",
 )
 async def query_rag(
     request: RAGQueryRequest,
@@ -92,6 +97,45 @@ async def query_rag(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error querying RAG: {str(e)}",
+        )
+
+
+@router.post(
+    "/evidence",
+    response_model=RAGEvidenceResponse,
+    summary="RAG: retrieval-only (без генерации)",
+    description="Делает только retrieval (Qdrant/LightRAG) и возвращает контекст без вызова LLM",
+)
+async def rag_evidence(
+    request: RAGEvidenceRequest,
+    service: RAGService = Depends(_get_rag_service),
+    user: User = Depends(get_current_user),
+):
+    """
+    Retrieval-only endpoint для отладки и трассируемости.
+    """
+    try:
+        owner_id = None if getattr(user, "is_admin", False) else str(user.id)
+        if owner_id is not None and request.include_admin_laws:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Forbidden: employees cannot query admin laws",
+            )
+
+        result = service.evidence(
+            question=request.question,
+            mode=request.mode,
+            top_k=request.top_k,
+            customer_id=request.customer_id,
+            include_admin_laws=request.include_admin_laws,
+            include_customer_docs=request.include_customer_docs,
+            owner_id=owner_id,
+        )
+        return RAGEvidenceResponse(**result)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error retrieving evidence: {str(e)}",
         )
 
 
@@ -162,4 +206,3 @@ async def get_rag_stats(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error getting stats: {str(e)}",
         )
-

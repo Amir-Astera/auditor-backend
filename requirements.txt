@@ -1,6 +1,5 @@
-# FastAPI 0.110.0+ requires Pydantic v2, but the project currently depends on
-# Pydantic v1.x, so we pin FastAPI to the latest compatible release.
-fastapi>=0.109.0,<0.110.0
+# FastAPI 0.110.0+ requires Pydantic v2
+fastapi>=0.109.0
 uvicorn[standard]>=0.23.0
 SQLAlchemy>=2.0.0
 pydantic>=2.0.0,<3.0.0
@@ -23,4 +22,3 @@ redis>=5.0.0
 openai>=1.0.0
 langchain>=0.1.0
 langchain-community>=0.0.20
-networkx>=3.0

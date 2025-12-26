@@ -29,6 +29,7 @@ app = FastAPI(
 
 from app.modules.chats.router import router as chats_router
 from app.modules.customers.router import router as customers_router
+from app.modules.prompts.router import router as prompts_router
 from app.modules.rag.router import router as rag_router
 from app.modules.prompts.router import router as prompts_router
 
@@ -44,4 +45,3 @@ app.include_router(prompts_router)
 async def health_check():
     """Проверка работоспособности сервера."""
     return {"status": "ok", "service": "auditor-backend"}
-

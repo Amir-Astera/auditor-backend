@@ -2,15 +2,12 @@ from __future__ import annotations
 
 import io
 import uuid
-from typing import List, cast
+from typing import List
 
-from qdrant_client.models import Filter, PointStruct, ScoredPoint
 from sqlalchemy.orm import Session
 
 from app.core.logging import get_logger
-from app.modules.files.file_text_extractor import extract_text
-from app.modules.files.models import FileChunk, FileScope, StoredFile
-from app.modules.files.qdrant_client import QdrantVectorStore
+from app.modules.files.models import FileIndexStatus, FileScope, StoredFile
 from app.modules.files.storage import FileStorage
 from app.modules.embeddings.service import EmbeddingService, get_embedding_service
 
@@ -64,19 +61,27 @@ def chunk_text(text: str, chunk_size: int = 1500) -> List[str]:
 
 
 class FileService:
-    def __init__(
-        self,
-        db: Session,
-        storage: FileStorage,
-        vector_store: QdrantVectorStore,
-        embedding_provider: EmbeddingProvider,
-    ):
+    """
+    File CRUD-only service.
+
+    Responsibilities:
+    - Upload files to object storage (MinIO/S3)
+    - Create and query StoredFile records in Postgres
+
+    Non-responsibilities (moved elsewhere):
+    - Indexing/chunking/embeddings/vector DB (Qdrant/LightRAG)
+    - Semantic search
+    """
+
+    def __init__(self, db: Session, storage: FileStorage):
         self.db = db
         self.storage = storage
-        self.vector_store = vector_store
-        self.embedding_provider = embedding_provider
 
     def upload_admin_file(self, user, file) -> StoredFile:
+        """
+        Upload an admin (law/standard) file and create a StoredFile record.
+        Indexing is handled asynchronously by a worker (Arq) after the upload.
+        """
         logger.info(
             "Uploading admin file",
             extra={
@@ -95,8 +100,6 @@ class FileService:
             content_type=file.content_type,
         )
 
-        from app.modules.files.models import FileIndexStatus
-
         stored_file = StoredFile(
             owner_id=user.id,
             customer_id=None,
@@ -110,12 +113,13 @@ class FileService:
             index_error=None,
             index_status=FileIndexStatus.QUEUED,
         )
+
         self.db.add(stored_file)
         self.db.commit()
         self.db.refresh(stored_file)
 
         logger.info(
-            "Admin file stored metadata saved",
+            "Admin file stored",
             extra={
                 "stored_file_id": str(stored_file.id),
                 "bucket": stored_file.bucket,
@@ -124,10 +128,13 @@ class FileService:
             },
         )
 
-        # ВАЖНО: больше не вызываем self.index_file здесь!
         return stored_file
 
     def upload_customer_file(self, user, customer_id: str, file) -> StoredFile:
+        """
+        Upload a customer document and create a StoredFile record.
+        Indexing is handled asynchronously by a worker (Arq) after the upload.
+        """
         logger.info(
             "Uploading customer file",
             extra={
@@ -148,8 +155,6 @@ class FileService:
             content_type=file.content_type,
         )
 
-        from app.modules.files.models import FileIndexStatus
-
         stored_file = StoredFile(
             owner_id=user.id,
             customer_id=customer_id,
@@ -163,12 +168,13 @@ class FileService:
             index_error=None,
             index_status=FileIndexStatus.QUEUED,
         )
+
         self.db.add(stored_file)
         self.db.commit()
         self.db.refresh(stored_file)
 
         logger.info(
-            "Customer file stored metadata saved",
+            "Customer file stored",
             extra={
                 "stored_file_id": str(stored_file.id),
                 "customer_id": customer_id,
@@ -178,7 +184,6 @@ class FileService:
             },
         )
 
-        # Индексация делается асинхронно воркером Arq
         return stored_file
 
     def list_admin_files(self, search: str | None = None) -> List[StoredFile]:

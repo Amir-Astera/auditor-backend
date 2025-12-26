@@ -31,7 +31,8 @@ class AdminLoginRequest(BaseModel):
         description="Административный пароль (минимум 8 символов, максимум 72 байта)",
     )
 
-    @validator("password")
+    @field_validator("password")
+    @classmethod
     def validate_password(cls, v: str) -> str:
         return validate_password_length(v)
 
@@ -40,7 +41,8 @@ class TelegramLoginRequest(BaseModel):
     phone: str = Field(description="Номер телефона в формате Telegram")
     password: str = Field(min_length=8, max_length=72)
 
-    @validator("password")
+    @field_validator("password")
+    @classmethod
     def validate_password(cls, v: str) -> str:
         return validate_password_length(v)
 
@@ -57,7 +59,8 @@ class UserCreateRequest(BaseModel):
     telegram_user_id: int | None = None
     is_admin: bool = False
 
-    @validator("password")
+    @field_validator("password")
+    @classmethod
     def validate_password(cls, v: str) -> str:
         return validate_password_length(v)
 
@@ -71,5 +74,4 @@ class UserBase(BaseModel):
     is_admin: bool
     is_active: bool
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

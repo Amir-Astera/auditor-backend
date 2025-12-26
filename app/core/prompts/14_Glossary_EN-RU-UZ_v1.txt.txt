@@ -1,0 +1,160 @@
+14_Glossary_EN-RU-UZ_v1.txt
+Author: Igor Tilepin
+Trusted Source: TRI-S-AUDIT
+
+─────────────────────────────────────────────
+DOCUMENT: TRI-S-AUDIT GLOSSARY (EN · RU · UZ-Latin) — ISA/IFRS CORE (B4-LEVEL)
+
+Purpose
+-------
+Unify terminology across our tri-lingual environment so every deliverable (audits, TCWG, legal matrix, KAM, PBC) reads consistently and audit-grade.  
+Primary language of standards: **English**. Russian/Uzbek are controlled translations aligned to IFRS/ISA usage (Uzbek in **Latin** per 02_StyleGuide).
+
+Usage Rules
+-----------
+- **Do not invent terms.** If no stable RU/UZ analogue exists, keep EN + short note.
+- Prefer IFRS/ISA official wording in RU (e.g., IAS 37: “оценочное обязательство”, not “резерв”).
+- Uzbek: keep neutral technical calques; avoid colloquialisms; Latin only.
+- Capitalization: sentence case (except standard names). Abbrev at first use: “Those charged with governance (TCWG)”.
+- Numbers/units per 02_StyleGuide; cross-link to 05/06/07/11/12 when drafting.
+
+File Schema (for CSV/XLSX exports)
+----------------------------------
+| Term_EN | Term_RU | Term_UZ | Notes_Usage | Ref |
+Acceptance tests: UTF-8; one term/row; no merged cells; EN unique; Ref uses standard names (ISA/IAS/IFRS).
+
+─────────────────────────────────────────────
+MASTER GLOSSARY (CURATED CORE)
+------------------------------
+
+GENERAL & REPORTING
+| Term_EN | Term_RU | Term_UZ | Notes_Usage | Ref |
+| Audit | аудит | audit | Generic term; avoid “ревизия” in IFRS context | ISA 200 |
+| Auditor’s report | аудиторский отчёт | auditorlik hisobot(i) | The full report that contains the **opinion** | ISA 700 |
+| Audit opinion | аудиторское мнение | auditorlik xulosasi | Types: Unmodified / Qualified / Adverse / Disclaimer | ISA 700/705 |
+| Management letter | письмо руководству | rahbariyatga xat | Control deficiencies & improvements (not part of the report) | ISA 265 |
+| Those charged with governance (TCWG) | лица, отвечающие за корпоративное управление (TCWG) | korporativ boshqaruv uchun mas’ullar (TCWG) | Use abbreviation TCWG thereafter | ISA 260 |
+| Going concern | непрерывность деятельности | uzluksiz faoliyat | Assessment period ≥ 12 months from report approval | ISA 570 / IAS 1 |
+| Subsequent events | события после отчётной даты | hisobot sanasidan keyingi hodisalar | Adjusting vs non-adjusting; link to Legal Matrix | ISA 560 / IAS 10 |
+| Related parties | связанные стороны | bog‘liq tomonlar | Disclosures & transactions | IAS 24 |
+| Fair presentation | достоверное представление | adolatli taqdimot | IFRS framework principle | IAS 1 |
+
+IFRS CONCEPTS
+| Term_EN | Term_RU | Term_UZ | Notes_Usage | Ref |
+| Recognition | признание | tan olish | Initial/ongoing recognition | IAS 1/8 |
+| Derecognition | прекращение признания | tan olishni bekor qilish | Financial instruments, receivables, etc. | IFRS 9 |
+| Measurement basis | база оценки | baholash bazasi | Historical cost, fair value, value in use | Conceptual Framework |
+| Fair value | справедливая стоимость | adolatli qiymat | Use IFRS 13 hierarchy | IFRS 13 |
+| Carrying amount | балансовая стоимость | balans qiymati | Post-measurement book value | IAS 1 |
+| Impairment | обесценение | qiymatning pasayishi | Assets/CGUs; estimates + disclosures | IAS 36 |
+| Provision | оценочное обязательство | baholanadigan majburiyat | **Not** “резерв”; present obligation, reliable estimate | IAS 37 |
+| Contingent liability | условное обязательство | shartli majburiyat | Disclosure if **possible**; no recognition | IAS 37 |
+| Contingent asset | условный актив | shartli aktiv | Disclose if probable; no recognition | IAS 37 |
+
+IFRS 15 REVENUE
+| Term_EN | Term_RU | Term_UZ | Notes_Usage | Ref |
+| Performance obligation | обязательство по выполнению | bajarish majburiyati | Distinct goods/services | IFRS 15 |
+| Transaction price | цена сделки | bitim narxi | Include variable consideration | IFRS 15 |
+| Variable consideration | переменное вознаграждение | o‘zgaruvchan to‘lov | Constraint on estimate | IFRS 15 |
+| Contract asset | актив по договору | shartnoma aktivi | Unconditional right not yet; vs receivable | IFRS 15 |
+| Contract liability | обязательство по договору | shartnoma majburiyati | Deferred revenue | IFRS 15 |
+| Bill-and-hold | отгрузка на хранение (bill-and-hold) | bill-and-hold (saqlash bilan) | Use EN tag in brackets | IFRS 15 |
+
+IFRS 16 LEASES
+| Term_EN | Term_RU | Term_UZ | Notes_Usage | Ref |
+| Right-of-use asset (ROU) | актив права пользования | foydalanish huquqi aktivi | ROU asset on balance sheet | IFRS 16 |
+| Lease liability | обязательство по аренде | ijara majburiyati | PV of lease payments | IFRS 16 |
+| Incremental borrowing rate (IBR) | предельная (инкрементная) ставка заимствования | qo‘shimcha qarz olish stavkasi | Entity-specific rate | IFRS 16 |
+| Short-term lease | краткосрочная аренда | qisqa muddatli ijara | Recognition exemption | IFRS 16 |
+| Low-value asset lease | аренда активов малой стоимости | past qiymatli aktiv ijarasi | Recognition exemption | IFRS 16 |
+
+IFRS 9 FINANCIAL INSTRUMENTS
+| Term_EN | Term_RU | Term_UZ | Notes_Usage | Ref |
+| Expected credit losses (ECL) | ожидаемые кредитные убытки (ECL) | kutilayotgan kredit yo‘qotishlari (ECL) | 12-month vs lifetime; staging | IFRS 9 |
+| Staging (Stage 1/2/3) | стадирование (1/2/3) | bosqichlar (1/2/3) | Credit risk increase & default | IFRS 9 |
+| Amortized cost | амортизированная стоимость | amortizatsiyalangan qiymat | EIR method | IFRS 9 |
+| Effective interest rate (EIR) | эффективная ставка процента (EIR) | samarali foiz stavkasi (EIR) | Yield including fees | IFRS 9 |
+
+IFRS 17 INSURANCE (ADDENDUM)
+| Term_EN | Term_RU | Term_UZ | Notes_Usage | Ref |
+| Contractual service margin (CSM) | маржа договорного обслуживания (CSM) | shartnoma xizmat marjasi (CSM) | Unearned profit | IFRS 17 |
+| Risk adjustment (RA) | корректировка на риск (RA) | xavf uchun tuzatish (RA) | Non-financial risk | IFRS 17 |
+| General Measurement Model (GMM) | общий модельный подход (GMM) | umumiy o‘lchov modeli (GMM) | Default model | IFRS 17 |
+| Premium Allocation Approach (PAA) | подход распределения премий (PAA) | mukofotni taqsimlash yondashuvi (PAA) | Simplified model | IFRS 17 |
+| Onerous group | убыточная группа | zararli guruh | Loss component setup | IFRS 17 |
+| Coverage units | единицы предоставления покрытия | qoplash birliklari | CSM release driver | IFRS 17 |
+| Reinsurance held | удерживаемая перестраховка | qayta sug‘urtalash (olingan) | Separate measurement | IFRS 17 |
+
+AUDIT CORE (ISA)
+| Term_EN | Term_RU | Term_UZ | Notes_Usage | Ref |
+| Sufficient appropriate audit evidence | достаточные надлежащие аудиторские доказательства | yetarli va munosib auditorlik dalillari | Quantity (sufficiency) & quality (appropriateness) | ISA 500 |
+| Assertions | утверждения руководства | rahbariyat bayonotlari | Existence, Completeness, Rights & Obligations, Accuracy/Valuation, Presentation | ISA 315 |
+| Significant risk | значимый риск | muhim xavf | Elevated response; may become KAM | ISA 315/330 |
+| Professional skepticism | профессиональный скептицизм | professional skeptitsizm | Attitude & mindset | ISA 200 |
+| Sampling | выборка | namuna olish | Methods per 06_Sampling_Methods | ISA 530 |
+| Analytical procedures | аналитические процедуры | tahliliy protseduralar | Planning, substantive, final | ISA 520 |
+| Materiality (Overall) | существенность (общая) | muhimlik (umumiy) | OM benchmark in 05 | ISA 320 |
+| Performance materiality | рабочая существенность | ishchi muhimlik | PM < OM to reduce aggregation risk | ISA 320 |
+| Clearly trivial threshold (CT) | порог явно незначительных искажений (CT) | aniq arzimas chegara (CT) | Do not accumulate under CT | ISA 320 |
+
+LEGAL / REPORTING DECISIONS
+| Term_EN | Term_RU | Term_UZ | Notes_Usage | Ref |
+| Adjusting event | корректирующее событие | tuzatuvchi hodisa | Condition existed at reporting date | IAS 10 |
+| Non-adjusting event | некорректирующее событие | tuzatuvchi bo‘lmagan hodisa | Disclose only | IAS 10 |
+| Probable / Possible / Remote | вероятно / возможно / маловероятно | ehtimol / mumkin / ehtimoli past | Map to Provision/Disclosure/None | IAS 37 |
+| Emphasis of Matter | раздел “Обращение внимания” | e’tiborga olish (bandi) | Draw attention to disclosure; opinion not modified | ISA 706 |
+| Modified opinion | модифицированное мнение | o‘zgartirilgan xulosa | Qualified / Adverse / Disclaimer | ISA 705 |
+| Key Audit Matters (KAM) | ключевые вопросы аудита (KAM) | auditning muhim masalalari (KAM) | Public in the report; see 12 | ISA 701 |
+
+PBC / DATA / CONTROLS
+| Term_EN | Term_RU | Term_UZ | Notes_Usage | Ref |
+| Prepared-By-Client (PBC) | перечень клиентских предоставлений (PBC) | mijoz tayyorlagan ro‘yxat (PBC) | Master list & waves | 08_PBC |
+| Trial balance (TB) | оборотно-сальдовая ведомость (TB) | aylanma qoldiq vedomosti (TB) | Tie to FS | ISA 500 |
+| Three-way match | тройное сопоставление | uch tomonlama moslik | PO-GRN-Invoice | Procure-to-pay |
+| Significant deficiency | существенный недостаток контроля | muhim nazorat nuqsoni | Communicate to TCWG | ISA 265 |
+| Management representation letter | письмо-представление руководства | rahbariyat yozma bayonoti | Tailored assertions | ISA 580 |
+
+FORENSIC & COMPLIANCE
+| Term_EN | Term_RU | Term_UZ | Notes_Usage | Ref |
+| Red flags | индикаторы (красные флаги) | qizil bayroqlar (indikatorlar) | Indicators, not proof | ISA 240 / 13 |
+| Management override | управленческий обход контролей | rahbariyat nazoratni chetlashi | Journal entries, top-side | ISA 240 |
+| NOCLAR | несоблюдение законов и нормативов (NOCLAR) | qonun-qoidalarga rioya qilmaslik (NOCLAR) | Coordinate with legal; governance route | ISA 250 |
+| Sanctions screening | санкционный скрининг | sanksiya skriningi | Use official lists; keep evidence | Compliance |
+
+FINANCIAL STATEMENT CAPTIONS (SELECT)
+| Term_EN | Term_RU | Term_UZ | Notes_Usage | Ref |
+| Property, plant & equipment (PPE) | основные средства | asosiy vositalar | Useful lives, impairment | IAS 16 |
+| Intangible assets | нематериальные активы | nomoddiy aktivlar | Amortization or indefinite | IAS 38 |
+| Inventory | запасы | zaxiralar | Cost vs NRV | IAS 2 |
+| Provisions | оценочные обязательства | baholanadigan majburiyatlar | Roll-forward | IAS 37 |
+| Deferred tax | отложенный налог | kechiktirilgan soliq | Temporary differences | IAS 12 |
+| Cash and cash equivalents | денежные средства и эквиваленты | pul mablag‘lari va ularning ekvivalentlari | Definition thresholds | IAS 7 |
+
+─────────────────────────────────────────────
+FALSE FRIENDS & STYLE GUARDRAILS
+--------------------------------
+- **Provision (IAS 37)** = “оценочное обязательство” (RU) / “baholanadigan majburiyat” (UZ).  
+  **Do not** use “резерв” as the primary term (allowed only in lay prose with note).
+- **Allowance for doubtful debts / ECL**: prefer “резерв по ожидаемым кредитным убыткам (ECL)”; avoid legacy “сомнительные долги” unless explaining.
+- **Recognition vs Disclosure vs Presentation** must not be conflated: признание / раскрытие / представление; tan olish / oshkor etish / taqdim etish.
+- **Write-down vs Write-off**: уценка (write-down) vs списание (write-off); kamaytirish vs hisobdan chiqarish.
+
+Quick Insert Phrases (for generation)
+------------------------------------
+- “Per IAS 37, classification is **[probable/possible/remote]**; required FS action: **[Provision/Disclosure/None]**.”
+- “This is a **non-adjusting event** under IAS 10; disclosure in Note [X] recommended.”
+- “Performance materiality set at **[X]** to address aggregation risk; CT at **[Y]** (see 05).”
+- “Indicators of management override observed in period-end JEs; propose targeted tests (see 13).”
+
+RU Summary (для внутреннего пользования)
+----------------------------------------
+Глоссарий задаёт единые термины на EN-RU-UZ для IFRS/ISA и наших рабочих файлов. Русские термины — строго по стандартам (IAS 37: “оценочное обязательство” и т.п.); узбекские — в латинице, нейтральные кальки. Таблица пригодна для экспорта в CSV/XLSX; при генерации документов модель использует англоязычную основу, добавляя RU/UZ эквиваленты там, где это повышает ясность.
+
+Model Usage Notes (internal)
+----------------------------
+- When drafting, auto-expand first occurrence: EN + (RU/UZ) in brackets if audience bilingual.
+- If a requested term is absent, propose EN + draft RU/UZ, tag **[REVIEW]**, and add to next glossary build.
+- Anchor disclosure/legal wording to 09_Audit_Templates; avoid adding “original information” beyond FS.
+
+─────────────────────────────────────────────
+END OF DOCUMENT

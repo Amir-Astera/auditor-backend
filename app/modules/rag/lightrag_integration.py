@@ -1,13 +1,30 @@
 """
-Интеграция LIGHTRAG в модуль RAG проекта.
+Интеграция LightRAG (lightrag-hku) в проект.
 
-LIGHTRAG - это легковесная реализация RAG с использованием графа знаний.
-Интегрируется с существующей инфраструктурой: Qdrant, Gemini API, MinIO.
+ВАЖНО:
+- lightrag-hku используется как БИБЛИОТЕКА: никаких отдельных сервисов/портов запускать не нужно.
+- Для корректной работы LightRAG embedding_func должен быть экземпляром dataclass EmbeddingFunc.
+  Иначе падает с: "replace() should be called on dataclass instances"
+
+Данный модуль:
+- безопасно импортирует LightRAG (может отключиться, если пакета нет)
+- предоставляет LightRAGService для insert/query
+- использует Google GenAI SDK (google-genai) для LLM и Embeddings
+- устойчив к ошибкам сети (retries), не вводит в заблуждение логами
+
+ФИКС ДЛЯ ARQ/ASYNCIO:
+- LightRAG.insert() внутри делает loop.run_until_complete(...), что падает внутри уже запущенного event loop:
+  RuntimeError: This event loop is already running
+- Поэтому если asyncio loop уже запущен (arq/uvicorn/FastAPI), выполняем ainsert/aquery
+  в ОТДЕЛЬНОМ потоке через asyncio.run().
 """
 import asyncio
 import logging
-from typing import List, Optional, Dict, Any
+import os
+from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Sequence, Union
 
 import numpy as np
 
@@ -49,28 +66,131 @@ from app.modules.embeddings.service import EmbeddingService, get_embedding_servi
 
 logger = logging.getLogger(__name__)
 
+# -----------------------------
+# Safe imports: LightRAG
+# -----------------------------
+try:
+    from lightrag import LightRAG as _LightRAG  # type: ignore
+    from lightrag import QueryParam as _QueryParam  # type: ignore
+    from lightrag.base import EmbeddingFunc as _EmbeddingFunc  # type: ignore
 
-class GeminiLLMAdapter:
-    """Адаптер для использования Gemini API с LIGHTRAG."""
-    
-    def __init__(self, gemini_api: GeminiAPI):
-        self.gemini_api = gemini_api
-    
-    def complete(self, prompt: str, system_prompt: Optional[str] = None, **kwargs) -> str:
-        """Выполняет запрос к Gemini API."""
-        full_prompt = prompt
-        if system_prompt:
-            full_prompt = f"{system_prompt}\n\n{prompt}"
-        
-        try:
-            response = self.gemini_api.generate_content(full_prompt)
-            if response and 'candidates' in response:
-                text = response['candidates'][0]['content']['parts'][0]['text']
-                return text
-            raise ValueError("Unexpected response format from Gemini")
-        except Exception as e:
-            logger.error(f"Error calling Gemini API: {e}")
-            raise
+    LIGHTRAG_AVAILABLE = True
+except Exception as e:
+    _LightRAG = None  # type: ignore
+    _QueryParam = None  # type: ignore
+    _EmbeddingFunc = None  # type: ignore
+    LIGHTRAG_AVAILABLE = False
+    logger.warning(
+        "LightRAG import failed: %s. LightRAG features will be disabled.", e, exc_info=True
+    )
+
+# -----------------------------
+# Safe imports: Google GenAI
+# -----------------------------
+try:
+    from google import genai  # type: ignore
+except Exception as e:
+    genai = None  # type: ignore
+    logger.warning("google-genai import failed: %s", e, exc_info=True)
+
+
+@dataclass(frozen=True)
+class LightRAGConfig:
+    working_dir: str
+    llm_model: str
+    embedding_model: str
+    embedding_dim: int = 3072
+    max_token_size: int = 8192
+    send_dimensions: bool = False
+
+
+class GeminiGenAI:
+    """
+    Тонкая обёртка над google-genai.
+    Создаёт клиент на каждый вызов (статлес), чтобы не держать state/locks в воркере.
+    """
+
+    def __init__(
+        self,
+        api_key: Optional[str] = None,
+        llm_model: Optional[str] = None,
+        embedding_model: Optional[str] = None,
+        timeout_s: int = 60,
+    ) -> None:
+        if genai is None:
+            raise RuntimeError("google-genai is not installed / import failed")
+
+        self.api_key = api_key
+        self.llm_model = llm_model
+        self.embedding_model = embedding_model
+        self.timeout_s = timeout_s
+
+    def _client(self):
+        return genai.Client(api_key=self.api_key)
+
+    @retry(
+        reraise=True,
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=1, max=8),
+        retry=retry_if_exception_type(Exception),
+    )
+    def generate(self, prompt: str, system_prompt: Optional[str] = None) -> str:
+        client = self._client()
+        model = self.llm_model or "gemini-2.5-flash"
+        # google-genai обычно принимает system_instruction отдельно
+        # но у тебя в проекте уже есть рабочая схема — оставляем максимально нейтрально:
+        full_prompt = prompt if not system_prompt else f"{system_prompt}\n\n{prompt}"
+
+        resp = client.models.generate_content(
+            model=model,
+            contents=full_prompt,
+        )
+        # Библиотека возвращает разные структуры, но text — самый частый путь
+        return getattr(resp, "text", "") or ""
+
+    @retry(
+        reraise=True,
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=1, max=8),
+        retry=retry_if_exception_type(Exception),
+    )
+    def embed(self, texts: Sequence[str], dims: Optional[int] = None) -> List[List[float]]:
+        client = self._client()
+        model = self.embedding_model or "models/text-embedding-004"
+        if model == "models/text-embedding-001":
+            model = "models/text-embedding-004"
+
+        vectors: List[List[float]] = []
+        for t in texts:
+            if dims is not None:
+                resp = client.models.embed_content(
+                    model=model,
+                    contents=t,
+                    config={"output_dimensionality": dims},
+                )
+            else:
+                resp = client.models.embed_content(
+                    model=model,
+                    contents=t,
+                )
+
+            emb = getattr(resp, "embeddings", None)
+            if emb and isinstance(emb, list) and len(emb) > 0:
+                # типично resp.embeddings[0].values
+                v = getattr(emb[0], "values", None)
+                if v is None:
+                    v = getattr(emb[0], "embedding", None)
+                if v is None:
+                    raise RuntimeError("Unexpected embedding response shape")
+                vectors.append(list(v))
+            else:
+                # иногда бывает resp.embedding / resp.values
+                v = getattr(resp, "values", None) or getattr(resp, "embedding", None)
+                if v is None:
+                    raise RuntimeError("Unexpected embedding response shape")
+                vectors.append(list(v))
+
+        return vectors
 
     async def acomplete(
         self,
@@ -93,8 +213,12 @@ class GeminiLLMAdapter:
 
 
 class LightRAGService:
-    """Сервис для работы с LIGHTRAG."""
-    
+    """
+    Продакшн-обёртка LightRAG.
+    - Если LightRAG/зависимости не установлены, сервис отключается и методы insert/query кидают понятную ошибку.
+    - Исправляет проблему "This event loop is already running" внутри arq/asyncio.
+    """
+
     def __init__(
         self,
         working_dir: str = "./lightrag_cache",
@@ -279,30 +403,32 @@ class LightRAGService:
             True если удаление успешно
         """
         try:
-            # LIGHTRAG может иметь метод delete или нужно реализовать через граф
-            # Это зависит от версии LIGHTRAG
-            logger.info(f"Deleting node from LightRAG: {node_id}")
-            return True
-        except Exception as e:
-            logger.error(f"Error deleting node from LightRAG: {e}")
-            return False
-    
+            self._executor.shutdown(wait=True, cancel_futures=True)
+        except Exception:
+            pass
+
     def get_graph_stats(self) -> Dict[str, Any]:
-        """Возвращает статистику графа знаний."""
+        """Best-effort graph stats for /rag/stats."""
+        if not self.rag:
+            return {"nodes_count": 0, "edges_count": 0, "working_dir": str(self.working_dir)}
+
+        nodes_count = 0
+        edges_count = 0
         try:
-            # Получаем информацию о графе
-            stats = {
-                "working_dir": str(self.working_dir),
-                "nodes_count": 0,
-                "edges_count": 0,
-            }
-            
-            # Попытка получить статистику из графа
-            # Это зависит от реализации LIGHTRAG
-            return stats
-        except Exception as e:
-            logger.error(f"Error getting graph stats: {e}")
-            return {"error": str(e)}
+            # Some versions expose graph_storage with NetworkX-like graph.
+            gs = getattr(self.rag, "graph_storage", None)
+            g = getattr(gs, "graph", None) if gs is not None else getattr(self.rag, "graph", None)
+            if g is not None:
+                nodes_count = int(getattr(g, "number_of_nodes")()) if callable(getattr(g, "number_of_nodes", None)) else int(len(getattr(g, "nodes", [])))
+                edges_count = int(getattr(g, "number_of_edges")()) if callable(getattr(g, "number_of_edges", None)) else int(len(getattr(g, "edges", [])))
+        except Exception:
+            logger.exception("Failed to compute LightRAG graph stats")
+
+        return {
+            "nodes_count": nodes_count,
+            "edges_count": edges_count,
+            "working_dir": str(self.working_dir),
+        }
 
 
 def create_lightrag_service(
@@ -312,14 +438,7 @@ def create_lightrag_service(
     embedding_service: Optional[EmbeddingService] = None,
 ) -> LightRAGService:
     """
-    Фабричная функция для создания LightRAGService.
-    
-    Args:
-        working_dir: Директория для хранения кэша LIGHTRAG
-        gemini_api: Экземпляр GeminiAPI (опционально)
-        
-    Returns:
-        Экземпляр LightRAGService
+    Фабрика. Можно подменить working_dir для тестов.
     """
     if working_dir is None:
         working_dir = "./lightrag_cache"
@@ -331,3 +450,14 @@ def create_lightrag_service(
         embedding_service=embedding_service,
     )
 
+    if cfg.embedding_model == "models/text-embedding-001":
+        cfg = LightRAGConfig(
+            working_dir=cfg.working_dir,
+            llm_model=cfg.llm_model,
+            embedding_model="models/text-embedding-004",
+            embedding_dim=cfg.embedding_dim,
+            max_token_size=cfg.max_token_size,
+            send_dimensions=cfg.send_dimensions,
+        )
+
+    return LightRAGService(config=cfg)

@@ -4,8 +4,7 @@ import asyncio
 import uuid
 from typing import Any
 
-from arq import cron
-from arq.connections import ArqRedis, RedisSettings, create_pool
+from arq.connections import RedisSettings
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
@@ -13,7 +12,7 @@ from app.core.db import SessionLocal
 from app.core.logging import configure_logging, get_logger
 from app.modules.files.models import FileIndexStatus, StoredFile
 from app.modules.files.qdrant_client import QdrantVectorStore
-from app.modules.files.service import EmbeddingProvider, FileService
+from app.modules.files.service_hybrid import HybridFileService
 from app.modules.files.storage import FileStorage, S3Config
 from app.modules.files.file_text_extractor import extract_text
 from app.modules.rag.lightrag_integration import create_lightrag_service
@@ -24,12 +23,17 @@ logger = get_logger(__name__)
 
 
 async def startup(ctx: dict[str, Any]) -> None:
-    """
-    Инициализация контекста воркера.
-    Здесь можно подготовить тяжёлые клиенты, если нужно.
-    """
     configure_logging()
-    logger.info("File indexer worker starting up")
+    logger.info("Hybrid file indexer worker starting up")
+
+    # Debug: confirm interpreter + package location
+    import sys
+    logger.info("PYTHON executable: %s", sys.executable)
+    try:
+        import lightrag
+        logger.info("lightrag module file: %s", lightrag.__file__)
+    except Exception as e:
+        logger.warning("Could not import lightrag in worker startup: %s", e)
 
     import app.modules.auth.models as _auth_models
 
@@ -42,21 +46,50 @@ async def startup(ctx: dict[str, Any]) -> None:
         bucket_customer_docs=settings.S3_BUCKET_CUSTOMER_DOCS,
     )
 
-    ctx["qdrant"] = QdrantVectorStore(
+    # Gemini client (LLM + embeddings) - used by HybridFileService (Qdrant pipeline)
+    ctx["gemini"] = GeminiAPI()
+
+    # Qdrant vector stores (admin vs client)
+    admin_collection = settings.QDRANT_COLLECTION_ADMIN or settings.QDRANT_COLLECTION_NAME
+    client_collection = settings.QDRANT_COLLECTION_CLIENT or settings.QDRANT_COLLECTION_NAME
+
+    ctx["qdrant_admin"] = QdrantVectorStore(
         url=settings.QDRANT_URL,
-        collection_name=settings.QDRANT_COLLECTION_NAME,
+        collection_name=admin_collection,
+        vector_size=settings.QDRANT_VECTOR_SIZE,
+    )
+    ctx["qdrant_client"] = QdrantVectorStore(
+        url=settings.QDRANT_URL,
+        collection_name=client_collection,
         vector_size=settings.QDRANT_VECTOR_SIZE,
     )
 
+    # LightRAG (graph-based RAG). Optional.
+    try:
+        # IMPORTANT: our production LightRAG integration is self-contained and
+        # does NOT accept gemini_api instance (avoids pickle/thread locks and API mismatch).
+        service = create_lightrag_service(
+            working_dir=settings.LIGHTRAG_WORKING_DIR,
+        )
+
+        # If integration returns disabled service, treat as unavailable
+        if hasattr(service, "is_ready") and not service.is_ready():
+            ctx["lightrag"] = None
+            logger.warning("LightRAG created but not ready; fallback to Qdrant-only")
+        else:
+            ctx["lightrag"] = service
+            logger.info("LightRAG initialized in worker context")
+
+    except Exception:
+        ctx["lightrag"] = None
+        logger.exception("LightRAG init failed; worker will index only to Qdrant")
+
 
 async def shutdown(ctx: dict[str, Any]) -> None:
-    logger.info("File indexer worker shutting down")
+    logger.info("Hybrid file indexer worker shutting down")
 
 
 async def index_file_task(ctx: dict[str, Any], file_id: str) -> None:
-    """
-    Основная задача Arq для индексации файла.
-    """
     configure_logging()
     logger.info("Index file task started", extra={"file_id": file_id})
 
@@ -86,6 +119,7 @@ async def index_file_task(ctx: dict[str, Any], file_id: str) -> None:
             return
 
         stored_file.index_status = FileIndexStatus.RUNNING
+        stored_file.index_error = None
         db.commit()
 
         # Синхронная индексация внутри воркера (можно асинхронизировать позже)
@@ -159,15 +193,15 @@ async def index_file_task(ctx: dict[str, Any], file_id: str) -> None:
             if stored_file:
                 stored_file.index_status = FileIndexStatus.ERROR
                 stored_file.is_indexed = False
-                stored_file.index_error = str(exc)
+                stored_file.index_error = "Index file task failed (see logs)"
+                stored_file.indexed_at = datetime.utcnow()
                 db.commit()
         except Exception as inner_exc:
             logger.exception(
                 "Failed to update stored_file error status",
-                extra={"file_id": file_id, "error": str(inner_exc)},
+                extra={"file_id": file_id},
             )
-    finally:
-        db.close()
+
 
 
 class WorkerSettings:

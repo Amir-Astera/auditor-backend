@@ -12,6 +12,14 @@ from app.modules.files.qdrant_client import QdrantVectorStore
 from app.modules.files.models import FileScope, FileChunk, StoredFile
 from app.modules.embeddings.service import get_embedding_service
 from app.core.config import settings
+from app.modules.files.qdrant_client import QdrantVectorStore
+from app.modules.rag.gemini import GeminiAPI
+from app.modules.rag.hybrid_service import (
+    HybridRAGQuery,
+    HybridRAGService,
+    PromptsProvider,
+)
+from app.modules.rag.lightrag_integration import create_lightrag_service
 
 logger = logging.getLogger(__name__)
 
@@ -64,15 +72,11 @@ class RAGService:
         self.lightrag = None
         try:
             self.lightrag = create_lightrag_service(
-                working_dir=lightrag_working_dir or "./lightrag_cache",
-                gemini_api=gemini_api,
+                working_dir=lightrag_working_dir or settings.LIGHTRAG_WORKING_DIR,
             )
-            logger.info("LIGHTRAG service initialized successfully")
-        except ImportError as e:
-            logger.warning(f"LIGHTRAG not available (install with: pip install lightrag>=0.1.0b1): {e}")
-            self.lightrag = None
+            logger.info("LightRAG service initialized successfully")
         except Exception as e:
-            logger.error(f"Failed to initialize LIGHTRAG: {e}")
+            logger.warning("LightRAG not available: %s", e)
             self.lightrag = None
     
     async def query(
@@ -429,62 +433,154 @@ class RAGService:
         try:
             node_id = self.lightrag.insert(text, metadata=metadata)
             return {
-                "node_id": node_id,
-                "success": True,
-            }
-        except Exception as e:
-            logger.error(f"Error inserting text into RAG: {e}")
-            raise
-    
-    def delete_node(self, node_id: str) -> Dict[str, Any]:
-        """
-        Удаляет узел из графа знаний.
-        
-        Args:
-            node_id: ID узла для удаления
-            
-        Returns:
-            Результат удаления
-        """
-        if not self.lightrag:
-            raise RuntimeError("LIGHTRAG service not available")
-        
-        try:
-            success = self.lightrag.delete(node_id)
-            return {
-                "success": success,
-                "node_id": node_id,
-            }
-        except Exception as e:
-            logger.error(f"Error deleting node from RAG: {e}")
-            raise
-    
-    def get_stats(self) -> Dict[str, Any]:
-        """
-        Возвращает статистику графа знаний.
-        
-        Returns:
-            Статистика графа
-        """
-        if not self.lightrag:
-            return {
-                "nodes_count": 0,
-                "edges_count": 0,
-                "working_dir": "N/A",
-                "status": "not_available",
-            }
-        
-        try:
-            stats = self.lightrag.get_graph_stats()
-            stats["status"] = "available"
-            return stats
-        except Exception as e:
-            logger.error(f"Error getting RAG stats: {e}")
-            return {
-                "nodes_count": 0,
-                "edges_count": 0,
-                "working_dir": "N/A",
-                "status": "error",
-                "error": str(e),
+                "answer": answer,
+                "context": [],
+                "nodes": [],
+                "edges": [],
+                "mode": "direct",
             }
 
+        hybrid = HybridRAGService(
+            db=self.db,
+            gemini=self.gemini_api,
+            prompts=prompts,  # PromptService or fallback shim
+            qdrant_admin=self.qdrant_admin,
+            qdrant_client=self.qdrant_client,
+            lightrag=self.lightrag,
+        )
+
+        result = hybrid.query(
+            HybridRAGQuery(
+                question=question,
+                customer_id=customer_id,
+                owner_id=owner_id,
+                include_admin_laws=include_admin_laws,
+                include_customer_docs=include_customer_docs,
+                top_k=top_k,
+                temperature=temperature,
+                mode=mode,
+            )
+        )
+
+        return {
+            "answer": result.answer,
+            "context": result.context,
+            "nodes": result.nodes,
+            "edges": result.edges,
+            "mode": result.mode,
+            "debug": result.debug,
+        }
+
+    def evidence(
+        self,
+        question: str,
+        mode: str = "hybrid",
+        top_k: int = 8,
+        customer_id: Optional[str] = None,
+        include_admin_laws: bool = True,
+        include_customer_docs: bool = True,
+        owner_id: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """
+        Retrieval-only (no generation). Intended for /rag/evidence endpoint.
+
+        Returns:
+        {
+          "context": [...],
+          "nodes": [...],
+          "edges": [...],
+          "mode": str
+        }
+        """
+        if self.prompts is None:
+
+            class _FallbackPrompts:
+                def get_active_prompt_content(self, prompt_type):  # noqa: ANN001
+                    return ""
+
+            prompts = _FallbackPrompts()  # type: ignore[assignment]
+        else:
+            prompts = self.prompts
+
+        if self.qdrant_admin is None or self.qdrant_client is None:
+            logger.warning("Qdrant not configured; returning empty evidence set")
+            return {"context": [], "nodes": [], "edges": [], "mode": mode}
+
+        hybrid = HybridRAGService(
+            db=self.db,
+            gemini=self.gemini_api,
+            prompts=prompts,  # PromptsProvider
+            qdrant_admin=self.qdrant_admin,
+            qdrant_client=self.qdrant_client,
+            lightrag=self.lightrag,
+        )
+
+        payload = hybrid.evidence_only(
+            HybridRAGQuery(
+                question=question,
+                customer_id=customer_id,
+                owner_id=owner_id,
+                include_admin_laws=include_admin_laws,
+                include_customer_docs=include_customer_docs,
+                top_k=top_k,
+                temperature=0.0,
+                mode=mode,
+            )
+        )
+
+        # Ensure stable shape
+        return {
+            "context": payload.get("context", []),
+            "nodes": payload.get("nodes", []),
+            "edges": payload.get("edges", []),
+            "mode": payload.get("mode", mode),
+            "debug": payload.get("debug"),
+        }
+
+    # -------------------------
+    # Legacy LightRAG endpoints
+    # -------------------------
+
+    def insert_text(
+        self, text: str, metadata: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """
+        Inserts text into LightRAG graph (if available).
+        Used by /rag/insert.
+        """
+        if not self.lightrag:
+            raise RuntimeError("LightRAG service not available")
+
+        node_id = self.lightrag.insert(text, metadata=metadata)
+        return {"node_id": str(node_id), "success": True}
+
+    def delete_node(self, node_id: str) -> Dict[str, Any]:
+        """
+        Deletes a node from LightRAG graph (best effort; depends on LightRAG version).
+        Used by /rag/node/{node_id}.
+        """
+        if not self.lightrag:
+            raise RuntimeError("LightRAG service not available")
+
+        success = self.lightrag.delete(node_id)
+        return {"success": bool(success), "node_id": node_id}
+
+    def get_stats(self) -> Dict[str, Any]:
+        """
+        Returns LightRAG graph stats.
+        Used by /rag/stats.
+        """
+        if not self.lightrag:
+            return {
+                "nodes_count": 0,
+                "edges_count": 0,
+                "working_dir": "N/A",
+            }
+
+        stats = self.lightrag.get_graph_stats()
+        # Ensure required keys exist for response model
+        return {
+            "nodes_count": int(stats.get("nodes_count", 0) or 0),
+            "edges_count": int(stats.get("edges_count", 0) or 0),
+            "working_dir": str(stats.get("working_dir", "N/A")),
+        }

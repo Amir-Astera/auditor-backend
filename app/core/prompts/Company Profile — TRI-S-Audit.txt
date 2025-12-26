@@ -1,0 +1,81 @@
+Company Profile — TRI-S-Audit
+Metadata (for RAG)
+
+KB-Tags: company-profile, tri-s-audit, tilepin, audit, ifrs, isa, forensic, uzbekistan, central-asia, services, contacts, brand-voice, disclaimers
+Version: 0.1 (2025-09-18)
+Source of Truth Owner: TRI-S-AUDIT Igor Tilepin
+Update cadence: Quarterly or upon material change
+
+Legal & Identity
+
+Registered name (EN): TRI-S-AUDIT
+Registered name (RU): TRI-S-AUDIT
+Trade / brand names: TRI-S-AUDIT
+Jurisdiction: Republic of Uzbekistan
+Taxpayer ID (INN): 204722723
+Registered address: Uzbekistan, Tashkent, Mirabad district, Taras Shevchenko street 28
+Postal / billing address: Same as registered
+Website: https://www.tri-s-audit.uz/
+
+Primary contact email: info@tri-s-audit.uz
+
+Phone / WhatsApp / Telegram: +998 71 256-25-66
+Languages of service: English, Russian, Uzbek
+
+Elevator Pitch
+
+EN: TRI-S-AUDIT provides: audits (IFRS, NAS, US GAAP under ISA/PCAOB), ESG/KPI assurance, forensic and environmental audits; investment consulting with due diligence and valuations; business intelligence with PEP/sanctions checks and dashboards; advisory on governance, risk, and tax; and digital finance/IT solutions (ERP, automation, analytics).
+RU: TRI-S-AUDIT оказывает услуги: аудит (МСФО, NAS, US GAAP по ISA/PCAOB), ESG/KPI проверки, форензик и экологический аудит; инвестиционный консалтинг с due diligence и оценками; бизнес-аналитику (проверки PEP/санкций, дашборды); консалтинг по управлению, рискам и налогам; цифровые финансы и ИТ (ERP, автоматизация, аналитика).
+
+Services & Offerings
+
+EN:
+
+Audit & Assurance: statutory/voluntary audits (IFRS, NAS, US GAAP under ISA/PCAOB), ESG/KPI assurance, AUP (ISRS 4400), forensic & environmental audits.
+
+Investment Consulting: due diligence (financial/tax/operational), valuations (IVS, DCF/WACC), capital structuring, post-deal integration.
+
+Business Intelligence: market research, PEP/sanctions/UBO checks, data scraping, dashboards, industry papers.
+
+Advisory & Risk: governance (OECD), COSO ERM, tax optimisation, CFC/DTT.
+
+Digital Finance & IT: ERP rollout, process automation, IFRS bridge tools, analytics.
+
+RU:
+
+Аудит и Assurance: обязательный/добровольный аудит (МСФО, NAS, US GAAP по ISA/PCAOB), ESG/KPI, согласованные процедуры (ISRS 4400), форензик и экологический аудит.
+
+Инвестиционный консалтинг: due diligence (финансовый/налоговый/операционный), оценки (IVS, DCF/WACC), структура капитала, пост-сделочная интеграция.
+
+Бизнес-аналитика: исследования рынка, проверки PEP/санкций/UBO, парсинг данных, дашборды, отраслевые обзоры.
+
+Advisory & Risk: корпоративное управление (OECD), COSO ERM, налоговая оптимизация, КИК/СИДН.
+
+Цифровые финансы и ИТ: внедрение ERP, автоматизация процессов, IFRS-инструменты, аналитика.
+
+Industries
+
+EN: Energy; Distribution (incl. FMCG); Mining & Metallurgy; Construction & Real Estate; Building materials production; Import-Export (all sectors); Insurance; IT & Startups.
+RU: Энергетика; Дистрибуция (вкл. FMCG); Горная металлургия; Строительство и недвижимость; Производство стройматериалов; Импорт-экспорт (любые сферы); Страховые компании; IT и стартапы.
+
+Quality, Ethics & Compliance
+
+Independence: Firm complies with ISA and IESBA requirements.
+
+Retention: Documents kept per ISA and local law requirements.
+
+Contacts & Intake
+
+General inquiries: info@tri-s-audit.uz
+
+New engagements: info@tri-s-audit.uz
+
+Proposals & procurement: info@tri-s-audit.uz
+
+Media: info@tri-s-audit.uz
+
+Emergency forensic hotline (24/7): +998 71 256-25-66
+
+Leadership & Team
+
+Managing Partner (Director): Svetlana Golosova
