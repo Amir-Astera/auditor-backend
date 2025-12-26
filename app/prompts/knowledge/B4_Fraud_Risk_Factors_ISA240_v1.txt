@@ -1,0 +1,45 @@
+ID: B4_FRAUD_RISK_FACTORS_V1
+TITLE: Fraud Risk Factors Library (ISA 240)
+LANG: EN
+TYPE: RISK_LIBRARY
+STANDARDS: ISA240
+VERSION: 1.0
+
+# STRUCTURE
+#   Each item is a fraud risk factor with:
+#   - id
+#   - category (Pressure / Opportunity / Rationalisation)
+#   - description
+#   - typical_assertions
+#   - related_cycle (Revenue, Purchases, Payroll, etc.)
+
+FACTOR:
+  id: FR01
+  category: Pressure
+  description: "Aggressive earnings targets or bonus schemes linked to short-term profit."
+  typical_assertions: ["occurrence", "accuracy"]
+  related_cycle: "Revenue"
+
+FACTOR:
+  id: FR02
+  category: Opportunity
+  description: "Management ability to override key controls without effective supervision."
+  typical_assertions: ["all"]
+  related_cycle: "Entity-level"
+
+FACTOR:
+  id: FR03
+  category: Opportunity
+  description: "Complex manual journal entries posted at period-end."
+  typical_assertions: ["occurrence", "classification"]
+  related_cycle: "General ledger"
+
+# MANDATORY RISKS
+MANDATORY:
+  - id: MANDATORY_REVENUE_FRAUD
+    description: "Presumed fraud risk in revenue recognition (ISA 240)."
+  - id: MANDATORY_MANAGEMENT_OVERRIDE
+    description: "Management override of controls."
+
+# NOTE
+#   Extend with sector-specific fraud factors as needed.

@@ -1,0 +1,146 @@
+ID: E8_SUD_UNADJUSTED_MISSTATEMENTS_V1
+TITLE: Summary of Unadjusted Misstatements (SUD)
+LANG: EN
+TYPE: TEMPLATE
+STANDARDS: ISA450, ISA700
+VERSION: 1.0
+
+# PURPOSE
+#   Provide a structured template summarising all uncorrected misstatements
+#   identified during the audit, aggregated and evaluated against materiality thresholds,
+#   as required by ISA 450.
+
+# PLACEHOLDERS:
+#   {{client_name}}
+#   {{period_end}}
+#   {{overall_materiality}}
+#   {{performance_materiality}}
+#   {{misstatements_table}}
+#   {{total_unadjusted}}
+#   {{evaluation_vs_materiality}}
+#   {{partner_conclusion}}
+#   {{appendices}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[HEADER]
+SUMMARY OF UNADJUSTED MISSTATEMENTS (SUD)
+Client: {{client_name}}
+Period Ended: {{period_end}}
+
+This schedule summarises all factual, judgmental, and projected misstatements identified 
+during the audit that remain unadjusted at the completion stage. The purpose is to assess 
+their aggregate effect on the financial statements and determine whether the financial 
+statements are materially misstated.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[1. MATERIALITY BENCHMARKS]
+
+Overall Materiality (OM): {{overall_materiality}}  
+Performance Materiality (PM): {{performance_materiality}}
+
+Evaluation threshold: Unadjusted misstatements are evaluated both individually and in the 
+aggregate as required by ISA 450.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2. MACHINE-READABLE DATA SCHEMA]
+
+# Use this schema in RAG for structured storage and automated generation
+
+SUD_SCHEMA:
+  misstatement_id: "<string>"
+  area: "<e.g., Revenue, Inventory, PPE>"
+  type: "Factual | Judgmental | Projected"
+  description: "<short text>"
+  amount: "<numeric value>"
+  proposed_adjustment: "<journal entry or null>"
+  management_decision: "Adjusted | Not adjusted"
+  rationale: "<explanation from management>"
+  auditor_comment: "<optional>"
+  impact_on_FS:
+    asset: "<+/- amount>"
+    liability: "<+/- amount>"
+    equity: "<+/- amount>"
+    profit_before_tax: "<+/- amount>"
+  severity: "Low | Moderate | High"
+  linked_risk_id: "<SRxx or null>"
+  linked_testing: "<reference to test work>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[3. DETAILED TABLE OF UNADJUSTED MISSTATEMENTS]
+
+Below is the list of all uncorrected misstatements:
+
+{{misstatements_table}}
+
+# Recommended human-readable table:
+
+# | Ref | Area | Type | Description | Amount | Impact (PBT/Assets) | Severity | Management Decision | Auditor Comment |
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[4. AGGREGATION OF MISSTATEMENTS]
+
+TOTAL_UNADJUSTED: {{total_unadjusted}}
+
+# Machine logic:
+
+AGGREGATION_LOGIC:
+  total_unadjusted = SUM(amount WHERE management_decision = "Not adjusted")
+  threshold_PM = performance_materiality
+  threshold_80pct_PM = 0.8 * performance_materiality
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[5. EVALUATION AGAINST MATERIALITY (ISA 450)]
+
+Evaluation summary:
+
+{{evaluation_vs_materiality}}
+
+# Machine-readable evaluation:
+
+EVALUATION_LOGIC:
+  IF total_unadjusted > threshold_PM:
+      result = "Material misstatement — financial statements NOT acceptable."
+      impact = "Adverse or Qualified opinion likely."
+  ELSE IF total_unadjusted > threshold_80pct_PM:
+      result = "Close to PM — partner judgement required; enhanced disclosures recommended."
+  ELSE:
+      result = "Below PM — financial statements acceptable from quantitative perspective."
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[6. QUALITATIVE FACTORS TO CONSIDER]
+
+# Required by ISA 450 even if amounts are small:
+
+QUALITATIVE_FLAGS:
+  - "Does the misstatement relate to a sensitive disclosure?"
+  - "Does it mask a trend?"
+  - "Does it turn a loss into a profit or vice versa?"
+  - "Is it the result of bias in estimates?"
+  - "Does it indicate potential fraud?"
+  - "Has management refused multiple proposed adjustments?"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[7. PARTNER CONCLUSION]
+
+Partner conclusion on the acceptability of uncorrected misstatements:
+
+{{partner_conclusion}}
+
+# Example (to be generated automatically):
+#   "Based on the aggregate value of uncorrected misstatements and consideration of 
+#    qualitative factors, we conclude that the financial statements are not materially misstated 
+#    and an unmodified audit opinion is appropriate."
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[8. APPENDICES]
+
+Appendices may include:
+- Working papers showing calculation of projected misstatements
+- Management representation supporting judgmental amounts
+- Materiality computation sheets
+- Extracts of JE testing
+
+{{appendices}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[END OF DOCUMENT]

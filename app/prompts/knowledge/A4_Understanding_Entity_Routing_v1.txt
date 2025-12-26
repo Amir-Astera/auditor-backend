@@ -1,0 +1,38 @@
+ID: A4_UNDERSTANDING_ENTITY_ROUTING_V1
+TITLE: Understanding the Entity (ISA 315) Routing Prompts
+LANG: EN
+TYPE: ROUTING_PROMPTS
+STANDARDS: ISA315
+VERSION: 1.0
+
+# PURPOSE
+#   Collect core information for "Understanding the Entity" (J12.UNDERSTANDING)
+#   and link it with risk assessment block J2.RISK.
+
+# INPUT_FIELDS
+#   industry
+#   business_model_summary
+#   key_revenue_streams
+#   key_cost_drivers
+#   key_processes           # e.g. sales, purchasing, production
+#   it_environment_summary
+#   internal_control_overview
+
+# QUESTIONS
+Q1: In which industry does the entity operate?
+Q2: How does the entity generate its revenue (main products/services, customer types)?
+Q3: What are the key business processes (e.g. sales cycle, procurement, payroll)?
+Q4: Are there any complex or unusual transactions?
+Q5: What key IT systems are used for accounting and operations?
+Q6: Describe the overall internal control environment (centralised/decentralised, key controls).
+
+# OUTPUT STRUCTURE
+{
+  "industry": "<string>",
+  "business_model": "<short description>",
+  "key_processes": ["sales", "purchases", "inventory", "payroll", "..."],
+  "it_environment": "<short description>",
+  "control_environment": "<short description>",
+  "link_to_risks": true,
+  "next_block": "J2_RISK"
+}

@@ -1,0 +1,311 @@
+# TRI-S-AUDIT — Risk Library by Cycle (EN/RU)
+# Version: v1.1
+# Date: 2025-09-19
+# Source: TRI-S-AUDIT (Trusted Source)
+# Author: Igor Tilepin
+# Reference Framework: International Standards on Auditing (ISA / МСА) — with cross-references to IFRS where relevant (IAS/IFRS/IFRIC)
+
+----------------------------------------------------------------------
+NOTE FOR CUSTOM GPT:
+Use this library to (1) propose risks by business cycle, (2) map them to assertions,
+(3) suggest audit responses (controls reliance vs substantive) with ISA references,
+(4) ask for missing context before drafting procedures. Always tailor to client facts,
+materiality, PIE status, and local law. Where IFRS is referenced, retain neutrality
+and avoid jurisdiction-specific legal conclusions. Link judgments to ISA 540 (Revised).
+----------------------------------------------------------------------
+
+[CONTENT START]
+
+============================================================
+A) REVENUE & RECEIVABLES (IFRS 15; ISA 240/315/330/520/530/505/580)
+============================================================
+EN — Objectives & Assertions:
+- Occurrence, Accuracy, Cut-off, Completeness, Classification, Presentation & Disclosure, Rights.
+Typical risk scenarios (examples):
+1) Improper revenue recognition (timing, cut-off; side agreements; bill-and-hold; channel stuffing; over-time measurement errors).
+2) Variable consideration (rebates, returns, price protection) misestimated.
+3) Principal vs agent misclassification.
+4) Related-party sales at non-market terms undisclosed.
+5) ECL on receivables (IFRS 9) underestimated; credit memos post-period not recorded.
+Fraud red flags (ISA 240): unusual JEs near period end; manual overrides; round-number invoices; sales with extended right of return.
+
+Planned audit responses (choose mix per ISA 315/330):
+- Controls reliance (if effective): walkthroughs, design evaluation; test of controls over order-to-cash, pricing, credit approval, dispatch & proof-of-delivery, rebate accruals.
+- Substantive procedures: analytical procedures (ISA 520), cut-off testing, vouching to POD/contract, recomputation of rebates, subsequent receipts testing, confirmations (positive/negative) per ISA 505, ageing review, ECL model testing (PD/LGD/EAD, staging), review of post-period CNs/returns.
+
+Analytics ideas (ISA 520):
+- Revenue vs shipments, returns ratio, gross margin trend by SKU/region, seasonality, DSO/aging shifts, price-volume mix.
+Sampling (ISA 530): MUS for receivables; attribute sampling for controls; stratify by size/age.
+PBC data: contract register, price lists/rebate terms, shipment logs/POD, AR subledger & ageing, credit notes after YE, related-party list, ECL model & inputs, subsequent receipts.
+
+RU — Цели и утверждения:
+- Существование, Точность, Отсечка, Полнота, Классификация, Представление и раскрытие, Права.
+Типичные риски:
+1) Неправильный момент признания выручки (cut-off; соглашения на стороне; bill-and-hold; «выталкивание»; ошибки измерения по методу «с течением времени»).
+2) Ошибочная оценка переменного вознаграждения (скидки, возвраты, ретробонусы).
+3) Неверная классификация «принципал/агент».
+4) Операции со связанными сторонами без раскрытия.
+5) Занижение ECL по ДЗ (IFRS 9); несвоевременные кредит‑ноты.
+Мошенничество (МСА 240): нетипичные проводки на закрытии; ручные override; «круглые» суммы; продажи с расширенным правом возврата.
+
+Аудиторские ответы (МСА 315/330):
+- Опора на контроль: walkthrough; оценка дизайна; тесты контроля по циклу «заказ‑отгрузка‑оплата», ценообразование, кредит‑лимиты, отгрузка/ПОД, начисление скидок.
+- По существу: аналитика (МСА 520), тесты отсечки, подтверждение ПОД/договоров, перерасчет скидок, последующие поступления, внешние подтверждения (МСА 505), анализ возрастной структуры, тест ECL (PD/LGD/EAD, стадии), проверка послепериодных возвратов/КН.
+
+Аналитика: динамика выручки против отгрузок, доля возвратов, валовая маржа по SKU/регионам, сезонность, DSO/старение, price‑volume mix.
+Выборка (МСА 530): MUS по ДЗ; атрибутная по контролям; стратификация по сумме/возрасту.
+PBC: реестр договоров, прайс‑листы/ретробонусы, журналы отгрузок/ПОД, субкнига ДЗ и ageing, кредит‑ноты после отчетной даты, реестр связанных сторон, модель ECL и входы, последующие поступления.
+
+------------------------------------------------------------
+B) PURCHASES & PAYABLES (P2P) (ISA 315/330/520/530)
+------------------------------------------------------------
+EN — Assertions: Completeness, Cut-off, Accuracy, Existence, Classification, Presentation.
+Risks: unrecorded liabilities at YE; fictitious vendors; related-party purchases; duplicate invoices; price variances; unauthorized vendors; three-way match overrides.
+Responses: search for unrecorded liabilities (payments after YE, unmatched GR/IR), vendor master data controls, 3-way match testing, AP confirmations (selective), cut-off on GRNs, analytical expenses trend.
+Sampling: attribute sampling for 3-way match; monetary for liabilities.
+PBC: AP ageing, GR/IR, post-YE payments, vendor master, contracts/price lists.
+
+RU — Утверждения: Полнота, Отсечка, Точность, Существование, Классификация, Представление.
+Риски: неотраженные обязательства; фиктивные поставщики; связанные стороны; дубликаты счетов; отклонения цены; несанкционированные контрагенты; обход 3‑хстороннего контроля.
+Ответы: поиск неотраженных обязательств (платежи после отчетной даты, несопоставленные ПН/ПТр), контроль справочника поставщиков, тест 3‑хстороннего сопоставления, выборочные подтверждения КЗ, отсечка по приходным документам, аналитика расходов.
+Выборка: атрибутная для 3‑way match; денежная для КЗ.
+PBC: ageing КЗ, GR/IR, платежи после отчетной даты, мастер‑данные поставщиков, договоры/прайсы.
+
+------------------------------------------------------------
+C) INVENTORY (IAS 2; ISA 501/315/330)
+------------------------------------------------------------
+EN — Assertions: Existence, Completeness, Valuation, Rights, Cut-off, Presentation.
+Risks: existence (counts), obsolete/slow-moving; cost vs NRV; consignment recognition; cut-off around YE; standard cost updates; shrinkage.
+Responses: attendance at counts (ISA 501), test counts, price testing/BOM, roll-forward/back, NRV testing, cut-off (last shipments/receipts), consignment procedures, shrinkage analytics.
+PBC: inventory listings by location/SKU, count plans/results, pricing support, sales post-YE for NRV, consignment agreements.
+
+RU — Утверждения: Существование, Полнота, Оценка, Права, Отсечка, Представление.
+Риски: фактическое наличие; устаревшие/медленно оборачиваемые запасы; стоимость vs ЧРС; запасы на комиссии; отсечка; обновление стандарт‑костов; естественная убыль.
+Ответы: участие в инвентаризациях (МСА 501), контрольные пересчеты, тест цен/спецификаций, roll‑forward/back, тест ЧРС, отсечка, процедуры по комиссионным запасам, аналитика убыли.
+PBC: ведомости запасов по локациям/SKU, планы/итоги инвентаризаций, подтверждение цен, продажи после отчетной для ЧРС, договоры комиссии.
+
+------------------------------------------------------------
+D) PROPERTY, PLANT & EQUIPMENT (IAS 16) & IMPAIRMENT (IAS 36)
+------------------------------------------------------------
+EN — Assertions: Existence, Valuation, Completeness, Rights, Presentation.
+Risks: capitalization of expenses; missing disposals; componentization; impairment triggers; useful lives; revaluation model; CWIP to PPE; environmental obligations.
+Responses: test additions (P.O., invoice, GRN, use), repairs vs capex analysis, physical verification sample, depreciation recomputation, impairment indicators and model testing (recoverable amount), assets held for sale (IFRS 5) if relevant, ARO (IAS 37) linkage.
+PBC: FA register, additions/disposals, CWIP, valuation reports, impairment memos.
+
+RU — Утверждения: Существование, Оценка, Полнота, Права, Представление.
+Риски: капитализация затрат; непроведенные выбытия; компонентный учет; признаки обесценения; сроки полезного использования; модель переоценки; перевод из НЗП; экологические обязательства.
+Ответы: тест дополнений (заказ, счет, ПН, ввод в эксплуатацию), анализ ремонт vs капвложения, выборочная фактическая проверка, перерасчет амортизации, проверка признаков обесценения/модели, активы к продаже (IFRS 5), связь с резервами по IAS 37.
+PBC: реестр ОС, поступления/выбытия, НЗП, отчеты оценщика, меморандумы по обесценению.
+
+------------------------------------------------------------
+E) INTANGIBLES & R&D (IAS 38) / SOFTWARE CAPITALIZATION
+------------------------------------------------------------
+EN — Assertions: Valuation, Completeness, Presentation.
+Risks: capitalization criteria not met; research vs development phase misapplied; internally developed software costs capitalized in error; impairment not assessed.
+Responses: review project documentation (technical/feasibility), expense vs capitalize tests, impairment indicators, amortization methods & useful lives.
+PBC: project charters, cost breakdowns, time sheets, capitalization policies.
+
+RU — Утверждения: Оценка, Полнота, Представление.
+Риски: несоблюдение критериев капитализации; путаница «исследование/разработка»; завышение капитализации ПО; неоцененные признаки обесценения.
+Ответы: анализ документов проектов, тест «расходы vs капитализация», признаки обесценения, методы амортизации/сроки.
+PBC: паспорта проектов, расшифровки затрат, табели, политика капитализации.
+
+------------------------------------------------------------
+F) PAYROLL & HR
+------------------------------------------------------------
+EN — Assertions: Accuracy, Occurrence, Completeness, Cut-off, Presentation.
+Risks: ghost employees; unauthorized rate changes; overtime/bonus manipulation; payroll taxes under/over; termination benefits (IAS 19) errors.
+Responses: controls over HR master changes; reconciliation HR-to-GL; substantive recalculation (rates, hours), analytical procedures, cut-off; IAS 19 testing.
+PBC: payroll registers, HR master change logs, tax filings, benefit plan docs.
+
+RU — Утверждения: Точность, Существование, Полнота, Отсечка, Представление.
+Риски: «мертвые души»; несогласованные изменения ставок; манипуляции переработками/бонусами; налоги; выплаты при увольнении (IAS 19).
+Ответы: контроль изменений мастер‑данных HR; сверка HR‑GL; перерасчеты, аналитика, отсечка; тесты по IAS 19.
+PBC: реестры ЗП, логи изменений, налоговые файлы, документы по планам выплат.
+
+------------------------------------------------------------
+G) CASH & TREASURY (ISA 505; IFRS 7)
+------------------------------------------------------------
+EN — Assertions: Existence, Rights, Completeness, Accuracy.
+Risks: unrecorded accounts/loans/derivatives; restricted cash undisclosed; reconciling items long-outstanding; covenant breaches not monitored.
+Responses: bank confirmations, independent statements, reconciliation testing, cutoff, review restrictions/pledges, debt confirmations, covenant testing.
+RU — Аналогично; PBC: банковские подтверждения, выписки, сверки, договоры кредитов, ковенанты.
+
+------------------------------------------------------------
+H) FINANCIAL INSTRUMENTS & CREDIT LOSS (IFRS 9; IFRS 13; ISA 540R)
+------------------------------------------------------------
+EN — Assertions: Valuation, Completeness, Presentation, Rights.
+Risks: ECL model weakness (segmentation, PD/LGD/EAD), staging misclassification, fair value hierarchy errors, hedge accounting documentation, off-balance guarantees.
+Responses: governance over models, challenge assumptions/overlays, back-testing, sensitivity, IFRS 13 fair value testing, disclosures.
+PBC: model docs, data tapes, overlays, fair value inputs, hedge docs.
+
+RU — Риски: недостатки модели ECL, неверное стадирование, ошибки уровней справедливой стоимости, хедж‑учет, внебалансовые гарантии.
+Ответы: проверка управления моделью, допущений/оверлеев, бэктест, чувствительность, тесты по IFRS 13, раскрытия.
+PBC: документация моделей, датасеты, входные данные, документы по хеджированию.
+
+------------------------------------------------------------
+I) LEASES (IFRS 16)
+------------------------------------------------------------
+EN — Assertions: Completeness, Valuation, Presentation.
+Risks: incomplete lease population; discount rate errors; lease term options; remeasurements not updated; classification of service components.
+Responses: search for embedded leases (vendor contracts, services), reconciliation of lease register to GL, recompute ROU/lease liability, discount rate testing, modification accounting.
+PBC: lease register, contracts, incremental borrowing rates, modification memos.
+
+RU — Риски: неполный реестр договоров аренды; ставки дисконтирования; опции пролонгации; несвоевременные пересчеты; компоненты услуг.
+Ответы: поиск встроенных арен, сверка реестра с ГЛ, перерасчет ППА/обязательства, проверка ставок, учет модификаций.
+PBC: реестр аренды, договоры, ставка заимствования, меморандумы.
+
+------------------------------------------------------------
+J) PROVISIONS, CONTINGENCIES & LEGAL (IAS 37; ISA 501/560)
+------------------------------------------------------------
+EN — Assertions: Valuation, Completeness, Presentation.
+Risks: under-provisioning; contingent liabilities undisclosed; onerous contracts.
+Responses: inquiry with management and legal; legal letters; assessment of probability and range; subsequent events; onerous contract calculations.
+PBC: legal register, correspondence with counsel, claim matrix.
+
+RU — Риски: занижение резервов; нераскрытые условные обязательства; обременительные договоры.
+Ответы: опрос руководства и юристов; юр‑письма; оценка вероятности/диапазона; события после отчетной даты; расчеты обременительных договоров.
+PBC: реестр дел, переписка с юристами, матрица исков.
+
+------------------------------------------------------------
+K) TAXATION (IAS 12)
+------------------------------------------------------------
+EN — Assertions: Completeness, Valuation, Presentation.
+Risks: current tax under/over; deferred tax recognition/recoverability; uncertain tax positions not assessed; ineffective rate reconciliations.
+Responses: reconcile tax computations to GL; inspect filings; test deferred tax temporary differences; assess forecasts for DTA recoverability; evaluate UTBs; disclosures.
+PBC: tax returns, computations, correspondence with authorities.
+
+RU — Риски: текущий налог; признание/возмещаемость ОНА/ОНО; неопределенные позиции; сверка эффективной ставки.
+Ответы: сверки расчетов; проверки деклараций; тест временных разниц; оценка прогнозов для ОНА; анализ неопределенных позиций; раскрытия.
+PBC: декларации, расчеты, переписка с налоговыми органами.
+
+------------------------------------------------------------
+L) RELATED PARTIES (IAS 24)
+------------------------------------------------------------
+EN — Assertions: Completeness, Presentation.
+Risks: incomplete related-party register; non-market terms; undisclosed transactions/balances.
+Responses: management inquiry, minutes, declarations, search via corporate registries (where permitted), analytics for unusual terms, confirmations.
+PBC: RP register, declarations, contracts, minutes.
+
+RU — Риски: неполный реестр; нерыночные условия; нераскрытые операции/сальдо.
+Ответы: опрос, протоколы, декларации, поиск по открытым реестрам (если допустимо), аналитика нетипичных условий, подтверждения.
+PBC: реестр связанных сторон, декларации, договоры, протоколы.
+
+------------------------------------------------------------
+M) CONSOLIDATION & INVESTMENTS (IFRS 10/12, IAS 28, IFRS 3; ISA 600)
+------------------------------------------------------------
+EN — Assertions: Completeness, Valuation, Presentation.
+Risks: incorrect consolidation boundary; intercompany eliminations; NCI; equity method errors; business combinations PPA; goodwill impairment.
+Responses: group structure validation; IC reconciliations; review acquisition accounting (IFRS 3) and PPAs; goodwill impairment (IAS 36); disclose interests in other entities (IFRS 12). Group instructions & component auditor oversight (ISA 600).
+PBC: org charts, legal docs, IC matrices, acquisition files, PPAs.
+
+RU — Риски: периметр консолидации; элиминации; доля НКИ; ошибки метода долевого участия; PPA; обесценение гудвилла.
+Ответы: проверка структуры группы; сверки внутригрупповых; учет объединений (IFRS 3); тест обесценения (IAS 36); раскрытия (IFRS 12). Инструкции и контроль работы аудиторов компонентов (МСА 600).
+PBC: схемы, учредительные документы, матрицы ВГ, файлы по сделкам, PPA.
+
+------------------------------------------------------------
+N) INVESTMENT PROPERTY (IAS 40)
+------------------------------------------------------------
+EN — Assertions: Valuation, Presentation, Rights.
+Risks: incorrect model (cost vs fair value); fair value inputs not supportable; transfer to/from owner-occupied not justified.
+Responses: policy review; fair value hierarchy testing; reconcile rentals; disclosure testing.
+PBC: valuation reports, lease contracts, rental schedules.
+
+RU — Риски: неверная модель учета; необоснованные входные данные справедливой стоимости; необоснованные переводы между категориями.
+Ответы: анализ политики; тесты по IFRS 13; сверка арендных доходов; проверка раскрытий.
+PBC: отчеты оценщика, договоры аренды, графики платежей.
+
+------------------------------------------------------------
+O) FOREIGN CURRENCY & TRANSLATION (IAS 21)
+------------------------------------------------------------
+EN — Assertions: Valuation, Presentation.
+Risks: wrong functional currency; translation errors; unrecognized FX gains/losses; hedge ineffectiveness not recorded.
+Responses: assess functional currency indicators; test translation rates; analytical review of FX; evaluate hedge documentation.
+PBC: FX policy, rate sources, hedge docs.
+
+RU — Риски: неверная функциональная валюта; ошибки трансляции; неучтенные курсовые разницы; неэффективность хеджей.
+Ответы: оценка индикаторов функциональной валюты; тест курсов; аналитика FX; проверка документации по хеджам.
+PBC: политика FX, источники курсов, документы по хеджам.
+
+------------------------------------------------------------
+P) GOING CONCERN (ISA 570)
+------------------------------------------------------------
+EN — Risks: lack of liquidity, covenant breaches, adverse legal outcomes; inadequate disclosures of material uncertainty.
+Responses: evaluate management’s assessment; forecast cash flows; sensitivity; covenant testing; subsequent events; disclosure adequacy.
+RU — Риски/ответы аналогично. PBC: оценки руководства, бюджеты/ДДС, ковенанты, письма банков.
+
+------------------------------------------------------------
+Q) ACCOUNTING ESTIMATES & JUDGEMENTS (ISA 540 (Revised))
+------------------------------------------------------------
+EN — Assertions: Valuation, Presentation.
+Risks: model complexity/unvalidated; management bias; inconsistent assumptions across estimates; insufficient data quality; lack of back-testing.
+Responses: test design & implementation of model governance; challenge key assumptions & scenarios; data lineage and quality; back-testing; sensitivity & alternative outcomes; disclosures.
+PBC: estimation memos, models, inputs, governance packs.
+
+RU — Риски: сложные модели; смещение управленческой оценки; несогласованные допущения; низкое качество данных; отсутствие бэктеста.
+Ответы: тест управления моделями; вызов допущений; проверка происхождения данных; бэктест; чувствительность; раскрытия.
+PBC: меморандумы оценок, модели, входные данные, материалы по управлению моделями.
+
+------------------------------------------------------------
+R) IT GENERAL CONTROLS & APPLICATION CONTROLS (ISA 315; 330)
+------------------------------------------------------------
+EN — Domains: Access Management, Change Management, IT Operations; App controls (edits, validations, interfaces, reports).
+Risks: excessive privileges; inadequate segregation of duties; untested changes; unreliable report parameters.
+Responses: test design & operating effectiveness; user access recertification; change approvals & testing; report validation and parameter testing.
+PBC: user listings, role matrices, change tickets, job schedules, report specs.
+
+RU — Области: управление доступом, управление изменениями, эксплуатация ИТ; прикладные контроли.
+Риски: избыточные права; недостаточное разделение обязанностей; нетестированные изменения; недостоверные отчеты.
+Ответы: тест дизайна/эффективности; рекертфикация доступа; проверки изменений; валидация отчетов и параметров.
+PBC: списки пользователей, матрицы ролей, заявки на изменения, регламенты, спецификации отчетов.
+
+------------------------------------------------------------
+S) SERVICE ORGANIZATIONS (ISA 402) — Outsourced Processes
+------------------------------------------------------------
+EN — Risks: reliance on third-party processing without controls assurance; incomplete SOC reports; complementary user entity controls (CUECs) not implemented.
+Responses: obtain SOC 1 (Type 2) where available; evaluate CUECs; perform alternative procedures if no report.
+PBC: SOC reports, contracts/SLAs, CUEC implementation evidence.
+
+RU — Риски: отсутствие уверенности в контролях провайдера; неполные SOC‑отчеты; неисполненные CUEC.
+Ответы: запрос SOC 1 (Type 2); оценка и выполнение CUEC; альтернативные процедуры при отсутствии отчета.
+PBC: SOC, договоры/уровни сервиса, доказательства CUEC.
+
+------------------------------------------------------------
+T) PRESENTATION & DISCLOSURE (IAS 1/7/IFRS 7/12/13)
+------------------------------------------------------------
+EN — Risks: classification errors (current/non-current), cash flow misclassification, financial instruments disclosures incomplete, consolidation & interests disclosure gaps.
+Responses: disclosure checklists; mapping from TB to FS; cash flow mapping tests; IFRS 7, 12, 13 disclosure testing.
+RU — Риски/Ответы аналогично. PBC: disclosure checklists, mapping, cash flow workpapers.
+
+------------------------------------------------------------
+U) JOURNAL ENTRIES & MANAGEMENT OVERRIDE (ISA 240) — Cross-cutting
+------------------------------------------------------------
+EN — Risks: top-side/manual JEs at period end; unusual combinations of users/accounts/timestamps.
+Responses: JE testing criteria & analytics; corroboration with source docs; user access review.
+RU — Аналогично. PBC: выгрузка всех проводок с метаданными (user, timestamp, source).
+
+============================================================
+RISK RATING & LINKAGE GUIDANCE (EN/RU)
+============================================================
+EN — Rate Inherent Risk (IR) and Control Risk (CR) as Low/Moderate/High; derive RMM.
+Link to: Materiality (ISA 320), Performance Materiality, Nature/Timing/Extent of procedures (ISA 330).
+Consider PIE: KAM likelihood increases for significant risks or areas of significant management judgment.
+
+RU — Оценивать врожденный риск и риск контроля как Н/С/В; выводить РСИ.
+Связывать с существенностью (МСА 320), рабочей существенностью, природой/временем/объемом процедур (МСА 330).
+Для PIE повышается вероятность KAM.
+
+============================================================
+MINIMUM ROUTING QUESTIONS (EN/RU)
+============================================================
+EN: Select cycles in scope; provide framework (IFRS), year-end, currencies; PIE status; components; ERP names; thresholds for materiality; availability of confirmations and legal letters.
+RU: Выберите циклы; укажите основание (IFRS), отчетную дату, валюты; статус PIE; компоненты; ERP; пороги существенности; готовность подтверждений и юр‑писем.
+
+[CONTENT END]
+
+----------------------------------------------------------------------
+END OF FILE — TRI-S-AUDIT 04_Risk_Library_by_Cycle_v1.txt
+Trusted Source: TRI-S-AUDIT
+Author: Igor Tilepin
+Reference: International Standards on Auditing (ISA/МСА) + IFRS
+----------------------------------------------------------------------

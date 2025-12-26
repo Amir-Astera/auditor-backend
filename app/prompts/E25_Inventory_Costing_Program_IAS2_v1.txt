@@ -1,0 +1,293 @@
+ID: E25_INVENTORY_COSTING_PROGRAM_V1
+TITLE: Inventory Costing & Overheads Audit Program (IAS 2)
+LANG: EN
+TYPE: TEMPLATE
+STANDARDS: IAS2, ISA500, ISA330, IFRS13 (inputs), ISA540
+VERSION: 1.0
+
+# PURPOSE
+#   Provide a complete audit program for evaluating inventory costing, 
+#   overhead allocation, WIP valuation, standard costing, variances,
+#   and compliance with IAS 2.
+
+# PLACEHOLDERS
+#   {{client_name}}
+#   {{period_end}}
+#   {{inventory_categories}}
+#   {{risk_assessment}}
+#   {{costing_method}}
+#   {{bom_testing}}
+#   {{overheads_testing}}
+#   {{wip_valuation}}
+#   {{standard_costing}}
+#   {{variance_analysis}}
+#   {{nrv_testing_link}}
+#   {{exceptions_summary}}
+#   {{conclusion}}
+#   {{appendices}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[HEADER]
+INVENTORY COSTING & OVERHEADS AUDIT PROGRAM — IAS 2  
+Client: {{client_name}}  
+Period Ended: {{period_end}}
+
+This program complements E17 (Inventory Count) and focuses on
+costing, valuation, overhead allocation, standard costing, and WIP calculation.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[1. INVENTORY CATEGORIES]
+
+{{inventory_categories}}
+
+Categories include:
+- Raw materials  
+- Work-in-progress (WIP)  
+- Finished goods  
+- Spares & consumables  
+- By-products & waste products  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2. RISK ASSESSMENT — ISA 315]
+
+{{risk_assessment}}
+
+Key risks:
+- Incorrect costing (overstated/understated inventory)  
+- Incorrect overhead allocation  
+- Manipulation of standard costs  
+- Fictitious WIP progress (fraud indicator)  
+- Incorrect treatment of abnormal costs  
+- Incorrect NRV write-down reversal  
+
+Fraud red flags:
+- sudden FG margin improvement without reason  
+- unexplained variances in standard costing  
+- manual override in production system  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[3. MACHINE-READABLE COSTING SCHEMA]
+
+COSTING_SCHEMA:
+  id: "<COSTxx>"
+  sku: "<string>"
+  category: "<RM|WIP|FG>"
+  costing_method: "<FIFO|WAC|Specific>"
+  unit_cost: "<numeric>"
+  material_cost: "<numeric>"
+  labor_cost: "<numeric>"
+  overhead_cost: "<numeric>"
+  variance_adjustment: "<numeric>"
+  final_cost: "<numeric>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[4. COSTING METHOD TESTING (IAS 2 REQUIREMENT)]
+
+{{costing_method}}
+
+IAS 2 allows:
+- FIFO  
+- Weighted Average Cost (WAC)  
+- Specific identification (only for unique goods)
+
+Auditor must:
+- verify method consistency  
+- recalculate FIFO layers or WAC  
+- trace unit cost to purchase invoices  
+- ensure no LIFO (forbidden under IFRS)  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[5. BILL OF MATERIALS (BOM) TESTING]
+
+{{bom_testing}}
+
+Procedures:
+- Inspect BOM for selected FG items  
+- Recalculate material cost  
+- Trace material cost to COGS / system costs  
+- Inspect engineering change orders (ECOs)  
+- Identify phantom or inactive BOM components  
+
+Schema:
+
+BOM_SCHEMA:
+  id: "<BOMxx>"
+  sku: "<string>"
+  component: "<string>"
+  quantity: "<numeric>"
+  unit_cost: "<numeric>"
+  extended_cost: "<numeric>"
+  source_ok: "<true|false>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[6. OVERHEAD ALLOCATION TESTING]
+
+{{overheads_testing}}
+
+Types of overhead:
+- Fixed production overhead  
+- Variable overhead  
+- Indirect labor  
+- Utilities  
+- Depreciation of production assets  
+
+Audit procedures:
+- Recalculate overhead absorption rate  
+- Evaluate denominator level (normal capacity)  
+- Identify abnormal costs → must be expensed (IAS 2 rule)  
+- Test allocation base (labor hours, machine hours, units)  
+- Recalculate overhead absorption into inventory  
+
+Schema:
+
+OVERHEAD_SCHEMA:
+  id: "<OHxx>"
+  overhead_type: "<fixed|variable>"
+  rate_per_unit: "<numeric>"
+  allocation_base: "<labor_hours|machine_hours|units>"
+  allocation_amount: "<numeric>"
+  abnormal_cost_detected: "<true|false>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[7. WORK-IN-PROGRESS (WIP) VALUATION]
+
+{{wip_valuation}}
+
+Procedures:
+- Test completeness of WIP listings  
+- Evaluate stage-of-completion (percent complete)  
+- Trace labor hours to timesheets  
+- Validate manufacturing cycle times  
+- Inspect production reports  
+
+Schema:
+
+WIP_SCHEMA:
+  id: "<WIPxx>"
+  sku: "<string>"
+  stage_of_completion: "<numeric>"
+  material_cost: "<numeric>"
+  labor_cost: "<numeric>"
+  overhead_cost: "<numeric>"
+  total_cost: "<numeric>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[8. STANDARD COSTING TESTING]
+
+{{standard_costing}}
+
+Procedures:
+- Inspect standard cost build-up  
+- Compare standard vs actual costs  
+- Investigate significant variances  
+- Check standard cost update frequency  
+- Evaluate impact of outdated standards on cost of inventory  
+
+Schema:
+
+STANDARD_COST_SCHEMA:
+  id: "<STDxx>"
+  sku: "<string>"
+  standard_cost: "<numeric>"
+  actual_cost: "<numeric>"
+  variance: "<numeric>"
+  variance_reason: "<text>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[9. VARIANCE ANALYSIS]
+
+{{variance_analysis}}
+
+Examples of variances:
+- Material usage variance  
+- Price variance  
+- Labor rate and efficiency variances  
+- Overhead volume variance  
+- Overhead efficiency variance  
+
+Investigate:
+- root cause  
+- system or human error  
+- fraud or manipulation  
+
+Schema:
+
+VARIANCE_SCHEMA:
+  id: "<VARxx>"
+  type: "<material|labor|overhead>"
+  amount: "<numeric>"
+  favorable: "<true|false>"
+  reason: "<text>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[10. NRV TESTING LINKAGE (E17)]
+
+{{nrv_testing_link}}
+
+NRV = selling price – selling costs  
+Cross-link with E17 valuation schema (VALxx).  
+
+Auditor must test:
+- slow-moving stock  
+- obsolete materials  
+- selling prices  
+- marketing/sales updates  
+- write-down reversals (IAS 2 prohibits reversals above cost)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[11. EXCEPTIONS SUMMARY]
+
+{{exceptions_summary}}
+
+Exception schema:
+
+EXCEPTION_SCHEMA:
+  id: "<string>"
+  sku: "<string>"
+  area: "<costing|overhead|WIP|BOM|variance|NRV>"
+  description: "<text>"
+  amount: "<numeric>"
+  severity: "<Low|Medium|High>"
+  linked_misstatement: "<MISID or null>"
+  impact_on_FS: "<text>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[12. OVERALL CONCLUSION]
+
+{{conclusion}}
+
+Conclusion categories:
+1. Costing reasonable & compliant with IAS 2  
+2. Overhead allocation appropriate  
+3. WIP fairly valued  
+4. Variances reasonable  
+5. NRV supported  
+6. Misstatements not material  
+7. Material misstatement exists  
+8. Insufficient evidence — scope limitation  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[13. APPENDICES]
+
+{{appendices}}
+
+Typical:
+- Costing sheets  
+- Overhead allocation model  
+- BOM documentation  
+- Production reports  
+- Standard cost files  
+- NRV workbook  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[END OF DOCUMENT]

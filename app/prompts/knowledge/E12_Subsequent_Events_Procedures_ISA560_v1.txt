@@ -1,0 +1,206 @@
+ID: E12_SUBSEQUENT_EVENTS_ISA560_V1
+TITLE: Subsequent Events Audit Program (ISA 560)
+LANG: EN
+TYPE: TEMPLATE
+STANDARDS: ISA560, ISA700, ISA450, ISA570
+VERSION: 1.0
+
+# PURPOSE
+#   Provide a structured template for performing subsequent events procedures,
+#   classifying events as adjusting or non-adjusting, evaluating disclosures,
+#   and documenting conclusions consistent with ISA 560.
+
+# PLACEHOLDERS:
+#   {{client_name}}
+#   {{period_end}}
+#   {{report_date}}
+#   {{se_population_summary}}
+#   {{procedures_performed}}
+#   {{events_table}}
+#   {{exceptions_summary}}
+#   {{conclusion}}
+#   {{appendices}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[HEADER]
+SUBSEQUENT EVENTS PROCEDURES — ISA 560  
+Client: {{client_name}}  
+Period Ended: {{period_end}}  
+Audit Report Date: {{report_date}}
+
+This program documents the auditor’s work in evaluating subsequent events 
+for the period between the financial statement date and the audit report date 
+in accordance with ISA 560.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[1. OBJECTIVES OF ISA 560]
+
+The objectives of the auditor are to:
+
+1. Obtain sufficient appropriate audit evidence about whether events occurring 
+   between {{period_end}} and {{report_date}} require:
+   - adjustment of the financial statements, or  
+   - disclosure in the financial statements.
+
+2. Respond appropriately to events identified after the auditor’s report date.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2. MACHINE-READABLE EVENT SCHEMA]
+
+SE_EVENT_SCHEMA:
+  id: "<SExx>"
+  description: "<text>"
+  date_of_event: "<date>"
+  source_of_identification: "<minutes|legal letter|management inquiry|subsequent FS|public news|bank statements>"
+  classification: "Adjusting | Non-adjusting"
+  rationale: "<text>"
+  amount_involved: "<numeric or null>"
+  accounting_impact:
+    adjustment_required: "<true|false>"
+    disclosure_required: "<true|false>"
+  assertions_impacted: ["valuation", "existence", "completeness", "presentation"]
+  evidence_reference: "<WP ref>"
+  management_assessment_obtained: "<true|false>"
+  disclosure_adequate: "<true|false>"
+  auditor_comment: "<text>"
+  linked_misstatement: "<MISID or null>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[3. SUBSEQUENT EVENTS POPULATION SUMMARY]
+
+{{se_population_summary}}
+
+Examples of sources reviewed:
+- Minutes of board/shareholder meetings
+- Legal letters (ISA 501 linkage)
+- Updated trial balance and management accounts
+- Loan agreements executed after YE
+- Contracts, supply agreements, insurance policies
+- Bank statements after year end
+- Press releases, public filings, regulatory notices
+- Cash receipts after YE for valuation of receivables
+- Customer bankruptcy filings  
+- Inventory valuation and NRV adjustments  
+- Litigation updates  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[4. MANDATORY PROCEDURES UNDER ISA 560]
+
+[MANAGEMENT INQUIRY]
+- Whether any events occurred after {{period_end}} that might affect the FS  
+- Whether subsequent conditions provide evidence of conditions existing at YE  
+- Whether any significant business developments occurred (M&A, restructuring)  
+- Whether any litigation developments occurred  
+
+[READ MINUTES]
+- Review minutes up to {{report_date}}  
+- Request copies of drafts if final minutes are unavailable  
+
+[LEGAL LETTER UPDATE]
+- Assess whether any litigation, claims, or assessments impact FS presentation  
+- Compare legal counsel replies to management’s assertions  
+
+[SUBSEQUENT CASH RECEIPTS]
+- Evaluate collectability of receivables at YE (supports valuation)  
+
+[SUBSEQUENT PAYMENTS]
+- Evaluate existence of liabilities at YE  
+
+[PERFORM SEARCH FOR EVENTS]
+- Internet search  
+- Press statements  
+- Regulator announcements  
+- Industry news  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[5. CLASSIFICATION OF SUBSEQUENT EVENTS]
+
+Per IAS 10:
+
+ADJUSTING EVENT:
+- Provides evidence of conditions that existed at {{period_end}}  
+Examples:
+  - Customer bankruptcy revealing impairment condition at YE  
+  - Settlement of a court case confirming an existing liability  
+  - Receipt of information affecting inventory valuation at YE  
+
+NON-ADJUSTING EVENT:
+- Relates to conditions arising after {{period_end}}  
+Examples:
+  - Fire after YE  
+  - Major acquisition after YE  
+  - Announced restructuring  
+  - Dividends declared after YE  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[6. DETAILED EVENTS TABLE]
+
+{{events_table}}
+
+Recommended table:
+
+# | Ref | Description | Date | Adjusting? | Accounting Impact | Disclosure? | Evidence | Conclusion |
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[7. EXCEPTIONS SUMMARY]
+
+{{exceptions_summary}}
+
+Exception schema:
+
+EXCEPTION_SCHEMA:
+  id: "<string>"
+  se_id: "<SExx>"
+  description: "<text>"
+  issue_type: "<omitted_adjustment|omitted_disclosure|incorrect_classification>"
+  amount: "<numeric>"
+  impact_on_FS: "<text>"
+  linked_misstatement: "<MISID or null>"
+  disclosure_issue: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[8. LINKAGE TO OTHER AREAS]
+
+SUD (E8):
+- Adjusting events may directly create misstatements.
+
+Legal matrix (ISA 501):
+- Litigation outcomes often appear as subsequent events.
+
+Going concern (ISA 570):
+- Events after YE may indicate deterioration of financial position.
+
+Risk Assessment (E10 SRM):
+- Significant events may require risk re-evaluation.
+
+Audit Report (ISA 700–706):
+- Material non-adjusting events may require disclosure emphasis (EOM).
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[9. CONCLUSION (ISA 560 REQUIREMENTS)]
+
+Conclusion on subsequent events:
+{{conclusion}}
+
+Should address:
+- Whether all adjusting events were corrected  
+- Whether non-adjusting events were disclosed appropriately  
+- Whether any omitted disclosures materially misstate the FS  
+- Whether any events indicate going concern issues  
+- Whether audit opinion impact exists  
+- Whether financial statements remain fair and accurate  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[10. APPENDICES]
+
+{{appendices}}
+
+Suggested appendices:
+- Extract of legal letters  
+- Schedule of post-YE cash receipts  
+- Updated TB extracts  
+- Press/public announcements  
+- Minutes from TCWG meetings  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[END OF DOCUMENT]

@@ -1,0 +1,225 @@
+ID: E13_GOING_CONCERN_WORKSHEET_V1
+TITLE: Going Concern Assessment Worksheet (ISA 570)
+LANG: EN
+TYPE: TEMPLATE
+STANDARDS: ISA570, ISA700, ISA560, ISA450
+VERSION: 1.0
+
+# PURPOSE
+#   Provide a complete and machine-readable framework for assessing going concern,
+#   evaluating management’s assessment, identifying material uncertainties,
+#   and documenting the auditor’s conclusion per ISA 570.
+
+# PLACEHOLDERS:
+#   {{client_name}}
+#   {{period_end}}
+#   {{assessment_period}}          # normally 12 months from FS issuance
+#   {{management_assessment}}
+#   {{financial_indicators}}
+#   {{operational_indicators}}
+#   {{other_indicators}}
+#   {{cf_forecast}}
+#   {{stress_tests}}
+#   {{mitigating_factors}}
+#   {{disclosure_evaluation}}
+#   {{exceptions}}
+#   {{conclusion}}
+#   {{appendices}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[HEADER]
+GOING CONCERN ASSESSMENT — ISA 570  
+Client: {{client_name}}  
+Period Ended: {{period_end}}  
+Assessment Horizon: {{assessment_period}}
+
+This worksheet documents the auditor’s evaluation of management’s going concern assessment 
+in accordance with ISA 570.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[1. MANAGEMENT’S GOING CONCERN ASSESSMENT]
+
+Management’s documented assessment:
+{{management_assessment}}
+
+Required elements (ISA 570):
+- Assessment horizon ≥ 12 months from audit report date  
+- Cash flow forecast  
+- Borrowing/funding arrangements  
+- Covenant compliance  
+- Sensitivity analysis  
+- Plans for mitigating adverse conditions  
+
+Evaluate management’s process for:
+- reliability  
+- reasonableness of assumptions  
+- historical accuracy of forecasts  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2. MACHINE-READABLE INDICATOR SCHEMA]
+
+GC_INDICATOR_SCHEMA:
+  id: "<GCxx>"
+  category: "Financial | Operating | Other"
+  description: "<text>"
+  present: "<true|false>"
+  evidence: "<WP ref>"
+  severity: "<Low|Medium|High>"
+  management_explanation: "<text>"
+  auditor_comment: "<text>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[3. GOING CONCERN INDICATORS]
+
+[FINANCIAL INDICATORS]
+{{financial_indicators}}
+
+Examples:
+- Net current liability position  
+- Negative operating cash flows  
+- Loan defaults or covenant breaches  
+- Supplier credit tightening  
+- Significant overdue payables  
+
+[OPERATIONAL INDICATORS]
+{{operational_indicators}}
+
+Examples:
+- Loss of major customer  
+- Pending labour disputes  
+- Supply chain disruption  
+- Loss of key management  
+
+[OTHER INDICATORS]
+{{other_indicators}}
+
+Examples:
+- Pending litigation  
+- Regulatory sanctions  
+- Adverse media events  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[4. CASH FLOW FORECAST (ISA 570 REQUIRED TESTING)]
+
+{{cf_forecast}}
+
+Checklist:
+- Forecast covers required horizon  
+- Starting point reconciles to audited TB  
+- Key assumptions documented & traceable  
+- Historical forecasting accuracy tested  
+- Key inputs supported (sales, margins, costs)  
+- Working capital assumptions realistic  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[5. STRESS TESTS & SENSITIVITY ANALYSIS]
+
+{{stress_tests}}
+
+Examples of stress scenarios:
+- Sales drop (5%, 10%, 20%)  
+- Margin compression  
+- FX rate shock  
+- Increase in cost of capital  
+- Loss of a major customer  
+- Delay in planned financing  
+
+Machine schema:
+
+GC_STRESS_SCHEMA:
+  scenario_id: "<string>"
+  description: "<text>"
+  impact_on_cash: "<numeric>"
+  liquidity_breach: "<true|false>"
+  covenant_breach: "<true|false>"
+  management_plan_effective: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[6. MITIGATING FACTORS & PLAUSIBILITY ASSESSMENT]
+
+{{mitigating_factors}}
+
+Mitigating factors may include:
+- Confirmed financing arrangements  
+- Parent guarantees  
+- Binding sales contracts  
+- Cost-reduction plans  
+- Equity injections  
+- Sale of non-core assets  
+
+Evaluate:
+- Is each factor **within management control**?  
+- Is documentation binding or speculative?  
+- Are assumptions realistic and evidenced?  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[7. DISCLOSURE EVALUATION (ISA 570 + IAS 1)]
+
+{{disclosure_evaluation}}
+
+Disclosure categories:
+
+1. **No material uncertainty** → no special disclosure required, unless voluntarily included.  
+2. **Material uncertainty adequately disclosed** → EOM required.  
+3. **Material uncertainty NOT adequately disclosed** → FS materially misstated → Qualified or Adverse opinion.  
+
+Disclosure must:
+- describe the uncertainty  
+- specify underlying conditions  
+- specify management’s plans  
+- avoid ambiguous or misleading language  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[8. EXCEPTIONS / ISSUES IDENTIFIED]
+
+{{exceptions}}
+
+EXCEPTION_SCHEMA:
+  id: "<string>"
+  description: "<text>"
+  type: "<missing_disclosure | unsupported_assumption | unrealistic_forecast | covenant_issue>"
+  impact_on_FS: "<text>"
+  linked_misstatement: "<MISID or null>"
+  severity: "<Low|Medium|High>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[9. AUDITOR’S OVERALL CONCLUSION (ISA 570)]
+
+{{conclusion}}
+
+Conclusion categories:
+
+1. **No material uncertainty exists**  
+   - GC assumption appropriate  
+   - FS fairly presented  
+   - No EOM required  
+
+2. **Material uncertainty exists, but adequately disclosed**  
+   - EOM required  
+   - Opinion remains unmodified  
+
+3. **Material uncertainty exists, disclosure inadequate**  
+   - FS materially misstated  
+   - Qualified or Adverse opinion  
+
+4. **Insufficient evidence to conclude**  
+   - Scope limitation  
+   - Possible Disclaimer  
+
+Opinion linkage is mandatory under ISA 700–706.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[10. APPENDICES]
+
+{{appendices}}
+
+Suggested appendices:
+- Management cash flow model  
+- Covenant compliance calculations  
+- Forecast accuracy test  
+- Bank correspondence  
+- Latest regulatory filings  
+- Sensitivity models  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[END OF DOCUMENT]

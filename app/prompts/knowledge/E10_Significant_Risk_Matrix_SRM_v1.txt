@@ -1,0 +1,187 @@
+ID: E10_SRM_SIGNIFICANT_RISK_MATRIX_V1
+TITLE: Significant Risk Matrix (SRM)
+LANG: EN
+TYPE: TEMPLATE
+STANDARDS: ISA315, ISA330, ISA240, ISA540
+VERSION: 1.0
+
+# PURPOSE
+#   Provide a structured and machine-readable framework for documenting
+#   inherent risk, control risk, fraud risk indicators, assertions affected,
+#   and planned audit responses for all significant risks (SRs).
+
+# PLACEHOLDERS:
+#   {{client_name}}
+#   {{period_end}}
+#   {{srm_table}}
+#   {{risk_summary}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[HEADER]
+SIGNIFICANT RISK MATRIX (SRM)
+Client: {{client_name}}
+Period Ended: {{period_end}}
+
+This document summarises all significant risks identified in accordance with ISA 315
+and specifies audit responses under ISA 330. Fraud-related risks are identified per ISA 240.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[1. MACHINE-READABLE RISK SCHEMA]
+
+RISK_SCHEMA:
+  id: "<SRxx>"
+  title: "<Risk title>"
+  area: "<Financial Statement area>"
+  assertion: "<Occurrence|Accuracy|Completeness|Valuation|Cut-off|Presentation>"
+  category: "<Inherent|Control|Fraud>"
+  inherent_risk_level: "<Low|Medium|High>"
+  control_risk_level: "<Low|Medium|High>"
+  fraud_related: "<true|false>"
+  related_estimate_id: "<ESTxx or null>"
+  key_risk_drivers:
+    - "<pressure>"
+    - "<opportunity>"
+    - "<complexity>"
+    - "<management bias>"
+  planned_responses:
+    - "<ToC / SAP / ToD>"
+    - "<specific testing procedures>"
+    - "<journal entry testing>"
+  reliance_on_controls: "<true|false>"
+  sample_size_logic: "<value or automatic>"
+  misstatement_link: "<MISID or null>"
+  impact_on_FS: "<text>"
+  conclusion: "<to be filled at completion>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2. SRM TABLE — SUMMARY VIEW]
+
+{{srm_table}}
+
+# Recommended human-readable matrix:
+
+# | Risk ID | Area | Fraud? | Assertion | Inherent Risk | Control Risk | Residual Risk | Planned Response | Key Procedures |
+# |---------|------|--------|-----------|----------------|--------------|----------------|------------------|----------------|
+
+# Residual Risk computed as:
+#   High if (Inherent High) OR (Control High)
+#   Medium/Low otherwise (firm policy may vary)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[3. GUIDANCE FOR DOCUMENTING SIGNIFICANT RISKS]
+
+A risk must be classified as SIGNIFICANT if any of the following apply:
+
+1. It involves **fraud risk** (ISA 240)  
+   - mandatory: Revenue recognition  
+   - mandatory: Management override  
+
+2. It involves significant **estimation uncertainty** (ISA 540)  
+   (e.g., ECL, provisions, fair values, actuarial assumptions)
+
+3. It arises from **complex or unusual transactions**  
+   (M&A, restructuring, large year-end transactions)
+
+4. It relates to **significant related-party transactions**  
+   (ISA 550)
+
+5. It involves **significant IT system dependency**  
+   (automated controls, system-generated reports)
+
+6. It has **high inherent risk** due to susceptibility to error or fraud.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[4. FRAUD RISK REQUIREMENTS (ISA 240)]
+
+All fraud risks must be flagged with:
+- fraud_related: true  
+- mandatory fraud items:
+  * SR-F01 — Revenue recognition fraud  
+  * SR-F02 — Management override  
+
+Mandatory procedures:
+- Journal entry analysis  
+- Assessment of accounting estimates for bias  
+- Review of unusual or complex transactions  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[5. LINKAGE TO OTHER J-BLOCKS]
+
+# This is critical for the RAG architecture.
+
+J1 — Materiality  
+→ Determines risk threshold, PM for impact assessment.
+
+J2 — Risk Assessment  
+→ Feeds directly into this SRM document.
+
+J4 — Sampling  
+→ sample_size_logic uses risk levels.
+
+J13 — Estimates  
+→ related_estimate_id links estimates to specific risks.
+
+J17 — Testing  
+→ planned_responses and testing procedures link to test database (G2.9/G2.10).
+
+J18 — Misstatements  
+→ misstatement_link allows aggregation for SUD (E8).
+
+J19 — Opinion  
+→ residual high risk + unadjusted misstatements affect opinion.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[6. RISK SUMMARY (Narrative Section)]
+
+{{risk_summary}}
+
+Suggested structure:
+- Overview of high-risk areas
+- Fraud risks summary
+- Areas of significant estimation uncertainty
+- IT dependence evaluation
+- Expected complexity and resource allocation
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[7. RISK SCORING SYSTEM]
+
+INHERENT RISK:
+- Low: Routine, low judgment, high predictability
+- Medium: Some judgment, moderate complexity
+- High: Significant judgment, complexity, estimation or fraud susceptibility
+
+CONTROL RISK:
+- Low: Strong, tested controls effective
+- Medium: Mixed controls; some reliance planned
+- High: Weak or ineffective controls; no reliance
+
+RESIDUAL RISK (automatic):
+- High: IR High OR CR High  
+- Medium: IR Medium AND CR Medium  
+- Low: IR Low AND CR Low  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[8. OUTPUT FORMAT FOR SYSTEMS]
+
+Recommended machine output:
+
+{
+  "significant_risks": [
+    {
+      "id": "SR01",
+      "title": "Revenue recognition — fraud risk",
+      "area": "Revenue",
+      "assertion": "Occurrence",
+      "fraud_related": true,
+      "inherent_risk_level": "High",
+      "control_risk_level": "High",
+      "residual_risk": "High",
+      "planned_responses": ["ToD", "JE testing", "Cut-off testing"],
+      "related_estimate_id": null
+    },
+    ...
+  ]
+}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[END OF DOCUMENT]

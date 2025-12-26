@@ -1,0 +1,252 @@
+ID: E18_REVENUE_RECOGNITION_PROGRAM_V1
+TITLE: Revenue Recognition Audit Program (ISA 240 + IFRS 15)
+LANG: EN
+TYPE: TEMPLATE
+STANDARDS: ISA240, ISA315, ISA330, IFRS15
+VERSION: 1.0
+
+# PURPOSE
+#   Provide a structured and machine-readable framework for auditing revenue recognition
+#   as the presumed fraud risk (ISA 240) and applying the 5-step IFRS 15 model.
+
+# PLACEHOLDERS:
+#   {{client_name}}
+#   {{period_end}}
+#   {{revenue_streams}}
+#   {{risk_assessment}}
+#   {{ifrs15_mapping}}
+#   {{cutoff_testing}}
+#   {{contract_testing}}
+#   {{je_testing_link}}
+#   {{analytical_procedures}}
+#   {{exceptions_summary}}
+#   {{conclusion}}
+#   {{appendices}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[HEADER]
+REVENUE RECOGNITION AUDIT PROGRAM — ISA 240 + IFRS 15  
+Client: {{client_name}}  
+Period Ended: {{period_end}}
+
+This program documents the audit of revenue recognition, the presumed fraud risk per ISA 240, 
+and the application of the IFRS 15 revenue model.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[1. REVENUE STREAMS & NATURE OF BUSINESS]
+
+{{revenue_streams}}
+
+Examples:
+- Sale of goods (point-in-time)
+- Service revenue (over time)
+- Subscription revenue
+- Long-term construction contracts
+- Licensing and royalty arrangements
+- Telecom/service bundles
+
+Each stream must be mapped to the IFRS 15 5-step model.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2. RISK ASSESSMENT — ISA 240 (PRESUMED FRAUD RISK)]
+
+ISA 240 requires:
+- Mandatory identification of revenue recognition as a fraud risk  
+- Mandatory testing of journal entries  
+- Mandatory assessment of unusual or complex transactions  
+- Heightened professional scepticism
+
+{{risk_assessment}}
+
+RISK FACTORS:
+- Incentives to inflate revenue  
+- Manual override opportunities  
+- High-volume transactions  
+- Significant judgement in determining timing of revenue  
+- Significant cut-off sensitivity  
+- Complex contract terms  
+- Multiple-element arrangements (bundles)  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[3. IFRS 15 — 5-STEP MODEL (MANDATORY TESTING)]
+
+{{ifrs15_mapping}}
+
+For each revenue stream, auditor must test:
+
+STEP 1 — IDENTIFY THE CONTRACT  
+- Existence of enforceable rights and obligations  
+- Contract approval  
+- Collectability assessment  
+- Contract combination rules  
+
+STEP 2 — IDENTIFY PERFORMANCE OBLIGATIONS  
+- Distinct goods or services  
+- Bundled arrangements  
+- Series of services  
+
+STEP 3 — DETERMINE THE TRANSACTION PRICE  
+- Fixed/variable consideration  
+- Price concessions  
+- Rebates, bonuses, penalties  
+- Significant financing components  
+
+STEP 4 — ALLOCATE PRICE TO PERFORMANCE OBLIGATIONS  
+- Stand-alone selling price (SSP)  
+- Allocation methods  
+
+STEP 5 — RECOGNISE REVENUE  
+- Point-in-time recognition: risk transfer indicators  
+- Over-time recognition: progress measures (cost-to-cost, output method)  
+- Cut-off testing  
+- Proof of delivery / service evidence  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[4. MACHINE-READABLE REVENUE SCHEMA]
+
+REVENUE_TEST_SCHEMA:
+  id: "<REVxx>"
+  stream: "<revenue stream>"
+  contract_id: "<string>"
+  po_identified: ["<PO1>", "<PO2>", ...]
+  transaction_price: "<numeric>"
+  variable_consideration: "<numeric or null>"
+  allocation_logic: "<text>"
+  recognition_pattern: "<point_in_time|over_time>"
+  evidence:
+    - "<invoice>"
+    - "<contract>"
+    - "<delivery note>"
+    - "<completion certificate>"
+  cutoff_tested: "<true|false>"
+  po_transfer_evidence: "<text>"
+  exceptions: "<text>"
+  conclusion: "<supported|not_supported>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[5. CUT-OFF TESTING (MANDATORY: HIGHEST RISK AREA)]
+
+{{cutoff_testing}}
+
+Procedures:
+- Select samples 5–10 days pre- and post-period end  
+- Inspect delivery notes, shipping documents, service logs  
+- Match to invoices and GL posting date  
+- Evaluate FOB/Incoterm impact (for goods)  
+- Evaluate completion evidence (for services)  
+
+Machine schema:
+
+CUTOFF_SCHEMA:
+  sample_id: "<string>"
+  invoice_date: "<date>"
+  posting_date: "<date>"
+  delivery_date: "<date>"
+  revenue_recognised_date: "<date>"
+  correct_period: "<true|false>"
+  difference_amount: "<numeric>"
+  evidence_ref: "<WP ref>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[6. CONTRACT-LEVEL TESTING (IFRS 15 STEP 1–5)]
+
+{{contract_testing}}
+
+Procedures include:
+- Inspect contract and amendments  
+- Identify POs  
+- Recalculate allocation to POs  
+- Evaluate variable consideration constraint  
+- Recalculate revenue recognised YTD  
+- For over-time PO:
+  * recalculate progress (input/output)  
+  * inspect cost backup, milestones, certifications  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[7. JOURNAL ENTRY TESTING (LINK TO E11 — MANUAL OVERRIDE)]
+
+{{je_testing_link}}
+
+Mandatory:
+- Focus on revenue, accrued revenue, contract assets, unearned revenue  
+- Identify unusual credits to revenue  
+- Identify JE posted near period-end  
+- Identify JE posted by senior management or admin users  
+
+Include reference: `<E11_JETE_Journal_Entries>`
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[8. ANALYTICAL PROCEDURES (ISA 520)]
+
+{{analytical_procedures}}
+
+Procedures:
+- Trend analysis by product/customer  
+- Gross margin analysis (identify anomalies)  
+- Volume × price analysis  
+- Ratio analysis:
+  * DSO  
+  * revenue per unit  
+  * revenue per subscriber (if SaaS/telecom)  
+  * AR ageing vs revenue patterns  
+
+Analytical red flags:
+- Revenue growth inconsistent with operational data  
+- Margins significantly deviating from historical trends  
+- Revenue spikes at period-end  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[9. DETAILED TESTING TABLE]
+
+Recommended format:
+
+# | Ref | Revenue Stream | Contract | PO | Test Type | Evidence | Result | Exception? |
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[10. EXCEPTIONS SUMMARY]
+
+{{exceptions_summary}}
+
+Exception schema:
+
+EXCEPTION_SCHEMA:
+  id: "<string>"
+  rev_id: "<REVxx>"
+  description: "<text>"
+  amount: "<numeric>"
+  type: "<cutoff_error|incorrect_PO_id|incorrect_allocation|unsupported_variable_consideration|manual_override_indicator>"
+  severity: "<Low|Medium|High>"
+  linked_misstatement: "<MISID or null>"
+  impact_on_FS: "<text>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[11. OVERALL CONCLUSION (ISA 240 + IFRS 15 COMPLIANCE)]
+
+{{conclusion}}
+
+Conclusion categories:
+1. **Revenue appropriately recognised under IFRS 15**  
+2. **Errors identified but not material** (→ SUD link)  
+3. **Material misstatement exists** → potential opinion modification  
+4. **Evidence insufficient** → scope limitation → possible Disclaimer  
+
+Fraud-specific conclusion (ISA 240):
+- evidence of override?  
+- evidence of fictitious revenue?  
+- aggressive cut-off?  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[12. APPENDICES]
+
+{{appendices}}
+
+Possible appendices:
+- Contract extracts  
+- PO mapping worksheets  
+- Allocation models  
+- Cut-off sample sheets  
+- Variable consideration calculations  
+- Analytical procedures outputs  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[END OF DOCUMENT]

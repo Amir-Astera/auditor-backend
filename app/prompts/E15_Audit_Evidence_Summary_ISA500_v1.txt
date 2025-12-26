@@ -1,0 +1,195 @@
+ID: E15_AUDIT_EVIDENCE_SUMMARY_V1
+TITLE: Audit Evidence Summary (ISA 500)
+LANG: EN
+TYPE: TEMPLATE
+STANDARDS: ISA500, ISA230, ISA330, ISA700
+VERSION: 1.0
+
+# PURPOSE
+#   Summarise all evidence obtained during the audit, evaluate sufficiency and appropriateness,
+#   and link each significant risk to supporting procedures and conclusions in accordance with ISA 500.
+
+# PLACEHOLDERS:
+#   {{client_name}}
+#   {{period_end}}
+#   {{evidence_matrix}}
+#   {{risk_linkage_summary}}
+#   {{testing_summary}}
+#   {{exceptions_summary}}
+#   {{overall_evidence_assessment}}
+#   {{conclusion}}
+#   {{appendices}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[HEADER]
+AUDIT EVIDENCE SUMMARY — ISA 500  
+Client: {{client_name}}  
+Period Ended: {{period_end}}
+
+This document summarises evidence obtained across the audit and evaluates whether it is
+sufficient and appropriate to support the audit opinion.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[1. CONCEPTUAL FRAMEWORK — ISA 500 REQUIREMENTS]
+
+Per ISA 500, audit evidence must be:
+
+- **Sufficient** (quantity)  
+- **Appropriate** (quality: relevance + reliability)
+
+Reliability hierarchy (Big4 standard):
+1. Evidence obtained directly by auditor >  
+2. Evidence from external sources >  
+3. Evidence from internal sources >  
+4. Evidence based on management representations  
+
+Types of evidence:
+- Inspection  
+- Observation  
+- Inquiry  
+- Confirmation  
+- Recalculation  
+- Reperformance  
+- Analytical procedures  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2. MACHINE-READABLE EVIDENCE SCHEMA]
+
+EVIDENCE_SCHEMA:
+  id: "<EVxx>"
+  area: "<Financial Statement area>"
+  risk_id: "<SRxx or null>"
+  procedure_id: "<PROCxx>"
+  type: "<inspection|observation|inquiry|confirmation|recalculation|reperformance|analytics>"
+  source: "<external|internal|auditor-generated>"
+  reliability: "<High|Medium|Low>"
+  evidence_description: "<text>"
+  reference: "<WP reference>"
+  conclusion: "<supported|partially_supported|not_supported>"
+  exceptions: "<none or summary>"
+  linkage_to_opinion: "<text>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[3. EVIDENCE MATRIX (AREA-BY-AREA SUMMARY)]
+
+{{evidence_matrix}}
+
+Recommended format:
+
+# | Area | Risk ID | Procedures Performed | Type of Evidence | Reliability | Exceptions | Conclusion |
+
+Example:
+# | Revenue | SR01 | ToD, analytics, JE test | External invoices / system data | High | None | Supported |
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[4. RISK LINKAGE SUMMARY (ISA 315 + ISA 330)]
+
+Every **significant risk** must have:
+- documented response  
+- documented evidence  
+- conclusion supporting or contradicting management’s assertions  
+
+{{risk_linkage_summary}}
+
+Template:
+
+RISK_LINKAGE_SCHEMA:
+  risk_id: "<SRxx>"
+  assertion: "<occurrence / valuation / completeness / cutoff>"
+  planned_response: "<text>"
+  evidence_ids: ["<EV01>", "<EV02>", "..."]
+  exceptions_found: "<summary>"
+  residual_risk_assessment: "<Low|Medium|High>"
+  conclusion: "<supported|not_supported>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[5. TESTING SUMMARY (FROM G2.9/G2.10/J17)]
+
+Summarise procedures:
+- Tests of controls  
+- Substantive analytical procedures  
+- Tests of details  
+
+{{testing_summary}}
+
+Suggested format:
+
+# | Area | ToC Result | SAP Result | ToD Result | Evidence Strength | Final Assessment |
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[6. EXCEPTIONS SUMMARY & IMPACT ON MISSTATEMENTS]
+
+Combine:
+- JE exceptions (E11)  
+- Related party exceptions (E14)  
+- Subsequent events exceptions (E12)  
+- Estimate issues (E16 forthcoming)  
+
+{{exceptions_summary}}
+
+EXCEPTION_SCHEMA:
+  id: "<EXxx>"
+  description: "<text>"
+  area: "<Area>"
+  amount: "<numeric>"
+  severity: "<Low|Medium|High>"
+  linked_misstatement: "<MISID or null>"
+  impact_on_FS: "<text>"
+  management_response: "<text>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[7. EVALUATION OF SUFFICIENCY & APPROPRIATENESS (ISA 500 REQUIRED)]
+
+{{overall_evidence_assessment}}
+
+Checklist for the auditor:
+
+SUFFICIENCY:
+- Have all planned procedures been performed?  
+- Has sampling coverage been met?  
+- Are high-risk assertions supported by sufficient evidence?  
+
+APPROPRIATENESS:
+- Is evidence reliable?  
+- Is external evidence used where possible?  
+- Are management representations used only when appropriate?  
+
+GAPS TO IDENTIFY:
+- Missing confirmations  
+- Insufficient evidence for estimates  
+- Weak or contradictory audit evidence  
+- Reliance on management representations only  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[8. OVERALL CONCLUSION (FOR PARTNER REVIEW)]
+
+{{conclusion}}
+
+Conclusion categories:
+
+1. **Evidence is sufficient and appropriate**  
+   → Audit opinion can be formed without modification.  
+
+2. **Evidence is sufficient but inconsistent**  
+   → Additional procedures required.  
+
+3. **Evidence insufficient due to management limitations**  
+   → Scope limitation → possible Disclaimer.  
+
+4. **Evidence indicates misstatement not corrected**  
+   → Impact on SUD → possible Qualified or Adverse opinion.  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[9. APPENDICES]
+
+{{appendices}}
+
+Suggested appendices:
+- Full evidence index  
+- Confirmation responses summary  
+- List of procedures not performed and justification  
+- Summary of representations received (ISA 580)  
+- Extracts of recalculation/reperformance work  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[END OF DOCUMENT]

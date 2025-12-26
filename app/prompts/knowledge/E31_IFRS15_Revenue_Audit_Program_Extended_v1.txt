@@ -1,0 +1,395 @@
+ID: E31_REVENUE_IFRS15_EXTENDED_V1
+TITLE: Extended IFRS 15 Revenue Audit Program (Big4 Full Version)
+LANG: EN
+TYPE: TEMPLATE
+STANDARDS: IFRS15, ISA240, ISA330, ISA500, ISA540
+VERSION: 1.0
+
+# PURPOSE
+#   Provide a comprehensive Big4-level audit program for revenue under IFRS 15,
+#   covering contract review, performance obligations, variable consideration,
+#   principal vs agent analysis, contract modifications, and recognition tests.
+
+# PLACEHOLDERS
+#   {{client_name}}
+#   {{period_end}}
+#   {{revenue_streams}}
+#   {{risk_assessment}}
+#   {{toc_testing}}
+#   {{contract_testing}}
+#   {{po_identification}}
+#   {{transaction_price}}
+#   {{variable_consideration}}
+#   {{allocation}}
+#   {{satisfaction_timing}}
+#   {{cutoff_testing}}
+#   {{principal_agent}}
+#   {{contract_costs}}
+#   {{analytics}}
+#   {{je_link}}
+#   {{exceptions_summary}}
+#   {{conclusion}}
+#   {{appendices}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[HEADER]
+REVENUE TESTING — IFRS 15 (EXTENDED)  
+Client: {{client_name}}  
+Period Ended: {{period_end}}
+
+This program provides a full IFRS 15 audit approach, including 5-step model,
+contract testing, allocation, variable consideration, principal vs agent,
+contract modifications, and fraud risk analysis.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[1. REVENUE STREAMS]
+
+{{revenue_streams}}
+
+Examples:
+- Sale of goods  
+- Rendering of services  
+- Subscription revenue  
+- Construction / long-term contracts  
+- Telecom & IT services  
+- Licensing (IP, software)  
+- Bundled goods + services  
+- Installation, maintenance, warranties  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2. RISK ASSESSMENT — IFRS 15 + ISA 240]
+
+{{risk_assessment}}
+
+Key risks:
+- Incorrect timing of revenue recognition  
+- Incorrect PO identification  
+- Incorrect allocation  
+- Unsupported variable consideration  
+- Manipulation at period-end (cutoff fraud)  
+- Side-agreements  
+- Channel stuffing  
+- Bill-and-hold  
+- Consignment arrangements  
+- Principal vs agent misclassification  
+
+Fraud red flags:
+- Manual revenue JEs  
+- Negative margins  
+- Abnormal credit notes post-period-end  
+- Revenue spikes at YE  
+- High returns  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[3. MACHINE-READABLE REVENUE SCHEMA]
+
+REVENUE_SCHEMA:
+  id: "<REVxx>"
+  contract_id: "<string>"
+  po_id: "<POxx>"
+  transaction_price: "<numeric>"
+  allocation_per_po: "<numeric>"
+  revenue_recognized: "<numeric>"
+  timing: "<point_in_time|over_time>"
+  variable_consideration: "<numeric>"
+  constraint_applied: "<true|false>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[4. TEST OF CONTROLS (TOC)**]
+
+{{toc_testing}}
+
+Controls to test:
+- Contract approval workflow  
+- Price approval  
+- Credit checks  
+- Delivery confirmation  
+- Billing controls  
+- Return authorization  
+- System controls in ERP  
+
+Schema:
+
+TOC_SCHEMA:
+  id: "<TOCxx>"
+  control_name: "<string>"
+  tested: "<true|false>"
+  result: "<effective|ineffective>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[5. CONTRACT REVIEW TESTING**
+
+{{contract_testing}}
+
+Tests:
+- Obtain contract & amendments  
+- Identify enforceable rights  
+- Identify termination clauses  
+- Identify pricing structures  
+- Extract key data points (machine-readable)  
+
+Schema:
+
+CONTRACT_SCHEMA:
+  id: "<CTxx>"
+  contract_id: "<string>"
+  customer_name: "<string>"
+  enforceable: "<true|false>"
+  payment_terms: "<text>"
+  modification_present: "<true|false>"
+  termination_clause: "<text>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[6. PERFORMANCE OBLIGATION IDENTIFICATION (POs)**]
+
+{{po_identification}}
+
+Tests:
+- Identify distinct goods/services  
+- Evaluate distinctness criteria  
+- Bundled offerings evaluation  
+
+Schema:
+
+PO_SCHEMA:
+  id: "<POxx>"
+  contract_id: "<CTxx>"
+  description: "<text>"
+  distinct: "<true|false>"
+  point_or_over_time: "<point|over>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[7. TRANSACTION PRICE TESTING**
+
+{{transaction_price}}
+
+Include:
+- fixed consideration  
+- variable amounts  
+- significant financing components  
+- non-cash consideration  
+- consideration payable to customers  
+
+Schema:
+
+TP_SCHEMA:
+  id: "<TPxx>"
+  contract_id: "<CTxx>"
+  fixed_amount: "<numeric>"
+  estimate_variable: "<numeric>"
+  financing_component: "<numeric>"
+  consideration_to_customer: "<numeric>"
+  final_tp: "<numeric>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[8. VARIABLE CONSIDERATION & CONSTRAINT TESTING]
+
+{{variable_consideration}}
+
+Variable consideration examples:
+- Rebates  
+- Discounts  
+- Performance bonuses  
+- Price concessions  
+- Returns  
+
+Auditor tests:
+- Reasonableness  
+- Historical accuracy  
+- Whether constraint required  
+
+Schema:
+
+VC_SCHEMA:
+  id: "<VCxx>"
+  contract_id: "<CTxx>"
+  estimate: "<numeric>"
+  constraint_applied: "<true|false>"
+  basis: "<text>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[9. ALLOCATION OF TRANSACTION PRICE**
+
+{{allocation}}
+
+Steps:
+- Identify standalone selling prices (SSPs)  
+- Allocate TP to POs  
+- Recalculate proportions  
+
+Schema:
+
+ALLOCATION_SCHEMA:
+  id: "<ALxx>"
+  contract_id: "<CTxx>"
+  po_id: "<POxx>"
+  ssp: "<numeric>"
+  share_of_tp: "<numeric>"
+  allocated_amount: "<numeric>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[10. SATISFACTION OF PERFORMANCE OBLIGATIONS (TIMING)**]
+
+{{satisfaction_timing}}
+
+Tests differ by:
+- **Point in time** → delivery, transfer of control  
+- **Over time** → input/output method  
+
+Schema:
+
+RECOGNITION_SCHEMA:
+  id: "<RECxx>"
+  po_id: "<POxx>"
+  timing: "<point_in_time|over_time>"
+  method: "<input|output|delivery>"
+  measure_of_progress: "<numeric>"
+  revenue_recognized: "<numeric>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[11. CUTOFF TESTING (YE MANIPULATION RISK)**]
+
+{{cutoff_testing}}
+
+Procedures:
+- Inspect shipments around YE  
+- Bill-and-hold testing  
+- Returns after YE  
+- Credit notes  
+- Dispatch documentation  
+- Delivery acceptance  
+
+Schema:
+
+CUTOFF_SCHEMA:
+  id: "<CUTxx>"
+  contract_id: "<CTxx>"
+  shipment_date: "<date>"
+  delivery_date: "<date>"
+  invoicing_date: "<date>"
+  cutoff_ok: "<true|false>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[12. PRINCIPAL VS AGENT ANALYSIS]
+
+{{principal_agent}}
+
+Tests:
+- Control before transfer?  
+- Inventory risk?  
+- Pricing discretion?  
+
+Schema:
+
+PVA_SCHEMA:
+  id: "<PVAxx>"
+  contract_id: "<CTxx>"
+  principal: "<true|false>"
+  basis: "<text>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[13. CONTRACT COSTS TESTING (IFRS 15)**]
+
+{{contract_costs}}
+
+Tests:
+- Incremental costs of obtaining a contract (commissions)  
+- Fulfilment costs  
+- Amortization period  
+- Impairment of contract costs  
+
+Schema:
+
+CC_SCHEMA:
+  id: "<CCxx>"
+  contract_id: "<CTxx>"
+  cost_type: "<obtaining|fulfilment>"
+  amount: "<numeric>"
+  amort_period: "<numeric>"
+  impairment_required: "<true|false>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[14. SUBSTANTIVE ANALYTICAL PROCEDURES]
+
+{{analytics}}
+
+Procedures:
+- Margin analysis  
+- Revenue vs cash / AR  
+- Trend analysis  
+- Industry benchmarks  
+- Gross margin by product line  
+- Contract asset/liability movements  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[15. JOURNAL ENTRY FRAUD LINK (ISA 240)**]
+
+{{je_link}}
+
+Common manipulations:
+- Manual revenue JEs  
+- Reversing JEs post-YE  
+- Reclassification between contract assets/liabilities  
+
+Cross-link: E11 JE Testing.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[16. EXCEPTIONS SUMMARY]
+
+{{exceptions_summary}}
+
+Schema:
+
+EXCEPTION_SCHEMA:
+  id: "<string>"
+  contract_id: "<CTxx>"
+  area: "<PO|TP|VC|allocation|timing|cutoff|PVA|contract_cost>"
+  description: "<text>"
+  amount: "<numeric>"
+  severity: "<Low|Medium|High>"
+  linked_misstatement: "<MISID or null>"
+  impact_on_FS: "<text>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[17. OVERALL CONCLUSION]
+
+{{conclusion}}
+
+Conclusion categories:
+1. IFRS 15 applied correctly  
+2. Timing correct  
+3. Allocation correct  
+4. Variable consideration reasonable  
+5. Exceptions immaterial  
+6. Material misstatement  
+7. Insufficient evidence → scope limitation  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[18. APPENDICES]
+
+{{appendices}}
+
+Typical:
+- Contract samples  
+- SSP calculations  
+- Revenue testing schedules  
+- Cutoff reports  
+- JE analyses  
+- Reconciliation of revenue to AR and cash  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[END OF DOCUMENT]

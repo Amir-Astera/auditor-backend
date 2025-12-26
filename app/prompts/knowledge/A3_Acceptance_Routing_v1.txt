@@ -1,0 +1,51 @@
+ID: A3_ACCEPTANCE_ROUTING_V1
+TITLE: Acceptance & Continuance Routing Prompts
+LANG: EN
+TYPE: ROUTING_PROMPTS
+STANDARDS: ISQM1, ISA220, ISA210
+VERSION: 1.0
+
+# PURPOSE
+#   Guide the LLM to collect minimum information for acceptance/continuance
+#   and route the engagement to the correct workflow block (J11.ACCEPTANCE).
+
+# INPUT_FIELDS (to be populated from chat or UI)
+#   client_name
+#   client_status            # New / Continuing
+#   reporting_framework      # IFRS / Local GAAP / Other
+#   period_end
+#   entity_type              # PIE / Non-PIE
+#   industry
+#   prior_auditor
+#   prior_opinion_type       # Unmodified / Qualified / Adverse / Disclaimer / N/A
+
+# CORE QUESTIONS (ask if missing)
+Q1: Is this a new audit client or a continuing engagement?
+Q2: What is the applicable financial reporting framework?
+Q3: What is the financial year-end date?
+Q4: Is the entity a public interest entity (PIE) or listed?
+Q5: Who was the previous auditor (if any)? Was the last opinion modified?
+Q6: Are there any known independence conflicts or relationships with management/owners?
+Q7: Are there significant concerns about management integrity or compliance?
+
+# DECISION LOGIC (high level)
+- If independence conflict cannot be mitigated -> route.output = "DECLINE_ENGAGEMENT".
+- Else if severe integrity concerns -> route.output = "ESCALATE_PARTNER_REVIEW".
+- Else:
+    route.output = "ACCEPTANCE_MEMO_REQUIRED"
+    route.next_block = "J11_ACCEPTANCE"
+
+# STRUCTURED OUTPUT (example)
+{
+  "client_name": "<string>",
+  "client_status": "New|Continuing",
+  "framework": "IFRS|Local GAAP|Other",
+  "period_end": "YYYY-MM-DD",
+  "entity_type": "PIE|Non-PIE",
+  "prior_auditor": "<string|null>",
+  "prior_opinion_type": "<string|null>",
+  "independence_ok": true,
+  "integrity_concerns": "<short text>",
+  "decision": "ACCEPT|REJECT|ESCALATE",
+  "next_block": "J11_ACCEPTANCE"
+}

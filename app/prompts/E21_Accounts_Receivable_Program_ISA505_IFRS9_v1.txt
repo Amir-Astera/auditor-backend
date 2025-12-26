@@ -1,0 +1,299 @@
+ID: E21_AR_PROGRAM_V1
+TITLE: Accounts Receivable Audit Program (ISA 505 + IFRS 9)
+LANG: EN
+TYPE: TEMPLATE
+STANDARDS: ISA505, ISA500, ISA240, IFRS9, IFRS15
+VERSION: 1.0
+
+# PURPOSE
+#   Provide a complete audit program for Accounts Receivable, including confirmations,
+#   subsequent receipts testing, aging evaluation, credit risk assessment, and ECL model review.
+
+# PLACEHOLDERS:
+#   {{client_name}}
+#   {{period_end}}
+#   {{ar_population}}
+#   {{risk_assessment}}
+#   {{confirmations_plan}}
+#   {{subsequent_receipts}}
+#   {{aging_analysis}}
+#   {{disputes_review}}
+#   {{credit_risk}}
+#   {{ecl_testing}}
+#   {{je_testing_link}}
+#   {{exceptions_summary}}
+#   {{conclusion}}
+#   {{appendices}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[HEADER]
+ACCOUNTS RECEIVABLE AUDIT PROGRAM — ISA 505 + IFRS 9  
+Client: {{client_name}}  
+Period Ended: {{period_end}}
+
+This program covers existence, valuation, confirmation procedures, subsequent receipts,
+ECL impairment under IFRS 9, and fraud risks per ISA 240.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[1. ACCOUNTS RECEIVABLE POPULATION]
+
+{{ar_population}}
+
+Required breakdown:
+- Trade receivables  
+- Related party receivables  
+- Notes receivable  
+- Retention receivables  
+- Contract assets (IFRS 15)  
+- Long-outstanding balances (aged > 180 days)  
+- Specifically provided items  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2. RISK ASSESSMENT — ISA 315 + ISA 240]
+
+{{risk_assessment}}
+
+Key AR risks:
+- Existence risk (most significant)  
+- Overstatement due to fictitious sales (ISA 240 fraud risk)  
+- Incorrect cut-off from revenue (link to E18)  
+- Incorrect valuation (IFRS 9 ECL model issues)  
+- Related party exposures undisclosed  
+- Disputed balances  
+- Manipulation through manual JEs (link to E11)
+
+Mandatory presumed fraud risk:
+- Revenue recognition → directly feeds into AR existence.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[3. MACHINE-READABLE AR SCHEMA]
+
+AR_ITEM_SCHEMA:
+  id: "<ARxx>"
+  customer: "<string>"
+  invoice_no: "<string>"
+  invoice_date: "<date>"
+  due_date: "<date>"
+  amount: "<numeric>"
+  aged_bucket: "<0-30|31-60|61-90|91-180|180+>"
+  subsequent_receipt: "<numeric or null>"
+  confirmed_balance: "<numeric or null>"
+  dispute_status: "<none|partial|full>"
+  credit_risk_grade: "<Low|Medium|High>"
+  ecl_amount: "<numeric>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[4. CONFIRMATIONS PLAN — ISA 505]
+
+{{confirmations_plan}}
+
+ISA 505 requirements:
+- Auditor controls the confirmation process  
+- Positive confirmations required for AR (negative only in rare low-risk scenarios)  
+- Ensure sample includes:
+  * large balances  
+  * old balances  
+  * related party balances  
+  * disputed items  
+  * zero-balance accounts (fraud indicator)
+
+Schema:
+
+CONFIRMATION_SCHEMA:
+  id: "<CONFxx>"
+  customer: "<string>"
+  balance_per_client: "<numeric>"
+  balance_confirmed: "<numeric>"
+  difference: "<numeric>"
+  customer_comment: "<text>"
+  confirmation_received: "<true|false>"
+  alternative_procedures_required: "<true|false>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+Fraud red flags:
+- customer unreachable  
+- responses routed through management  
+- customer refuses to confirm  
+- discrepancies with delivery records  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[5. SUBSEQUENT RECEIPTS TESTING (PRIMARY ALTERNATIVE PROCEDURE)]
+
+{{subsequent_receipts}}
+
+Steps:
+- Review cash receipts after year-end (link to E20 Cash & Bank)  
+- Match receipts to outstanding invoices  
+- For partial receipts → allocate correctly  
+- For no receipts → evaluate credit risk  
+
+Schema:
+
+SUBSEQUENT_RECEIPT_SCHEMA:
+  id: "<SRxx>"
+  ar_id: "<ARxx>"
+  receipt_date: "<date>"
+  amount_received: "<numeric>"
+  traced_to_bank: "<true|false>"
+  full_settlement: "<true|false>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[6. AGING ANALYSIS (KEY TO IFRS 9 IMPAIRMENT)]
+
+{{aging_analysis}}
+
+Requirements:
+- Obtain aging report  
+- Reconcile total to GL  
+- Identify past-due exposures  
+- Analyse long-outstanding balances  
+- Evaluate disputes  
+- Tie to ECL staging:
+  * Stage 1 → performing  
+  * Stage 2 → Significant Increase in Credit Risk (SICR)  
+  * Stage 3 → credit-impaired  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[7. DISPUTED AND UNUSUAL BALANCES REVIEW]
+
+{{disputes_review}}
+
+Analyze:
+- Legal claims  
+- Customer complaints  
+- Volume rebates and contractual adjustments  
+- Sales returns  
+- Performance obligation issues (IFRS 15 linkage)  
+
+Red flags:
+- balances repeatedly disputed  
+- mismatched quantities between AR and delivery logs  
+- unusual debit balances on customer accounts  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[8. CREDIT RISK ASSESSMENT (IFRS 9 REQUIREMENT)]
+
+{{credit_risk}}
+
+Procedures:
+- Evaluate internal credit grading  
+- Review credit limits and overrides  
+- Review customer financial difficulties  
+- Analyse concentration risk  
+- Check for related party / shell-company structures  
+
+Schema:
+
+CREDIT_RISK_SCHEMA:
+  id: "<CRxx>"
+  customer: "<string>"
+  grade: "<Low|Medium|High>"
+  indicators:
+    - "<past_due_days>"
+    - "<financial_difficulties>"
+    - "<SICR>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[9. ECL TESTING (IFRS 9 EXPECTED CREDIT LOSSES)]
+
+{{ecl_testing}}
+
+Test:
+1. **Model logic**  
+   - PD (Probability of Default)  
+   - LGD (Loss Given Default)  
+   - EAD (Exposure at Default)  
+
+2. **Assumptions**  
+   - forward-looking information  
+   - macroeconomic overlays  
+   - SICR triggers  
+
+3. **Data quality**  
+   - aging data  
+   - historical loss data  
+   - customer segmentation  
+
+Schema:
+
+ECL_SCHEMA:
+  id: "<ECLxx>"
+  customer: "<string>"
+  exposure: "<numeric>"
+  pd: "<numeric>"
+  lgd: "<numeric>"
+  ead: "<numeric>"
+  ecl_amount: "<numeric>"
+  methodology_reviewed: "<true|false>"
+  assumptions_tested: "<true|false>"
+  data_quality: "<High|Medium|Low>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[10. JOURNAL ENTRY TESTING LINKAGE (ISA 240)]
+
+{{je_testing_link}}
+
+Critical JE focus:
+- manual credits to AR  
+- write-offs  
+- reversals after year-end  
+- contra-revenue adjustments  
+- creation of fictitious sales  
+
+Reference: E11_JETE_Journal_Entries
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[11. DETAILED TESTING TABLE]
+
+# | Ref | Customer | Inv No | Confirmed? | Subsequent Receipt | Dispute? | ECL? | Conclusion |
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[12. EXCEPTIONS SUMMARY]
+
+{{exceptions_summary}}
+
+EXCEPTION_SCHEMA:
+  id: "<string>"
+  ar_id: "<ARxx>"
+  description: "<text>"
+  amount: "<numeric>"
+  type: "<no_confirmation|disputed|aging_issue|cutoff_issue|valuation_error|fraud_indicator>"
+  severity: "<Low|Medium|High>"
+  linked_misstatement: "<MISID or null>"
+  impact_on_FS: "<text>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[13. OVERALL CONCLUSION]
+
+{{conclusion}}
+
+Conclusion categories:
+1. AR existence supported via confirmations or receipts  
+2. AR valuation supported via ECL analysis  
+3. Misstatements identified but not material  
+4. Material misstatement exists  
+5. Evidence insufficient → possible scope limitation  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[14. APPENDICES]
+
+{{appendices}}
+
+Possible appendices:
+- Confirmations sent/received log  
+- Subsequent receipts workbook  
+- Aging report  
+- ECL calculation model  
+- Credit risk policy  
+- Delivery notes and shipping records  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[END OF DOCUMENT]

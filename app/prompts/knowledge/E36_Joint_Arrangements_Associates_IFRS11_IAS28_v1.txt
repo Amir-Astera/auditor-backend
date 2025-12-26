@@ -1,0 +1,305 @@
+ID: E36_JOINT_ASSOCIATES_PROGRAM_V1
+TITLE: Joint Arrangements & Associates Audit Program (IFRS 11 + IAS 28)
+LANG: EN
+TYPE: TEMPLATE
+STANDARDS: IFRS11, IAS28, IFRS12, ISA600, ISA500, ISA540
+VERSION: 1.0
+
+# PURPOSE
+#   Provide a Big4-level audit program for:
+#   - Associates (equity method)
+#   - Joint operations
+#   - Joint ventures
+#   - Elimination of unrealized profits (upstream/downstream)
+#   - Impairment testing
+#   - Mandatory IFRS 12 disclosures
+
+# PLACEHOLDERS
+#   {{client_name}}
+#   {{period_end}}
+#   {{ja_structure}}
+#   {{risk_assessment}}
+#   {{significant_influence}}
+#   {{joint_arrangement_classification}}
+#   {{equity_method}}
+#   {{upstream_downstream}}
+#   {{impairment_testing}}
+#   {{policy_alignment}}
+#   {{disclosures}}
+#   {{exceptions_summary}}
+#   {{conclusion}}
+#   {{appendices}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[HEADER]
+JOINT ARRANGEMENTS & ASSOCIATES — IFRS 11 • IAS 28  
+Client: {{client_name}}  
+Period Ended: {{period_end}}
+
+This audit program evaluates classification, measurement, impairment,
+and disclosures relating to associates, joint operations, and joint ventures.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[1. STRUCTURE OF JOINT ARRANGEMENTS & ASSOCIATES]
+
+{{ja_structure}}
+
+Include:
+- Associates (significant influence)  
+- Joint ventures (equity method)  
+- Joint operations (direct recognition)  
+- Contractual arrangements  
+- Ownership structure  
+- Voting rights and rights to returns  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2. RISK ASSESSMENT — IAS 28 + IFRS 11]
+
+{{risk_assessment}}
+
+Key risks:
+- Incorrect classification (associate vs JV vs JO)  
+- Incorrect equity method adjustments  
+- Missing elimination of unrealized profit  
+- Incorrect calculation of group share  
+- Missing impairment indicators (IAS 36)  
+- Inconsistent accounting policies  
+- Missing IFRS 12 disclosures  
+
+Fraud risks:
+- Shifting profits via upstream/downstream transactions  
+- Hiding losses in equity-accounted entities  
+- Manipulating “significant influence” to avoid consolidation  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[3. MACHINE-READY SCHEMA: ASSOCIATES & JOINT ARRANGEMENTS]
+
+ASSOCIATE_JA_SCHEMA:
+  id: "<AJAxx>"
+  entity_name: "<string>"
+  type: "<associate|JV|JO>"
+  ownership_percent: "<numeric>"
+  voting_rights_percent: "<numeric>"
+  significant_influence: "<true|false>"
+  joint_control: "<true|false>"
+  contractual_terms: "<text>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[4. SIGNIFICANT INFLUENCE ASSESSMENT (IAS 28)**]
+
+{{significant_influence}}
+
+Indicators:
+- Board representation  
+- Participation in policy-making  
+- Material transactions with entity  
+- Interchange of managerial personnel  
+- Provision of essential technical information  
+
+Schema:
+
+SIGNIFICANT_INFLUENCE_SCHEMA:
+  id: "<SIxx>"
+  entity_name: "<string>"
+  ownership: "<numeric>"
+  influence_indicators: "<list>"
+  significant_influence_exists: "<true|false>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[5. CLASSIFICATION OF JOINT ARRANGEMENT (IFRS 11)**]
+
+{{joint_arrangement_classification}}
+
+Types:
+- **Joint Operation (JO)** → recognise share of assets, liabilities, revenue, expenses  
+- **Joint Venture (JV)** → equity method  
+
+Tests:
+- structure (vehicle or not?)  
+- legal form  
+- contractual arrangements  
+- other facts and circumstances  
+
+Schema:
+
+JA_CLASSIFICATION_SCHEMA:
+  id: "<JACLxx>"
+  entity_name: "<string>"
+  classification: "<JO|JV>"
+  basis: "<text>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[6. EQUITY METHOD ACCOUNTING (IAS 28)**]
+
+{{equity_method}}
+
+Tests:
+- Opening carrying amount  
+- Group's share of profit/loss  
+- Group's share of OCI  
+- Dividends received  
+- Adjustments for fair value uplifts (from acquisition)  
+- Impairment assessment  
+- Disposal or dilution effects  
+
+Schema:
+
+EQUITY_METHOD_SCHEMA:
+  id: "<EMxx>"
+  entity_name: "<string>"
+  opening_carrying_value: "<numeric>"
+  share_of_profit: "<numeric>"
+  share_of_OCI: "<numeric>"
+  dividends_received: "<numeric>"
+  adjustments: "<text>"
+  closing_value: "<numeric>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[7. UPSTREAM / DOWNSTREAM ELIMINATIONS (CRITICAL)**]
+
+{{upstream_downstream}}
+
+Definitions:
+- **Upstream:** associate/JV sells TO parent  
+- **Downstream:** parent sells TO associate/JV  
+
+Required elimination:
+- Unrealized profit to extent of investor’s interest  
+
+Schema:
+
+UPSTREAM_DOWNSTREAM_SCHEMA:
+  id: "<UDxx>"
+  entity_name: "<string>"
+  direction: "<upstream|downstream>"
+  transaction_type: "<PPE|inventory|services>"
+  transaction_amount: "<numeric>"
+  unrealized_profit: "<numeric>"
+  elimination_required: "<true|false>"
+  eliminated_amount: "<numeric>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[8. IMPAIRMENT TESTING — ASSOCIATES & JVs (IAS 28 + IAS 36)**]
+
+{{impairment_testing}}
+
+Indicators:
+- Losses exceeding carrying amount  
+- Decline in fair value  
+- Adverse market conditions  
+- Poor performance vs budget  
+- Liquidity issues in associate/JV  
+
+If impaired:
+- Recoverable amount = Value in Use or Fair Value less cost to sell  
+
+Schema:
+
+IMPAIRMENT_SCHEMA:
+  id: "<IMPxx>"
+  entity_name: "<string>"
+  indicator_present: "<true|false>"
+  recoverable_amount: "<numeric>"
+  carrying_amount: "<numeric>"
+  impairment_required: "<true|false>"
+  impairment_amount: "<numeric>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[9. ACCOUNTING POLICY ALIGNMENT (IFRS 10 REQUIREMENT)**]
+
+{{policy_alignment}}
+
+Tests:
+- Ensure group accounting policies applied  
+- Adjust associate/JV results for policy differences (e.g., PPE, revenue, leases, provisions)  
+
+Schema:
+
+POLICY_ALIGNMENT_SCHEMA:
+  id: "<PALIGNxx>"
+  entity_name: "<string>"
+  policy_difference: "<text>"
+  adjustment_required: "<true|false>"
+  amount: "<numeric>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[10. DISCLOSURES — IFRS 12 REQUIREMENTS]
+
+{{disclosures}}
+
+Must disclose:
+- nature of interest  
+- risks associated  
+- summarized financial information for each material associate/JV  
+- commitments, contingencies  
+- reasons for classification  
+- ownership and voting interests  
+- restrictions on ability to transfer cash  
+
+Schema:
+
+DISCLOSURE_SCHEMA:
+  id: "<DISCxx>"
+  type: "<associate|JV|JO>"
+  disclosure_required: "<true|false>"
+  disclosed: "<true|false>"
+  completeness: "<true|false>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[11. EXCEPTIONS SUMMARY]
+
+{{exceptions_summary}}
+
+EXCEPTION_SCHEMA:
+  id: "<string>"
+  entity: "<string>"
+  area: "<classification|equity_method|UD|impairment|policy_alignment|disclosure>"
+  description: "<text>"
+  amount: "<numeric>"
+  severity: "<Low|Medium|High>"
+  impact_on_FS: "<text>"
+  linked_misstatement: "<MISID or null>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[12. OVERALL CONCLUSION]
+
+{{conclusion}}
+
+Possible outcomes:
+1. Classification under IFRS 11 correct  
+2. Equity method accounting correct  
+3. Unrealized profit eliminations correct  
+4. Policy alignment correct  
+5. Impairment conclusion correct  
+6. Disclosures complete  
+7. Exceptions immaterial  
+8. Material misstatement exists  
+9. Insufficient evidence → scope limitation (ISA 600 issue)  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[13. APPENDICES]
+
+{{appendices}}
+
+Typical:
+- JV/associate agreements  
+- Summarized financial statements  
+- Upstream/downstream transaction schedules  
+- Acquisition fair value schedules  
+- Equity method rollforward  
+- Policy alignment working papers  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[END OF DOCUMENT]

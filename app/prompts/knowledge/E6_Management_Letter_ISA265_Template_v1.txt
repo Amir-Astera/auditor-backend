@@ -1,0 +1,124 @@
+ID: E6_MANAGEMENT_LETTER_TEMPLATE_V2
+TITLE: Management Letter (Internal Control Deficiencies) — Extended Version
+LANG: EN
+TYPE: TEMPLATE
+STANDARDS: ISA265, ISA330, ISA700
+VERSION: 2.0
+
+# PURPOSE
+#   Template for communicating deficiencies in internal control identified during the audit,
+#   incorporating severity levels, classification categories, and structured machine-readable
+#   metadata for automated population by RAG systems.
+
+# PLACEHOLDERS:
+#   {{client_name}}
+#   {{period_end}}
+#   {{management_addressee}}
+#   {{tcwg_addressee}}
+#   {{audit_firm}}
+#   {{audit_partner}}
+#   {{date}}
+#   {{summary_deficiencies}}
+#   {{detailed_deficiencies_table}}
+#   {{other_observations}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[HEADER]
+{{audit_firm}}
+{{date}}
+
+To: {{management_addressee}}
+Cc: {{tcwg_addressee}} (where applicable)
+
+Subject: Management Letter — Internal Control Deficiencies Identified During the Audit
+Entity: {{client_name}}
+Period Ended: {{period_end}}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[INTRODUCTION]
+We have completed our audit of the financial statements of {{client_name}} for the year ended 
+{{period_end}} in accordance with International Standards on Auditing (ISA). As part of this audit, 
+we obtained an understanding of internal control relevant to the preparation of the financial 
+statements in order to design audit procedures appropriate in the circumstances, but not for the 
+purpose of expressing an opinion on the effectiveness of internal control.
+
+In accordance with ISA 265, we are required to communicate significant deficiencies in internal 
+control identified during the audit to management and those charged with governance (TCWG).
+
+[IMPORTANT LIMITATION]
+Our procedures were not designed to identify all internal control deficiencies; therefore, the 
+deficiencies described below may not represent all deficiencies that exist.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[SUMMARY_OF_DEFICIENCIES]
+Below is a high-level summary of deficiencies identified:
+{{summary_deficiencies}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[DETAILED_DEFICIENCIES]
+The table below provides detailed findings, their classification, severity rating, potential impact, 
+and our recommendations, along with space for management responses.
+
+# MACHINE-READABLE TABLE SCHEMA (for RAG systems)
+# FIELDS:
+#   - ref_id: short code
+#   - area: e.g. "Revenue", "Procurement", "Inventory", "Payroll"
+#   - deficiency_desc
+#   - category: FinancialReporting | Operational | Compliance | ITGC | FraudRisk
+#   - severity: Low | Moderate | Significant
+#   - potential_impact
+#   - recommendation
+#   - management_response
+#   - status: Open | In Progress | Remediated
+
+TABLE_SCHEMA:
+  ref_id: "<string>"
+  area: "<string>"
+  category: "<FinancialReporting|Operational|Compliance|ITGC|FraudRisk>"
+  severity: "<Low|Moderate|Significant>"
+  deficiency_desc: "<text>"
+  potential_impact: "<text>"
+  recommendation: "<text>"
+  management_response: "<text or pending>"
+  status: "<Open|In Progress|Remediated>"
+
+# INSERT FINAL TABLE HERE:
+{{detailed_deficiencies_table}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[DEFINITION OF SEVERITY LEVELS]
+SIGNIFICANT:
+  - Control failure with high likelihood of material misstatement.
+  - Pervasive or systemic issue.
+  - Required reporting to TCWG under ISA 265.
+
+MODERATE:
+  - Important control weakness, but unlikely to result in material misstatement.
+  - Requires timely remediation by management.
+
+LOW:
+  - Minor deficiency that does not pose a significant risk.
+  - Recommendation for improvement rather than required remediation.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[OTHER_OBSERVATIONS] (Optional)
+The following items are not internal control deficiencies but may enhance operational efficiency, 
+governance, or financial reporting quality:
+
+{{other_observations}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[MANAGEMENT_RESPONSE_REQUEST]
+We request that management provide written responses to all findings, including planned corrective 
+actions, responsible persons, and targeted completion dates. Your responses will be included in 
+the final version of this letter.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[CLOSING_STATEMENT]
+We appreciate the cooperation and assistance provided by your teams during the audit.
+
+Kind regards,
+
+{{audit_partner}}
+Engagement Partner  
+{{audit_firm}}

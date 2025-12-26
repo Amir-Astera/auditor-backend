@@ -1,0 +1,43 @@
+ID: A5_OPINION_ROUTING_V1
+TITLE: Audit Opinion Routing Prompts
+LANG: EN
+TYPE: ROUTING_PROMPTS
+STANDARDS: ISA700, ISA705, ISA706
+VERSION: 1.0
+
+# PURPOSE
+#   Use final information (misstatements, going concern, scope limitations)
+#   to determine the appropriate type of opinion and route to J19.OPINION / J20.REPORT.
+
+# INPUT_FIELDS
+#   misstatements_total
+#   misstatements_unadjusted
+#   performance_materiality
+#   pervasive_effect           # true/false (judgemental)
+#   going_concern_issue        # none / disclosed / not_disclosed
+#   scope_limitation           # none / material_not_pervasive / material_pervasive
+
+# QUESTIONS
+Q1: Are there material misstatements that remain unadjusted?
+Q2: Are the misstatements pervasive to the financial statements?
+Q3: Is there any material uncertainty related to going concern?
+Q4: Has management appropriately disclosed the going concern uncertainty?
+Q5: Were there any significant scope limitations that prevented necessary procedures?
+
+# BASIC LOGIC (high level – detailed tree in D3 file)
+- If no material misstatements AND no scope limitations AND no going concern issue:
+    opinion_type = "Unmodified"
+- Else evaluate:
+    * misstatements vs PM and pervasiveness
+    * scope limitation
+    * going concern disclosure
+  and map to: Qualified / Adverse / Disclaimer of opinion.
+
+# OUTPUT STRUCTURE
+{
+  "opinion_type": "Unmodified|Qualified|Adverse|Disclaimer",
+  "basis_for_opinion_required": true,
+  "emphasis_of_matter": "<optional>",
+  "other_matter": "<optional>",
+  "next_block": "J20_REPORT"
+}

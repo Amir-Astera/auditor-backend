@@ -1,0 +1,246 @@
+ID: E26_INCOME_TAX_PROGRAM_V1
+TITLE: Income Tax Audit Program (IAS 12)
+LANG: EN
+TYPE: TEMPLATE
+STANDARDS: IAS12, ISA500, ISA540, ISA230, IFRIC23 (UTP)
+VERSION: 1.0
+
+# PURPOSE
+#   Provide a complete audit program for income tax accounting, covering:
+#   - Current tax provision
+#   - Deferred tax assets & liabilities
+#   - Temporary differences
+#   - Recognition criteria
+#   - Uncertain tax positions
+#   - Tax reconciliation
+#   - Machine-ready schemas for RAG
+
+# PLACEHOLDERS
+#   {{client_name}}
+#   {{period_end}}
+#   {{tax_reconciliation}}
+#   {{current_tax}}
+#   {{temporary_differences}}
+#   {{dta_dtl_testing}}
+#   {{recoverability_testing}}
+#   {{utp_analysis}}
+#   {{tax_rate_reconciliation}}
+#   {{exceptions_summary}}
+#   {{conclusion}}
+#   {{appendices}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[HEADER]
+INCOME TAX AUDIT PROGRAM — IAS 12  
+Client: {{client_name}}  
+Period Ended: {{period_end}}
+
+This program provides a structured approach to auditing income tax expense, 
+current tax liabilities, deferred tax balances, and uncertain tax positions.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[1. TAX RECONCILIATION SUMMARY]
+
+{{tax_reconciliation}}
+
+Reconcile:
+- PBT (profit before tax)
+- Adjustments (permanent differences)
+- Taxable income
+- Current tax expense  
+- Deferred tax expense  
+- Total tax charge  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2. CURRENT TAX PROVISION TESTING]
+
+{{current_tax}}
+
+Procedures:
+- Obtain tax return draft/working papers  
+- Recalculate taxable profit  
+- Agree adjustments to supporting documents  
+- Verify permanent and temporary differences  
+- Trace tax payments to cash/bank (E20 linkage)  
+- Review prior-year adjustments  
+- Evaluate penalties / interest  
+- Agree final provision to GL  
+
+Machine schema:
+
+CURRENT_TAX_SCHEMA:
+  id: "<TAXxx>"
+  taxable_income: "<numeric>"
+  tax_rate: "<numeric>"
+  calculated_tax: "<numeric>"
+  recorded_tax: "<numeric>"
+  variance: "<numeric>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[3. TEMPORARY DIFFERENCES TESTING]
+
+{{temporary_differences}}
+
+Temporary differences categories:
+- Depreciation vs tax depreciation  
+- Provisions not deductible until paid  
+- Unrealised FX  
+- Impairment allowances  
+- Fair value adjustments  
+- Lease liability vs ROU asset (IFRS 16)  
+- Revenue recognition timing differences  
+
+Schema:
+
+TEMP_DIFF_SCHEMA:
+  id: "<TDxx>"
+  description: "<text>"
+  accounting_base: "<numeric>"
+  tax_base: "<numeric>"
+  temporary_difference: "<numeric>"
+  deferred_tax_rate: "<numeric>"
+  dta_dtl_amount: "<numeric>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[4. TESTING OF DEFERRED TAX ASSETS & LIABILITIES (DTA / DTL)]
+
+{{dta_dtl_testing}}
+
+IAS 12 rules:
+- DTA / DTL recorded for ALL temporary differences except initial recognition exemptions  
+- DTA recognised only to the extent of probable future taxable profits  
+- Goodwill exceptions  
+
+Schema:
+
+DTA_DTL_SCHEMA:
+  id: "<DTxx>"
+  temp_diff_id: "<TDxx>"
+  dta_or_dtl: "<DTA|DTL>"
+  amount: "<numeric>"
+  recognition_criteria_met: "<true|false>"
+  reversal_expectation: "<text>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[5. DTA RECOVERABILITY TESTING]
+
+{{recoverability_testing}}
+
+Procedures:
+- Review budgets/forecasts  
+- Test reasonableness of assumptions  
+- Test historical forecasting accuracy  
+- Evaluate reversal of temporary differences  
+- Evaluate tax-planning opportunities  
+- Evaluate expiration of losses (carry-forward rules)  
+
+Schema:
+
+DTA_RECOVERABILITY_SCHEMA:
+  id: "<RECxx>"
+  dta_id: "<DTxx>"
+  forecast_period: "<years>"
+  future_taxable_profit: "<numeric>"
+  deductible_temp_diff: "<numeric>"
+  recoverable: "<true|false>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[6. UNCERTAIN TAX POSITIONS (IFRIC 23)**]
+
+{{utp_analysis}}
+
+Uncertain positions require:
+- Apply **most-likely amount** or **expected value**  
+- Evaluate likelihood of challenge by tax authority  
+- Review correspondence with tax authority  
+- Review legal letters (ISA 501 linkage)  
+- Evaluate interest and penalties  
+
+Schema:
+
+UTP_SCHEMA:
+  id: "<UTPxx>"
+  issue_description: "<text>"
+  probable_outflow: "<numeric>"
+  measurement_method: "<most_likely|expected_value>"
+  evidence_ref: "<WP ref>"
+  impact_on_current_tax: "<numeric>"
+  impact_on_deferred_tax: "<numeric>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[7. TAX RATE RECONCILIATION TESTING**
+
+{{tax_rate_reconciliation}}
+
+Reconcile:
+- Effective tax rate (ETR) vs statutory  
+- Permanent differences  
+- Non-deductible expenses  
+- Tax incentives  
+- Withholding taxation  
+- Differences due to other jurisdictions  
+
+Schema:
+
+ETR_SCHEMA:
+  id: "<ETRxx>"
+  item: "<text>"
+  amount: "<numeric>"
+  effect_on_rate: "<numeric>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[8. EXCEPTIONS SUMMARY]
+
+{{exceptions_summary}}
+
+Exception schema:
+
+EXCEPTION_SCHEMA:
+  id: "<string>"
+  area: "<current_tax|temporary_diff|dta|dtl|utp|tax_rate>"
+  description: "<text>"
+  amount: "<numeric>"
+  severity: "<Low|Medium|High>"
+  linked_misstatement: "<MISID or null>"
+  impact_on_FS: "<text>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[9. OVERALL CONCLUSION]
+
+{{conclusion}}
+
+Conclusion categories:
+1. Current tax reasonable  
+2. Temporary differences correct  
+3. DTA/DTL recognised appropriately  
+4. UTP appropriately measured  
+5. Exceptions immaterial  
+6. Material misstatement exists  
+7. Insufficient evidence → scope limitation  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[10. APPENDICES]
+
+{{appendices}}
+
+Typical:
+- Tax calculation workbook  
+- Temporary differences schedule  
+- Prior-year tax returns  
+- Correspondence with authorities  
+- Legal letters (ISA 501)  
+- Forecasts used for DTA recovery  
+- UTP models  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[END OF DOCUMENT]

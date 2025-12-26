@@ -14,6 +14,7 @@ from app.core.db import Base, engine
 from app.core.logging import configure_logging, get_logger
 from app.modules.auth.router import router as auth_router
 from app.modules.files.router import router as files_router
+from app.modules.prompts import models as _prompts_models
 
 configure_logging()
 logger = get_logger(__name__)
@@ -29,12 +30,14 @@ app = FastAPI(
 from app.modules.chats.router import router as chats_router
 from app.modules.customers.router import router as customers_router
 from app.modules.rag.router import router as rag_router
+from app.modules.prompts.router import router as prompts_router
 
 app.include_router(auth_router)
 app.include_router(files_router)
 app.include_router(customers_router)
 app.include_router(chats_router)
 app.include_router(rag_router)
+app.include_router(prompts_router)
 
 
 @app.get("/health", tags=["health"])

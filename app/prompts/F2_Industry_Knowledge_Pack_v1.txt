@@ -1,0 +1,39 @@
+ID: F2_INDUSTRY_KNOWLEDGE_PACK_V1
+TITLE: Industry Knowledge Pack (High Level)
+LANG: EN
+TYPE: KNOWLEDGE_PACK
+VERSION: 1.0
+
+# FORMAT
+#   INDUSTRY block with:
+#     - code
+#     - name
+#     - key_revenue_models
+#     - key_risks
+#     - typical_controls
+
+INDUSTRY:
+  code: RETAIL
+  name: "Retail and Consumer"
+  key_revenue_models:
+    - "Sales of goods through stores and online channels."
+  key_risks:
+    - "Revenue cut-off and completeness."
+    - "Inventory shrinkage and obsolescence."
+  typical_controls:
+    - "POS system reconciliations."
+    - "Inventory counts and cycle counts."
+
+INDUSTRY:
+  code: INSURANCE
+  name: "Insurance"
+  key_revenue_models:
+    - "Premium income from insurance contracts."
+  key_risks:
+    - "Measurement of insurance liabilities."
+    - "Revenue recognition for premiums."
+  typical_controls:
+    - "Actuarial reserving processes."
+    - "Policy administration system controls."
+
+# Add more industries as needed.

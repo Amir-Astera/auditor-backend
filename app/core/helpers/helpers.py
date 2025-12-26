@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from arq.connections import create_pool, ArqRedis
+from arq.connections import create_pool, ArqRedis, RedisSettings
 
 from app.core.config import settings
 
@@ -14,6 +14,6 @@ async def get_arq_redis() -> ArqRedis:
     """
     global _redis_pool
     if _redis_pool is None:
-        _redis_pool = await create_pool(settings.REDIS_URL)
+        _redis_pool = await create_pool(RedisSettings.from_dsn(str(settings.REDIS_URL)))
     return _redis_pool
 

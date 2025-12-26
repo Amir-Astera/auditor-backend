@@ -1,0 +1,35 @@
+ID: E5_AUDIT_REPORT_TEMPLATES_V1
+TITLE: Audit Report Skeletons (Unmodified & Modified)
+LANG: EN
+TYPE: TEMPLATE_SET
+STANDARDS: ISA700, ISA705, ISA706
+VERSION: 1.0
+
+# PLACEHOLDERS:
+#   {{addressee}}, {{client_name}}, {{period_end}}, {{framework}},
+#   {{opinion_type}}, {{basis_for_opinion_text}},
+#   {{kam_section}}, {{eom_section}}, {{other_matter_section}},
+#   {{audit_firm}}, {{audit_partner}}, {{report_date}}, {{location}}
+
+[TEMPLATE_UNMODIFIED]
+# Standard ISA 700 layout with Opinion, Basis for Opinion, Responsibilities, etc.
+(OPINION)
+In our opinion, the accompanying financial statements of {{client_name}} ...
+(BASIS_FOR_OPINION)
+{{basis_for_opinion_text}}
+(KAM_SECTION_OPTIONAL)
+{{kam_section}}
+(EOM_OPTIONAL)
+{{eom_section}}
+
+[TEMPLATE_QUALIFIED]
+# As above, but with Qualified opinion wording and specific basis.
+
+[TEMPLATE_ADVERSE]
+# As above, but with Adverse opinion wording.
+
+[TEMPLATE_DISCLAIMER]
+# As above, but with Disclaimer wording and scope limitation description.
+
+# NOTE
+#   Detailed paragraphs to be pulled from ISA extracts + firm style guide.

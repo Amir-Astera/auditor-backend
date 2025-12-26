@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.core.db import get_db
+from app.core.logging import get_logger
 from app.modules.auth.router import get_current_user
 from app.modules.rag.schemas import (
     RAGQueryRequest,
@@ -16,13 +17,31 @@ from app.modules.rag.schemas import (
 from app.modules.rag.service import RAGService
 from app.modules.rag.gemini import GeminiAPI
 
+logger = get_logger(__name__)
+
 router = APIRouter(prefix="/rag", tags=["rag"])
 
 
-def _get_rag_service() -> RAGService:
-    """Создает экземпляр RAGService."""
+def _get_rag_service(db: Session = Depends(get_db)) -> RAGService:
+    """Создает экземпляр RAGService с Qdrant."""
+    from app.core.config import settings
+    from app.modules.files.qdrant_client import QdrantVectorStore
+    
     gemini_api = GeminiAPI()
-    return RAGService(gemini_api=gemini_api)
+    
+    # Инициализация QdrantVectorStore
+    qdrant_store = None
+    try:
+        qdrant_store = QdrantVectorStore(
+            url=settings.QDRANT_URL,
+            collection_name=settings.QDRANT_COLLECTION_NAME,
+            vector_size=settings.QDRANT_VECTOR_SIZE,
+        )
+        logger.info("QdrantVectorStore initialized successfully")
+    except Exception as e:
+        logger.error(f"Failed to initialize QdrantVectorStore: {e}")
+    
+    return RAGService(db=db, gemini_api=gemini_api, qdrant_store=qdrant_store)
 
 
 @router.post(
@@ -34,7 +53,7 @@ def _get_rag_service() -> RAGService:
 async def query_rag(
     request: RAGQueryRequest,
     service: RAGService = Depends(_get_rag_service),
-    _=Depends(get_current_user),
+    current_user = Depends(get_current_user),
 ):
     """
     Выполняет запрос к RAG системе.
@@ -44,12 +63,29 @@ async def query_rag(
     - local: Использование локального контекста
     - global: Использование глобального контекста графа
     - hybrid: Комбинация локального и глобального контекста
+    
+    Фильтрация:
+    - customer_id: обязательный параметр для корректной работы
+    - include_admin_laws: включить общие законы и методички
+    - include_customer_docs: включить документы заказчика
     """
+    # Валидация обязательных полей
+    if not request.customer_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="customer_id is required for RAG queries"
+        )
+    
     try:
-        result = service.query(
+        result = await service.query(
             question=request.question,
+            customer_id=request.customer_id,
+            include_admin_laws=request.include_admin_laws,
+            include_customer_docs=request.include_customer_docs,
+            owner_id=str(current_user.id) if not current_user.is_admin else None,
             mode=request.mode,
             top_k=request.top_k,
+            temperature=request.temperature,
         )
         return RAGQueryResponse(**result)
     except Exception as e:

@@ -1,0 +1,292 @@
+ID: E19_PPE_AUDIT_PROGRAM_V1
+TITLE: PPE Audit Program (IAS 16 + ISA 500)
+LANG: EN
+TYPE: TEMPLATE
+STANDARDS: IAS16, IAS36, ISA500, ISA315, ISA330
+VERSION: 1.0
+
+# PURPOSE
+#   Provide a complete and machine-readable audit program for Property, Plant & Equipment (PPE),
+#   including existence, valuation, capitalization, depreciation, impairment, and disposals.
+
+# PLACEHOLDERS:
+#   {{client_name}}
+#   {{period_end}}
+#   {{ppe_classes}}
+#   {{risk_assessment}}
+#   {{rollforward}}
+#   {{additions_testing}}
+#   {{disposals_testing}}
+#   {{depreciation_testing}}
+#   {{impairment_testing}}
+#   {{revaluation_testing}}
+#   {{exceptions_summary}}
+#   {{conclusion}}
+#   {{appendices}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[HEADER]
+PPE AUDIT PROGRAM — IAS 16 + ISA 500  
+Client: {{client_name}}  
+Period Ended: {{period_end}}
+
+PPE is typically a material balance sheet category. This program provides a full audit response
+covering existence, rights, valuation, depreciation, disposals, and impairment indicators.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[1. PPE CLASSES & NATURE OF ASSETS]
+
+{{ppe_classes}}
+
+Examples:
+- Land & buildings  
+- Machinery & equipment  
+- Vehicles  
+- IT hardware  
+- Leasehold improvements  
+- Construction in progress (CIP)  
+
+Note: CIP is always high-risk due to capitalization judgments.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2. RISK ASSESSMENT — ISA 315]
+
+{{risk_assessment}}
+
+Typical PPE risks:
+- Incorrect capitalization of expenses (overstated assets)
+- Omitted disposals  
+- Incorrect useful lives / depreciation  
+- Manipulation through JE (ISA 240 override risk)
+- Impairment indicators (IAS 36)
+- Incorrect revaluation adjustments (if FV model used)
+
+Mandatory Significant Risks (if applicable):
+- Construction in progress → valuation & existence  
+- Revaluation model → fair value estimation risk  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[3. MACHINE-READABLE PPE SCHEMA]
+
+PPE_ITEM_SCHEMA:
+  id: "<PPExx>"
+  description: "<text>"
+  class: "<building|equipment|vehicle|CIP|other>"
+  cost_opening: "<numeric>"
+  additions: "<numeric>"
+  disposals: "<numeric>"
+  depreciation: "<numeric>"
+  impairment: "<numeric>"
+  carrying_amount: "<numeric>"
+  useful_life: "<years>"
+  depreciation_method: "<SL|RB|Units of production>"
+  ownership_docs_ref: "<WP ref>"
+  physical_verification_ref: "<WP ref>"
+  impairment_testing_ref: "<IMPxx>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[4. PPE ROLLFORWARD (MANDATORY)]
+
+{{rollforward}}
+
+Auditor must test:
+- Opening balances agree to PY audited figures  
+- Additions agree to FA register, GL, source documents  
+- Disposals agree to proceeds, derecognition criteria  
+- Depreciation recalculated  
+- Impairment reviewed  
+
+Rollforward Schema:
+
+ROLLFORWARD_SCHEMA:
+  opening_balance: "<numeric>"
+  additions: "<numeric>"
+  disposals: "<numeric>"
+  transfers: "<numeric>"
+  depreciation: "<numeric>"
+  impairment: "<numeric>"
+  closing_balance: "<numeric>"
+  difference_vs_GL: "<numeric>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[5. TESTING OF ADDITIONS]
+
+{{additions_testing}}
+
+Procedures:
+- Inspect invoices, contracts, acceptance certificates  
+- Verify capitalization criteria per IAS 16:
+  * future economic benefits  
+  * measurable cost  
+- Ensure non-capitalizable items expensed (repair vs capital improvement)  
+- For CIP:
+  * verify stage of completion  
+  * verify nature of costs  
+  * check if asset is ready for use → must stop capitalizing interest/overheads  
+
+Machine schema:
+
+ADDITION_TEST_SCHEMA:
+  id: "<ADDxx>"
+  asset_id: "<PPExx>"
+  amount: "<numeric>"
+  description: "<text>"
+  capitalization_criteria_met: "<true|false>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+  impact_on_FS: "<text>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[6. TESTING OF DISPOSALS]
+
+{{disposals_testing}}
+
+Procedures:
+- Inspect disposal documentation (sale contracts, scrapping evidence)  
+- Verify gain/loss calculation  
+- Ensure derecognition criteria met  
+- Check JE and bank receipt (link to E11: JE Testing, E20: Cash)  
+
+DISPOSAL_SCHEMA:
+  id: "<DISxx>"
+  asset_id: "<PPExx>"
+  disposal_proceeds: "<numeric>"
+  NBV_at_disposal: "<numeric>"
+  gain_or_loss: "<numeric>"
+  derecognition_supported: "<true|false>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[7. DEPRECIATION TESTING]
+
+{{depreciation_testing}}
+
+Procedures:
+- Recalculate depreciation for sample assets  
+- Agree useful lives to internal policies  
+- Evaluate changes in useful lives  
+- Determine whether depreciation method appropriate (SL / RB / UoP)  
+- For revalued assets → depreciation based on revalued amount  
+
+Schema:
+
+DEPRECIATION_SCHEMA:
+  asset_id: "<PPExx>"
+  useful_life: "<years>"
+  method: "<SL|RB|UoP>"
+  depreciation_recalculated: "<numeric>"
+  depreciation_per_GL: "<numeric>"
+  difference: "<numeric>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[8. IMPAIRMENT TESTING (IAS 36)]
+
+{{impairment_testing}}
+
+Impairment indicators:
+- Operational losses  
+- Idle assets  
+- Physical damage  
+- Demand decline  
+- Significant changes in technology  
+
+If indicators exist → auditor must:
+- Identify CGU (cash-generating unit)  
+- Test recoverable amount:
+  * value-in-use (discounted cash flow)
+  * fair value less costs to sell  
+
+Schema:
+
+IMPAIRMENT_SCHEMA:
+  imp_id: "<IMPxx>"
+  cgu: "<string>"
+  carrying_amount: "<numeric>"
+  recoverable_amount: "<numeric>"
+  method: "<VIU|FVLCTS>"
+  assumptions_tested: ["growth", "discount rate", "terminal value"]
+  evidence_ref: "<WP ref>"
+  impairment_required: "<true|false>"
+  impairment_amount: "<numeric>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[9. REVALUATION MODEL TESTING (IFRS 13 & IAS 16)]
+
+{{revaluation_testing}}
+
+Required if entity uses revaluation model:
+- Inspect valuation reports  
+- Test valuer independence  
+- Evaluate assumptions (yield rate, comparable sales, discount rates)  
+- Recalculate revaluation surplus  
+- Test treatment in OCI and revaluation reserve  
+
+Schema:
+
+REVALUATION_SCHEMA:
+  asset_id: "<PPExx>"
+  valuer_name: "<string>"
+  independence_ok: "<true|false>"
+  valuation_amount: "<numeric>"
+  basis_of_valuation: "<market|income|cost>"
+  assumptions_reviewed: "<text>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[10. EXCEPTIONS SUMMARY]
+
+{{exceptions_summary}}
+
+EXCEPTION_SCHEMA:
+  id: "<string>"
+  asset_id: "<PPExx>"
+  area: "<addition|disposal|depreciation|impairment|revaluation>"
+  description: "<text>"
+  amount: "<numeric>"
+  severity: "<Low|Medium|High>"
+  linked_misstatement: "<MISID or null>"
+  impact_on_FS: "<text>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[11. INTEGRATION WITH OTHER AREAS]
+
+Links:
+- JE Testing (E11): capitalization JEs, scrap/write-off JEs  
+- Estimates (E16): impairment testing  
+- Risk (E10): PPE valuation and impairment risks  
+- SUD (E8): unadjusted PPE misstatements  
+- ACM (E7): PPE section  
+- SE (E12): events impacting impairment after YE  
+- Going Concern (E13): asset impairment indicators  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[12. OVERALL CONCLUSION]
+
+{{conclusion}}
+
+Conclusion categories:
+1. PPE fairly stated (existence, valuation, depreciation, impairment)  
+2. Errors identified but not material  
+3. Material misstatement → Qualified or Adverse opinion  
+4. Insufficient evidence → scope limitation → possible Disclaimer  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[13. APPENDICES]
+
+{{appendices}}
+
+Typical:
+- Fixed asset register  
+- Useful life policy  
+- Valuation reports  
+- Capex authorisations  
+- Photos of key assets  
+- Depreciation workbook  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[END OF DOCUMENT]

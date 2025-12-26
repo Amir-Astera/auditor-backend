@@ -1,0 +1,310 @@
+ID: E28_INTANGIBLES_GOODWILL_PROGRAM_V1
+TITLE: Intangibles & Goodwill Audit Program (IAS 38 + IFRS 3 + IAS 36)
+LANG: EN
+TYPE: TEMPLATE
+STANDARDS: IAS38, IFRS3, IAS36, ISA540, ISA500
+VERSION: 1.0
+
+# PURPOSE
+#   Provide a Big4-grade audit program for intangible assets, goodwill,
+#   impairment testing, capitalization criteria, and PPA (purchase price allocation).
+
+# PLACEHOLDERS
+#   {{client_name}}
+#   {{period_end}}
+#   {{intangible_categories}}
+#   {{risk_assessment}}
+#   {{capitalization_testing}}
+#   {{useful_life_testing}}
+#   {{impairment_cgu}}
+#   {{impairment_model}}
+#   {{goodwill_allocation}}
+#   {{ppa_review}}
+#   {{internally_generated}}
+#   {{exceptions_summary}}
+#   {{conclusion}}
+#   {{appendices}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[HEADER]
+INTANGIBLES & GOODWILL AUDIT PROGRAM  
+(IAS 38, IFRS 3, IAS 36)  
+Client: {{client_name}}  
+Period Ended: {{period_end}}
+
+This program covers recognition, measurement, useful life,
+capitalization criteria, impairment testing, goodwill allocation,
+and PPA review.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[1. INTANGIBLE ASSET CATEGORIES]
+
+{{intangible_categories}}
+
+Typical categories:
+- Software (internally developed or acquired)  
+- Licenses  
+- Trademarks & brands  
+- Customer relationships  
+- Patents & technology  
+- Capitalized development costs  
+- Contractual rights  
+- Goodwill from business combinations  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2. RISK ASSESSMENT — IAS 38, IAS 36, IFRS 3]
+
+{{risk_assessment}}
+
+Key risks:
+- Incorrect capitalization of costs (common issue)  
+- Impairment indicators ignored  
+- Useful lives unrealistic  
+- Missing amortization  
+- Unsupported DCF models for impairment  
+- Incorrect PPA valuation  
+- Goodwill not allocated to CGUs properly  
+- Internally generated intangible assets incorrectly recognized  
+
+Fraud risks:
+- Overstating intangibles to manipulate EBITDA  
+- Manipulating impairment assumptions  
+- Capitalizing expenses to reduce current year costs  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[3. MACHINE-READY INTANGIBLES SCHEMA]
+
+INTANGIBLE_SCHEMA:
+  id: "<INTxx>"
+  type: "<software|license|brand|customer_list|technology|development|goodwill|other>"
+  cost: "<numeric>"
+  accumulated_amortization: "<numeric>"
+  carrying_amount: "<numeric>"
+  useful_life: "<numeric>"
+  finite_or_indefinite: "<finite|indefinite>"
+  impairment_indicator: "<true|false>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[4. CAPITALIZATION TESTING (IAS 38)**]
+
+{{capitalization_testing}}
+
+Rules:
+- Research → expense  
+- Development → capitalize only if criteria met  
+
+Tests:
+- Inspect project phase  
+- Validate technical and commercial feasibility  
+- Evaluate intention to complete  
+- Test ability to use or sell asset  
+- Verify reliable measurement of costs  
+- Reconcile development costs to GL / payroll / invoices  
+
+Schema:
+
+CAPITALIZATION_SCHEMA:
+  id: "<CAPxx>"
+  intangible_id: "<INTxx>"
+  phase: "<research|development>"
+  criteria_met: "<true|false>"
+  capitalized_cost: "<numeric>"
+  expensed_cost: "<numeric>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[5. USEFUL LIFE TESTING**
+
+{{useful_life_testing}}
+
+Tests:
+- Evaluate useful life documentation  
+- Test consistency with historical patterns  
+- Compare with industry norms  
+- Recalculate amortization  
+- Evaluate whether asset should be impaired or written off  
+
+Schema:
+
+USEFUL_LIFE_SCHEMA:
+  id: "<ULxx>"
+  intangible_id: "<INTxx>"
+  useful_life_years: "<numeric>"
+  justification: "<text>"
+  amortization_recalculated: "<true|false>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[6. GOODWILL ALLOCATION TO CGUs (IFRS 3 + IAS 36)**]
+
+{{goodwill_allocation}}
+
+Tests:
+- Identify CGUs  
+- Allocate goodwill to CGUs based on expected synergies  
+- Ensure no larger than operating segments  
+- Trace allocation to PPA  
+
+Schema:
+
+GOODWILL_ALLOCATION_SCHEMA:
+  id: "<GWxx>"
+  cgu: "<string>"
+  carrying_goodwill: "<numeric>"
+  allocation_basis: "<text>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[7. IMPAIRMENT TESTING FOR CGUs (IAS 36)**]
+
+{{impairment_cgu}}
+
+Tests:
+- Identify external/internal impairment indicators  
+- Obtain management’s impairment model  
+- Evaluate model logic (DCF)  
+- Test cash flow projections  
+- Test discount rates (WACC testing → link to E24 inputs)  
+- Test terminal value  
+- Evaluate sensitivity analysis  
+- Compare carrying amount vs recoverable amount  
+
+Recovery models:
+- Value in use (VIU)  
+- Fair value less costs of disposal (FVLCD)  
+
+Schema:
+
+CGU_IMPAIRMENT_SCHEMA:
+  id: "<CGUxx>"
+  cgu_name: "<string>"
+  carrying_amount: "<numeric>"
+  recoverable_amount: "<numeric>"
+  impairment_needed: "<true|false>"
+  impairment_amount: "<numeric>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[8. IMPAIRMENT MODEL REVIEW (DCF MODEL TESTING)**]
+
+{{impairment_model}}
+
+Tests:
+- Mathematically verify DCF  
+- Test cash flow inputs  
+- Test growth assumptions  
+- Test discount rates (WACC)  
+- Test risk adjustments  
+- Compare with external market data  
+- Evaluate macroeconomic consistency  
+
+Schema:
+
+DCF_SCHEMA:
+  id: "<DCFxx>"
+  cgu_id: "<CGUxx>"
+  discount_rate: "<numeric>"
+  revenue_growth: "<numeric>"
+  terminal_growth: "<numeric>"
+  cash_flow_years: "<list>"
+  auditor_value: "<numeric>"
+  management_value: "<numeric>"
+  variance: "<numeric>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[9. PURCHASE PRICE ALLOCATION (PPA) REVIEW — IFRS 3]
+
+{{ppa_review}}
+
+Tests:
+- Evaluate identification of intangible assets  
+- Evaluate fair value assumptions used  
+- Reconcile goodwill calculation:  
+  Consideration – FV net assets acquired = Goodwill  
+- Test earn-out liabilities (link E27 provisions if needed)  
+- Test contingent consideration valuation  
+
+Schema:
+
+PPA_SCHEMA:
+  id: "<PPAxx>"
+  intangible_ids: ["<INTxx>"]
+  fair_value_of_assets: "<numeric>"
+  fair_value_of_liabilities: "<numeric>"
+  goodwill_computed: "<numeric>"
+  consideration_transferred: "<numeric>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[10. INTERNALLY GENERATED INTANGIBLES**
+
+{{internally_generated}}
+
+Tests:
+- Identify internally generated brands → must NOT be recognized  
+- Separate research vs development  
+- Validate Deloitte/Big4 checklist for capitalization criteria  
+- Test payroll allocations to projects (fraud risk)  
+- Test whether “maintenance” costs incorrectly capitalized  
+
+Schema:
+
+IG_SCHEMA:
+  id: "<IGxx>"
+  project_name: "<string>"
+  research_cost: "<numeric>"
+  development_cost_capitalized: "<numeric>"
+  criteria_met: "<true|false>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[11. EXCEPTIONS SUMMARY]
+
+{{exceptions_summary}}
+
+Exception schema:
+
+EXCEPTION_SCHEMA:
+  id: "<string>"
+  intangible_id: "<INTxx>"
+  area: "<capitalization|useful_life|impairment|CGU|PPA|goodwill|internally_generated>"
+  description: "<text>"
+  amount: "<numeric>"
+  severity: "<Low|Medium|High>"
+  linked_misstatement: "<MISID or null>"
+  impact_on_FS: "<text>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[12. OVERALL CONCLUSION]
+
+{{conclusion}}
+
+Conclusion categories:
+1. Intangibles recognized correctly  
+2. Goodwill allocated properly  
+3. Impairment testing adequate  
+4. PPA correct  
+5. Exceptions immaterial  
+6. Material misstatement exists  
+7. Insufficient evidence → scope limitation  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[13. APPENDICES]
+
+{{appendices}}
+
+Typical:
+- DCF models  
+- CGU calculations  
+- Useful life analysis  
+- PPA valuation reports  
+- Capitalization logs  
+- Software development project documentation  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[END OF DOCUMENT]

@@ -1,0 +1,39 @@
+ID: E4_MGMT_REP_LETTER_TEMPLATE_V1
+TITLE: Management Representation Letter Template
+LANG: EN
+TYPE: TEMPLATE
+STANDARDS: ISA580
+VERSION: 1.0
+
+# PLACEHOLDERS:
+#   {{client_name}}, {{period_end}}, {{framework}},
+#   {{management_title}}, {{audit_firm}}
+
+[HEADER]
+Management Representation Letter
+{{client_name}}
+For the year ended {{period_end}}
+
+[INTRO]
+This letter is provided in connection with your audit of the financial statements of {{client_name}} for the year ended {{period_end}} prepared in accordance with {{framework}}.
+
+[GENERAL_REPRESENTATIONS]
+(standard ISA 580 list – completeness of information, responsibility for FS, fraud, laws and regulations, etc.)
+
+[SPECIFIC_REPRESENTATIONS]
+# To be auto-augmented from:
+# - significant risks (J2.RISK)
+# - legal matters (J3.LEGAL)
+# - estimates (J13.ESTIMATES)
+Examples:
+- "We confirm the key assumptions used in measuring provisions for ... are appropriate."
+- "We confirm that all related party relationships and transactions have been disclosed."
+
+[CLOSING]
+These representations are made to {{audit_firm}} in connection with your audit.
+
+Signed on behalf of {{client_name}}
+
+__________________________
+{{management_title}}
+Date: ____________

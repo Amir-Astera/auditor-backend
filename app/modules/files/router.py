@@ -49,7 +49,7 @@ def _get_file_service(db: Session = Depends(get_db)) -> FileService:
         vector_size=settings.QDRANT_VECTOR_SIZE,
     )
 
-    embedding_provider = EmbeddingProvider(vector_size=settings.QDRANT_VECTOR_SIZE)
+    embedding_provider = EmbeddingProvider(vector_size=vector_store.vector_size)
 
     return FileService(
         db=db,
@@ -89,13 +89,23 @@ async def upload_admin_file(
     status_code=status.HTTP_201_CREATED,
     summary="Загрузка файла заказчика",
 )
-def upload_customer_file(
+async def upload_customer_file(
     customer_id: str,
     file: UploadFile = File(...),
     user: User = Depends(get_current_employee),
     service: FileService = Depends(_get_file_service),
 ):
-    return service.upload_customer_file(user=user, customer_id=customer_id, file=file)
+    stored_file = service.upload_customer_file(user=user, customer_id=customer_id, file=file)
+
+    redis = await get_arq_redis()
+    await redis.enqueue_job("index_file_task", str(stored_file.id))
+
+    logger.info(
+        "Index file task enqueued",
+        extra={"stored_file_id": str(stored_file.id)},
+    )
+
+    return stored_file
 
 
 @router.get(
@@ -164,8 +174,18 @@ def download_file(
     if hasattr(obj, "release_conn"):  # type: ignore[attr-defined]
         obj.release_conn()
 
+    from urllib.parse import quote
+
+    original_filename = stored_file.original_filename
+    ascii_fallback = original_filename.encode("ascii", "ignore").decode("ascii")
+    if not ascii_fallback:
+        ascii_fallback = "download"
+    utf8_quoted = quote(original_filename, safe="")
+
     headers = {
-        "Content-Disposition": f"attachment; filename={stored_file.original_filename}",
+        "Content-Disposition": (
+            f'attachment; filename="{ascii_fallback}"; filename*=UTF-8\'\'{utf8_quoted}'
+        ),
     }
     return StreamingResponse(
         io.BytesIO(content),

@@ -1,0 +1,324 @@
+ID: E39_BIOLOGICAL_ASSETS_PROGRAM_V1
+TITLE: Biological Assets & Agriculture Audit Program (IAS 41)
+LANG: EN
+TYPE: TEMPLATE
+STANDARDS: IAS41, IFRS13, IAS2, IAS16, ISA500, ISA540
+VERSION: 1.0
+
+# PURPOSE
+#   Provide a Big4-level audit program for biological assets and agricultural produce,
+#   covering recognition, fair value, valuation techniques, classification, and disclosures.
+
+# PLACEHOLDERS
+#   {{client_name}}
+#   {{period_end}}
+#   {{bio_asset_classes}}
+#   {{risk_assessment}}
+#   {{existence_testing}}
+#   {{classification_testing}}
+#   {{fair_value_measurement}}
+#   {{agricultural_produce}}
+#   {{cost_to_sell}}
+#   {{valuation_models}}
+#   {{harvest_testing}}
+#   {{sensitivity_analysis}}
+#   {{disclosures}}
+#   {{exceptions_summary}}
+#   {{conclusion}}
+#   {{appendices}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[HEADER]
+BIOLOGICAL ASSETS & AGRICULTURE — IAS 41  
+Client: {{client_name}}  
+Period Ended: {{period_end}}
+
+This program covers biological assets measured at fair value less cost to sell (FVLCTS),
+including plants, animals, crops, orchards, fisheries, forests, and agricultural produce.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[1. BIOLOGICAL ASSET CLASSES]
+
+{{bio_asset_classes}}
+
+Typical categories:
+- Livestock (cattle, sheep, goats, poultry, fish)  
+- Perennial plants (trees, vines)  
+- Orchards / vineyards  
+- Crops (cotton, wheat, corn, rice)  
+- Forestry assets  
+- Plantations (tea, coffee, nuts, palms)  
+- Biological transformation assets (growth cycles)  
+
+Schema:
+
+BIO_CLASS_SCHEMA:
+  id: "<BIOCLxx>"
+  asset_type: "<livestock|orchard|crop|forest|aquaculture|other>"
+  measurement: "<FVLCTS|cost (rare exceptions)>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2. RISK ASSESSMENT — IAS 41]
+
+{{risk_assessment}}
+
+Key risks:
+- Incorrect fair value measurement  
+- Missing cost-to-sell adjustments  
+- Unobservable inputs (Level 3)  
+- Manipulation of valuation assumptions  
+- Incorrect harvest recognition  
+- Misclassification: biological asset vs bearer plant (IAS 16)  
+- Incorrect treatment of produce (IAS 2)  
+
+Fraud risks:
+- Inflating fair value to boost profit  
+- Understating costs to inflate FVLCTS  
+- Creating fictitious assets (livestock, orchards, forestry areas)  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[3. EXISTENCE TESTING (CRITICAL)**]
+
+{{existence_testing}}
+
+Tests:
+- Physical inspection  
+- Drone / satellite imagery (advanced audit)  
+- Reconciliation to biological asset registers  
+- Reconciliation to veterinary / agricultural records  
+- Headcounts for livestock  
+- Age-class segmentation  
+
+Schema:
+
+EXISTENCE_SCHEMA:
+  id: "<EXISTxx>"
+  asset_type: "<string>"
+  quantity_per_register: "<numeric>"
+  quantity_verified: "<numeric>"
+  variance: "<numeric>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[4. CLASSIFICATION TESTING — IAS 41 vs IAS 16 vs IAS 2]
+
+{{classification_testing}}
+
+Rules:
+- **Bearer plants** → IAS 16 (PPE)  
+- Biological assets → IAS 41  
+- Agricultural produce at harvest → IAS 2  
+- Distinguish consumable vs bearer plants  
+
+Schema:
+
+CLASSIFICATION_SCHEMA:
+  id: "<BIOCLSFxx>"
+  asset_name: "<string>"
+  classification: "<IAS41|IAS16|IAS2>"
+  basis: "<text>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[5. FAIR VALUE MEASUREMENT (IFRS 13 LINK)**]
+
+{{fair_value_measurement}}
+
+Tests:
+- Identify valuation technique (market approach, income approach, cost approach)  
+- Verify observable inputs (Level 1 / Level 2)  
+- Evaluate Level 3 assumptions:  
+  * growth rates  
+  * mortality  
+  * yield  
+  * discount rate  
+  * price estimates  
+- Recalculate FVLCTS  
+
+Schema:
+
+FAIR_VALUE_SCHEMA:
+  id: "<FVxx>"
+  asset_type: "<string>"
+  valuation_technique: "<market|income|cost>"
+  fair_value: "<numeric>"
+  cost_to_sell: "<numeric>"
+  FVLCTS: "<numeric>"
+  level: "<1|2|3>"
+  unobservable_inputs: "<text>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[6. AGRICULTURAL PRODUCE AT HARVEST (IAS 41 → IAS 2)**]
+
+{{agricultural_produce}}
+
+Tests:
+- Correct split between biological asset and produce  
+- Measurement at FVLCTS at harvest  
+- Transfer to inventory (IAS 2)  
+- Cutoff and completeness  
+
+Schema:
+
+PRODUCE_SCHEMA:
+  id: "<PRODxx>"
+  asset_type: "<string>"
+  harvested_quantity: "<numeric>"
+  FVLCTS_at_harvest: "<numeric>"
+  transferred_to_inventory: "<numeric>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[7. COST-TO-SELL TESTING**
+
+{{cost_to_sell}}
+
+Examples:
+- transport  
+- storage  
+- commissions  
+- levies  
+- processing (if required before sale)  
+
+Schema:
+
+COST_TO_SELL_SCHEMA:
+  id: "<CTSxx>"
+  asset_type: "<string>"
+  cost_amount: "<numeric>"
+  basis: "<text>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[8. VALUATION MODEL REVIEW (LEVEL 3 MODELS)**]
+
+{{valuation_models}}
+
+Tests:
+- Check mathematical accuracy of model  
+- Back-test assumptions  
+- Compare to external market data  
+- Sensitivity analysis  
+
+Schema:
+
+VALUATION_MODEL_SCHEMA:
+  id: "<VMxx>"
+  model_name: "<string>"
+  assumptions: "<text>"
+  model_result: "<numeric>"
+  sensitivity: "<numeric>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[9. HARVEST TESTING (CUT-OFF)**]
+
+{{harvest_testing}}
+
+Tests:
+- Correct identification of harvest events  
+- Completeness of harvest quantities  
+- Reasonable yield rates  
+- Comparison to prior period and budget  
+- Observation procedures (if audit timing allows)  
+
+Schema:
+
+HARVEST_SCHEMA:
+  id: "<HARVxx>"
+  crop_type: "<string>"
+  harvest_date: "<date>"
+  quantity: "<numeric>"
+  valuation: "<numeric>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[10. SENSITIVITY ANALYSIS (REQUIRED FOR LEVEL 3)**]
+
+{{sensitivity_analysis}}
+
+Examples:
+- ± price per kg  
+- ± mortality rates  
+- ± yield assumptions  
+- ± discount rate  
+
+Schema:
+
+SENSITIVITY_SCHEMA:
+  id: "<SENSxx>"
+  variable: "<price|yield|mortality|discount>"
+  base_value: "<numeric>"
+  ±impact: "<numeric>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[11. DISCLOSURES — IAS 41 + IFRS 13]
+
+{{disclosures}}
+
+Must include:
+- nature of biological assets  
+- reconciliation of carrying amounts  
+- significant assumptions  
+- risks  
+- sensitivity analysis  
+- Level 3 hierarchy  
+- gains/losses from fair value changes  
+
+Schema:
+
+DISCLOSURE_SCHEMA:
+  id: "<DISCxx>"
+  disclosure_type: "<nature|reconciliation|FV|risk|sensitivity>"
+  disclosed: "<true|false>"
+  completeness: "<true|false>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[12. EXCEPTIONS SUMMARY]
+
+{{exceptions_summary}}
+
+EXCEPTION_SCHEMA:
+  id: "<EXCxx>"
+  asset_type: "<string>"
+  area: "<existence|classification|valuation|produce|harvest|disclosure>"
+  amount: "<numeric>"
+  severity: "<Low|Medium|High>"
+  impact_on_FS: "<text>"
+  linked_misstatement: "<MISID or null>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[13. OVERALL CONCLUSION]
+
+{{conclusion}}
+
+Possible outcomes:
+1. IAS 41 measurement correct  
+2. Fair value observable & reliable  
+3. Level 3 assumptions reasonable  
+4. Produce at harvest correct  
+5. Exceptions immaterial  
+6. Material misstatement exists  
+7. Insufficient evidence (common due to Level 3 models)  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[14. APPENDICES]
+
+{{appendices}}
+
+Typical:
+- Biological asset rollforwards  
+- Valuation models  
+- Satellite/drone inspection reports  
+- Agricultural registers  
+- Veterinary or crop production data  
+- Market price data  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[END OF DOCUMENT]

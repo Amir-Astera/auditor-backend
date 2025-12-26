@@ -1,0 +1,273 @@
+ID: E32_CASH_FLOW_PROGRAM_V1
+TITLE: Cash Flow Statement Audit Program (IAS 7)
+LANG: EN
+TYPE: TEMPLATE
+STANDARDS: IAS7, ISA500, ISA520, ISA330
+VERSION: 1.0
+
+# PURPOSE
+#   Provide Big4-level audit procedures for Cash Flow Statements,
+#   covering both methods, classification, reconciliations, and completeness testing.
+
+# PLACEHOLDERS
+#   {{client_name}}
+#   {{period_end}}
+#   {{cfs_method}}
+#   {{risk_assessment}}
+#   {{operating_activities}}
+#   {{investing_activities}}
+#   {{financing_activities}}
+#   {{non_cash_movements}}
+#   {{working_capital_adjustments}}
+#   {{reconciliation_to_bank}}
+#   {{exceptions_summary}}
+#   {{conclusion}}
+#   {{appendices}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[HEADER]
+CASH FLOW STATEMENT — IAS 7  
+Client: {{client_name}}  
+Period Ended: {{period_end}}
+
+This program evaluates classification, completeness, non-cash adjustments,
+and mathematical correctness of the cash flow statement.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[1. METHOD USED — DIRECT OR INDIRECT]
+
+{{cfs_method}}
+
+If **Indirect method** — most common:  
+- Begin with profit before tax  
+- Adjust for non-cash items  
+- Adjust for working capital movements  
+- Remove investing/financing items  
+
+If **Direct method**:  
+- Cash receipts  
+- Cash payments  
+- Reconcile to bank  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2. RISK ASSESSMENT — IAS 7]
+
+{{risk_assessment}}
+
+Key risks:
+- Misclassification between operating / investing / financing  
+- Missing non-cash adjustments  
+- Incorrect working capital movements  
+- Mathematical errors  
+- Cash flow that contradicts balance sheet movements  
+- Manipulation to improve operating cash flow  
+- Missing significant non-cash transactions (leases, PPE, provisions)  
+
+Fraud risks:
+- Artificially inflating CFO (operating cash flow)  
+- Reclassifying interest paid/received  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[3. MACHINE-READY CASH FLOW SCHEMA]
+
+CASHFLOW_SCHEMA:
+  id: "<CFxx>"
+  section: "<operating|investing|financing>"
+  description: "<text>"
+  amount: "<numeric>"
+  classification_ok: "<true|false>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[4. OPERATING ACTIVITIES TESTING — INDIRECT METHOD]
+
+{{operating_activities}}
+
+Operating section must include:
+- Profit before tax  
+- Non-cash adjustments:  
+  * depreciation, amortization  
+  * impairment gains/losses  
+  * gains/losses on disposals  
+  * unrealized FX  
+  * ECL adjustments  
+  * fair value adjustments  
+  * provisions (E27 linkage)  
+  * leases (interest + depreciation components)  
+- Working capital movements:  
+  * AR  
+  * inventory  
+  * AP  
+  * cash advances  
+  * contract assets and liabilities (IFRS 15 linkage)  
+
+Schema:
+
+OPERATING_SCHEMA:
+  id: "<OPxx>"
+  adjustment_type: "<non_cash|working_capital>"
+  item: "<text>"
+  amount: "<numeric>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[5. INVESTING ACTIVITIES TESTING]
+
+{{investing_activities}}
+
+Includes:
+- Purchases/sales of PPE (E19 linkage)  
+- Purchases/sales of intangibles (E28 linkage)  
+- Acquisition/disposal of subsidiaries (IFRS 3)  
+- Purchases of financial instruments (E24 linkage)  
+
+Schema:
+
+INVESTING_SCHEMA:
+  id: "<INVxx>"
+  item: "<text>"
+  cash_flow_amount: "<numeric>"
+  classification_ok: "<true|false>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[6. FINANCING ACTIVITIES TESTING]
+
+{{financing_activities}}
+
+Includes:
+- Borrowings obtained/paid  
+- Lease liabilities (E29 linkage)  
+- Issuance of shares  
+- Dividends paid  
+- Interest paid (policy consistency: IAS 7 choice allowed)  
+
+Schema:
+
+FINANCING_SCHEMA:
+  id: "<FINxx>"
+  item: "<text>"
+  cash_flow_amount: "<numeric>"
+  classification_ok: "<true|false>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[7. NON-CASH MOVEMENTS REQUIRED BY IAS 7.43–44A]
+
+{{non_cash_movements}}
+
+Companies must disclose changes in liabilities from financing activities, including:
+- New leases recognized under IFRS 16  
+- FX revaluation  
+- Fair value changes  
+- Accretion of interest  
+- Modifications of loan terms  
+
+Schema:
+
+NONCASH_SCHEMA:
+  id: "<NCxx>"
+  description: "<text>"
+  opening_balance: "<numeric>"
+  closing_balance: "<numeric>"
+  cash_movement: "<numeric>"
+  non_cash_movement: "<numeric>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[8. WORKING CAPITAL MOVEMENT TESTING**
+
+{{working_capital_adjustments}}
+
+Movements must reconcile to:
+- AR schedule  
+- Inventory schedule (E17, E25)  
+- AP schedule  
+- Contract balances (IFRS 15)  
+- Tax balances (IAS 12)
+
+Test:
+- Accuracy  
+- Direction of movement  
+- Consistency with FS  
+
+Schema:
+
+WC_SCHEMA:
+  id: "<WCxx>"
+  account_name: "<string>"
+  opening: "<numeric>"
+  closing: "<numeric>"
+  movement_per_CFS: "<numeric>"
+  movement_per_FS: "<numeric>"
+  variance: "<numeric>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[9. RECONCILIATION TO BANK STATEMENTS (E20 LINK)**]
+
+{{reconciliation_to_bank}}
+
+Tests:
+- CFS ending cash must match SoFP cash  
+- Bank confirmations must agree (ISA 505)  
+- Test bank transfers at YE  
+- Analytical review of cash patterns  
+
+Schema:
+
+BANK_RECON_SCHEMA:
+  id: "<BRxx>"
+  cash_per_FS: "<numeric>"
+  cash_per_bank: "<numeric>"
+  reconciling_items: "<text>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[10. EXCEPTIONS SUMMARY]
+
+{{exceptions_summary}}
+
+EXCEPTION_SCHEMA:
+  id: "<string>"
+  section: "<operating|investing|financing|noncash|classification|math>"
+  description: "<text>"
+  amount: "<numeric>"
+  severity: "<Low|Medium|High>"
+  linked_misstatement: "<MISID or null>"
+  impact_on_FS: "<text>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[11. OVERALL CONCLUSION]
+
+{{conclusion}}
+
+Possible outcomes:
+1. CFS mathematically accurate  
+2. Classification compliant with IAS 7  
+3. Non-cash movements complete  
+4. Linkage with FS consistent  
+5. Exceptions immaterial  
+6. Material misstatement exists  
+7. Insufficient evidence → scope limitation  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[12. APPENDICES]
+
+{{appendices}}
+
+Typical items:
+- Detailed CFS workbook  
+- Non-cash movement schedule  
+- Working capital reconciliation  
+- Lease liability rollforward  
+- PPE additions/disposals  
+- JE extracts related to cash  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[END OF DOCUMENT]

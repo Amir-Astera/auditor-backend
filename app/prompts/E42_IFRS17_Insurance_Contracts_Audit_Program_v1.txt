@@ -1,0 +1,565 @@
+ID: E42_IFRS17_INSURANCE_CONTRACTS_PROGRAM_V1
+TITLE: Insurance Contracts Audit Program (IFRS 17 — Full Big4-Level)
+LANG: EN
+TYPE: TEMPLATE
+STANDARDS: IFRS17, IFRS9, IFRS7, IFRS13, IAS1, IAS8, IAS19, IAS21, ISA315, ISA330, ISA500, ISA540
+VERSION: 1.0
+
+# PURPOSE
+#   Provide a comprehensive Big4-level audit program for IFRS 17 insurance contracts,
+#   designed for machine use (RAG/agents) and human auditors/actuaries.
+#   Covers:
+#   - Product mapping & scoping (IFRS 17 vs IFRS 9)
+#   - Portfolio / group structure (onerous / no significant risk of becoming onerous / other)
+#   - Measurement models (GMM/BBA, PAA, VFA)
+#   - Fulfilment cash flows (FCF), risk adjustment (RA), discount rates
+#   - Contractual service margin (CSM) — initial & subsequent
+#   - Liability for Remaining Coverage (LRC) & Liability for Incurred Claims (LIC)
+#   - Reinsurance held
+#   - Onerous contracts & loss components
+#   - Presentation & disclosure requirements
+#   - Data, systems, models and control environment
+
+# PLACEHOLDERS (for orchestration layer)
+#   {{client_name}}
+#   {{period_end}}
+#   {{ifrs17_scope}}
+#   {{portfolio_structure}}
+#   {{risk_assessment}}
+#   {{product_mapping}}
+#   {{contract_boundary}}
+#   {{measurement_models}}
+#   {{fulfilment_cash_flows}}
+#   {{assumptions_testing}}
+#   {{discount_rates}}
+#   {{risk_adjustment}}
+#   {{csm_testing}}
+#   {{lrc_testing}}
+#   {{lic_testing}}
+#   {{onerous_contracts}}
+#   {{reinsurance_held}}
+#   {{transition_opening_balances}}
+#   {{systems_controls}}
+#   {{presentation_PnL_OCI}}
+#   {{disclosures}}
+#   {{exceptions_summary}}
+#   {{conclusion}}
+#   {{appendices}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[HEADER]
+INSURANCE CONTRACTS — IFRS 17  
+Client: {{client_name}}  
+Reporting period ended: {{period_end}}
+
+This program is designed for life, non-life, health, reinsurance, and composite insurers
+applying IFRS 17. It must be used together with:
+- E30 Disclosure Checklist
+- E37 Financial Instruments Disclosures (IFRS 7)
+- E32 Cash Flow Statement (IAS 7)
+- E34 Equity & Capital
+- E35/E36 Group Audit modules
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[0. IFRS 17 SCOPE AND INTERACTIONS]
+
+{{ifrs17_scope}}
+
+Scope checks:
+- Identify all insurance contracts issued (life, non-life, health, credit, etc.)
+- Identify investment contracts with discretionary participation features (DPF)
+- Identify distinct investment components / distinct service components (IFRS 17 vs IFRS 15 / IFRS 9)
+- Identify reinsurance contracts held
+- Identify financial instruments that remain under IFRS 9 (e.g. certain investment contracts without DPF)
+
+Schema:
+
+IFRS17_SCOPE_SCHEMA:
+  id: "<SCOPExx>"
+  product_name: "<string>"
+  is_insurance_contract: "<true|false>"
+  is_investment_contract_with_DPF: "<true|false>"
+  falls_under_IFRS9: "<true|false>"
+  reinsurance_held: "<true|false>"
+  comments: "<text>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[1. PORTFOLIOS, GROUPS AND UNIT OF ACCOUNT]
+
+{{portfolio_structure}}
+
+Key concepts:
+- Portfolio = contracts subject to similar risks and managed together
+- Within each portfolio, contracts grouped at initial recognition into:
+  * onerous contracts
+  * contracts with no significant possibility of becoming onerous
+  * remaining contracts
+
+Schema:
+
+IFRS17_PORTFOLIO_SCHEMA:
+  id: "<PORTxx>"
+  portfolio_name: "<string>"
+  line_of_business: "<life|non_life|health|reinsurance|other>"
+  managed_together: "<true|false>"
+  risk_characteristics: "<text>"
+  measurement_model: "<GMM|PAA|VFA>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+IFRS17_GROUP_SCHEMA:
+  id: "<GRPxx>"
+  portfolio_id: "<PORTxx>"
+  group_name: "<string>"
+  onerous_status: "<onerous|no_significant_possibility|other>"
+  annual_cohort: "<YYYY>"
+  contracts_in_group: "<numeric>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2. RISK ASSESSMENT — IFRS 17 + ISA 540 (HIGH ESTIMATION RISK)]
+
+{{risk_assessment}}
+
+Key risks:
+- Incorrect product scoping (IFRS 17 vs IFRS 9 / IFRS 15)
+- Incorrect grouping (portfolios, annual cohorts, onerous grouping)
+- Model risk in actuarial valuation (FCF, RA, CSM)
+- Data quality & completeness from policy admin systems
+- Incorrect discount rates / yield curves
+- Incorrect risk adjustment for non-financial risk
+- Incorrect CSM rollforward and release pattern
+- Incorrect LRC / LIC split and movements
+- Errors in reinsurance held (mismatch with underlying)
+- Incorrect presentation of insurance revenue, insurance service result, insurance finance income/expenses
+- Missing or incomplete disclosures
+
+Fraud risks:
+- Management bias in assumptions (mortality, lapse, expenses, discount rate)
+- Understating onerous contracts and loss components
+- Manipulating CSM release to smooth profit
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[3. PRODUCT MAPPING AND CONTRACT BOUNDARY]
+
+{{product_mapping}}
+
+Steps:
+- Map each product to an IFRS 17 portfolio
+- Determine if any components are separated (distinct investment component; distinct service component)
+- Determine contract boundary:
+  * when entity has practical ability to reprice
+  * when entity has a substantive obligation to provide coverage
+
+Schema:
+
+IFRS17_PRODUCT_SCHEMA:
+  id: "<PRDxx>"
+  product_name: "<string>"
+  portfolio_id: "<PORTxx>"
+  separated_components: "<investment_component|service_component|none>"
+  investment_component_distinct: "<true|false>"
+  service_component_distinct: "<true|false>"
+  falls_under_PAA: "<true|false>"
+  measurement_model: "<GMM|PAA|VFA>"
+  exception_flag: "<true|false>"
+
+IFRS17_CONTRACT_BOUNDARY_SCHEMA:
+  id: "<CBxx>"
+  product_id: "<PRDxx>"
+  boundary_definition: "<text>"
+  boundary_end_date: "<date>"
+  repricing_rights: "<text>"
+  substantive_obligation_end: "<date>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[4. MEASUREMENT MODELS (GMM/BBA, PAA, VFA)]
+
+{{measurement_models}}
+
+For each portfolio/group, confirm selected measurement model:
+
+- **GMM / BBA (General Model / Building Block Approach)**:
+  Fulfilment cash flows (FCF) + CSM
+
+- **PAA (Premium Allocation Approach)**:
+  Simplified for short-duration contracts; approximate GMM under certain conditions
+
+- **VFA (Variable Fee Approach)**:
+  For direct participating contracts where entity’s fee is variable based on underlying items
+
+Schema:
+
+IFRS17_MODEL_SCHEMA:
+  id: "<MODxx>"
+  group_id: "<GRPxx>"
+  model_type: "<GMM|PAA|VFA>"
+  eligibility_criteria_met: "<true|false>"
+  rationale: "<text>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[5. FULFILMENT CASH FLOWS (FCF) — EXPECTED CASH FLOWS]
+
+{{fulfilment_cash_flows}}
+
+FCF components:
+- Expected present value of future cash inflows:
+  * premiums (excluding distinct investment component)
+  * recoveries, co-insurance, etc.
+- Expected present value of future cash outflows:
+  * claims and benefits
+  * expenses directly attributable to contracts
+- Adjusted for:
+  * time value of money (discounting)
+  * financial risks
+  * non-financial risk via risk adjustment
+
+Schema:
+
+IFRS17_FCF_SCHEMA:
+  id: "<FCFxx>"
+  group_id: "<GRPxx>"
+  cash_inflows: "<numeric>"
+  cash_outflows: "<numeric>"
+  discount_effect: "<numeric>"
+  risk_adjustment_amount: "<numeric>"
+  present_value_FCF: "<numeric>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[6. ASSUMPTIONS & DISCOUNT RATES]
+
+{{assumptions_testing}}
+
+Assumptions to test:
+- Mortality / morbidity / longevity
+- Lapse / persistency
+- Expense assumptions
+- Claim severity / frequency
+- Options & guarantees utilization
+- Inflation assumptions
+
+Discount rates:
+- Top-down or bottom-up approach
+- Illiquidity premium
+- Currency and duration consistency
+- Separation of financial vs non-financial risk
+
+Schema:
+
+IFRS17_ASSUMPTION_SCHEMA:
+  id: "<ASSxx>"
+  group_id: "<GRPxx>"
+  assumption_type: "<mortality|morbidity|lapse|expense|inflation|claim_frequency|claim_severity|other>"
+  central_estimate: "<numeric>"
+  source: "<experience|industry_data|expert_judgement>"
+  last_experience_study: "<date>"
+  sensitivity_impact: "<numeric>"
+  exception_flag: "<true|false>"
+
+IFRS17_DISCOUNT_RATE_SCHEMA:
+  id: "<DRxx>"
+  group_id: "<GRPxx>"
+  approach: "<top_down|bottom_up>"
+  curve_reference: "<text>"
+  liquidity_adjustment: "<numeric>"
+  average_discount_rate: "<numeric>"
+  consistency_with_IFRS9_assets: "<true|false>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[7. RISK ADJUSTMENT FOR NON-FINANCIAL RISK (RA)]
+
+{{risk_adjustment}}
+
+Tests:
+- Determine technique (confidence level, CTE, cost-of-capital, etc.)
+- Verify diversification effects within portfolio/group
+- Check that RA reflects compensation the entity requires for uncertainty
+- Evaluate disclosure of confidence level / methodology
+
+Schema:
+
+IFRS17_RA_SCHEMA:
+  id: "<RAxx>"
+  group_id: "<GRPxx>"
+  method: "<confidence_level|CTE|cost_of_capital|other>"
+  level_or_parameter: "<numeric>"
+  diversification_approach: "<text>"
+  RA_amount: "<numeric>"
+  confidence_level_disclosed: "<true|false>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[8. CONTRACTUAL SERVICE MARGIN (CSM) — INITIAL & SUBSEQUENT]
+
+{{csm_testing}}
+
+CSM at initial recognition:
+- CSM = (PV of inflows - PV of outflows - RA) for non-onerous groups
+
+Subsequent measurement:
+- Opening CSM
+- Accretion of interest
+- Allocation to profit and loss reflecting services provided
+- Changes in FCF that relate to future service (adjust CSM)
+- Changes that do not relate to future service (go to P&L / OCI depending on policy)
+
+Schema:
+
+IFRS17_CSM_SCHEMA:
+  id: "<CSMxx>"
+  group_id: "<GRPxx>"
+  opening_CSM: "<numeric>"
+  interest_accretion: "<numeric>"
+  changes_future_service: "<numeric>"
+  release_to_PnL: "<numeric>"
+  other_adjustments: "<numeric>"
+  closing_CSM: "<numeric>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[9. LIABILITY FOR REMAINING COVERAGE (LRC)]
+
+{{lrc_testing}}
+
+LRC under GMM:
+- LRC = FCF related to future service + CSM
+
+LRC under PAA:
+- Similar to unearned premium reserve, adjusted for acquisition cash flows and onerous test
+
+Schema:
+
+IFRS17_LRC_SCHEMA:
+  id: "<LRCxx>"
+  group_id: "<GRPxx>"
+  measurement_model: "<GMM|PAA>"
+  opening_LRC: "<numeric>"
+  premiums_received: "<numeric>"
+  acquisition_cash_flows: "<numeric>"
+  amortization_of_acquisition_CF: "<numeric>"
+  expected_claims_for_remaining_coverage: "<numeric>"
+  CSM_component: "<numeric>"
+  closing_LRC: "<numeric>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[10. LIABILITY FOR INCURRED CLAIMS (LIC)]
+
+{{lic_testing}}
+
+LIC includes:
+- Present value of future cash flows relating to incurred claims
+- Risk adjustment associated with incurred claims
+
+Schema:
+
+IFRS17_LIC_SCHEMA:
+  id: "<LICxx>"
+  group_id: "<GRPxx>"
+  opening_LIC: "<numeric>"
+  incurred_claims_in_period: "<numeric>"
+  claims_paid: "<numeric>"
+  changes_in_estimates: "<numeric>"
+  closing_LIC: "<numeric>"
+  RA_for_incurred_claims: "<numeric>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[11. ONEROUS CONTRACTS AND LOSS COMPONENTS]
+
+{{onerous_contracts}}
+
+Tests:
+- Identification of onerous groups at initial recognition
+- Ongoing assessment of groups turning onerous
+- Establishment of loss component and allocation of subsequent changes
+
+Schema:
+
+IFRS17_ONEROUS_SCHEMA:
+  id: "<ONxx>"
+  group_id: "<GRPxx>"
+  is_onerous: "<true|false>"
+  loss_component_amount: "<numeric>"
+  recognition_date: "<date>"
+  subsequent_changes: "<numeric>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[12. REINSURANCE CONTRACTS HELD]
+
+{{reinsurance_held}}
+
+Tests:
+- Identification of reinsurance contracts held (proportional / non-proportional)
+- Measurement differences vs underlying direct contracts
+- CSM for reinsurance (can be positive even if underlying onerous)
+- Treatment of reinsurance gains/losses
+- Reconciliation to reinsurance recoveries, balances, and cash flows
+
+Schema:
+
+IFRS17_REINSURANCE_SCHEMA:
+  id: "<RExx>"
+  reinsurer_name: "<string>"
+  type: "<proportional|non_proportional|facultative|treaty>"
+  portfolio_id: "<PORTxx>"
+  group_id: "<GRPxx>"
+  reinsurance_CSM_opening: "<numeric>"
+  reinsurance_CSM_closing: "<numeric>"
+  recoveries_recognized: "<numeric>"
+  mismatch_with_underlying: "<numeric>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[13. TRANSITION AND OPENING BALANCES (IF APPLICABLE)]
+
+{{transition_opening_balances}}
+
+For first-time adoption (or new entities):
+- Transition approach used: full retrospective / modified retrospective / fair value
+- Opening CSM and FCF at transition date
+- Reconciliation from IFRS 4 / local GAAP to IFRS 17
+
+Schema:
+
+IFRS17_TRANSITION_SCHEMA:
+  id: "<TRxx>"
+  group_id: "<GRPxx>"
+  transition_method: "<full_retrospective|modified_retrospective|fair_value>"
+  opening_LRC_IFRS4: "<numeric>"
+  opening_LRC_IFRS17: "<numeric>"
+  opening_CSM_IFRS17: "<numeric>"
+  transition_adjustment_equity: "<numeric>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[14. SYSTEMS, MODELS, DATA & CONTROLS]
+
+{{systems_controls}}
+
+Tests:
+- Identify source systems (policy admin, claims, GL, actuarial engines)
+- Data lineage from source to actuarial models to GL
+- ITGC around key systems
+- Controls over assumption setting, model changes, access rights
+- Model validation / independent review
+
+Schema:
+
+IFRS17_SYSTEMS_SCHEMA:
+  id: "<SYSxx>"
+  system_name: "<string>"
+  role: "<policy_admin|claims|actuarial_engine|GL_interface>"
+  key_control_description: "<text>"
+  control_design_effective: "<true|false>"
+  control_operating_effective: "<true|false>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[15. PRESENTATION: INSURANCE REVENUE, SERVICE RESULT, FINANCE RESULT]
+
+{{presentation_PnL_OCI}}
+
+Tests:
+- Correct identification of:
+  * insurance revenue (not gross written premium)
+  * insurance service expenses (claims, RA release, acquisition costs amortization)
+  * insurance service result
+  * insurance finance income/expenses
+- Policy for recognizing financial effects in P&L vs OCI
+- Linkage to disclosures and GL
+
+Schema:
+
+IFRS17_PRESENTATION_SCHEMA:
+  id: "<PRxx>"
+  group_id: "<GRPxx>"
+  revenue_amount: "<numeric>"
+  service_expense_amount: "<numeric>"
+  insurance_service_result: "<numeric>"
+  insurance_finance_result_PnL: "<numeric>"
+  insurance_finance_result_OCI: "<numeric>"
+  policy_PnL_vs_OCI_consistent: "<true|false>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[16. DISCLOSURES — IFRS 17 (AND IFRS 7 / IFRS 9 INTERACTIONS)]
+
+{{disclosures}}
+
+Key disclosure areas:
+- Reconciliation of LRC and LIC
+- Reconciliation of CSM
+- Quantitative information on RA
+- Methods and inputs for discount rates and RA
+- Analysis of insurance service result and finance result
+- Significant judgements and changes in assumptions
+- Nature and extent of risks, including sensitivity analyses
+- Disclosures on reinsurance contracts held
+
+Schema:
+
+IFRS17_DISCLOSURE_SCHEMA:
+  id: "<DISCxx>"
+  area: "<LRC_LIC_reconciliation|CSM|RA|discount_rates|sensitivity|reinsurance|judgements|risk>"
+  disclosed: "<true|false>"
+  completeness: "<true|false>"
+  quality_comment: "<text>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[17. EXCEPTIONS SUMMARY]
+
+{{exceptions_summary}}
+
+IFRS17_EXCEPTION_SCHEMA:
+  id: "<EXCxx>"
+  group_id: "<GRPxx>"
+  area: "<scope|grouping|model|FCF|assumptions|discount|RA|CSM|LRC|LIC|onerous|reinsurance|transition|systems|presentation|disclosure>"
+  description: "<text>"
+  amount_impact: "<numeric>"
+  severity: "<Low|Medium|High>"
+  likely_misstatement: "<true|false>"
+  linked_FS_line_items: "<text>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[18. OVERALL CONCLUSION]
+
+{{conclusion}}
+
+Possible outcomes:
+1. IFRS 17 measurement for all groups is appropriate.
+2. CSM and RA reasonably reflect underlying economics.
+3. LRC / LIC and P&L / OCI presentation are correct.
+4. Reinsurance held measured and presented correctly.
+5. Disclosures meet IFRS 17 and cross-standard requirements.
+6. Exceptions identified but individually and in aggregate immaterial.
+7. Material misstatement exists (quantified in exceptions).
+8. Scope limitation or significant uncertainty (ISA 705 impact).
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[19. APPENDICES]
+
+{{appendices}}
+
+Typical appendices:
+- Portfolio & group mapping tables
+- Detailed FCF and CSM rollforwards by group
+- Assumption sets and experience studies
+- Discount rate construction memos
+- RA methodology documentation
+- Reinsurance contracts and cash flow schedules
+- Transition technical papers
+- System architecture diagrams and data lineage
+- IFRS 17 disclosure mapping to FS notes
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[END OF DOCUMENT]

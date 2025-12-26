@@ -1,0 +1,304 @@
+ID: E27_PROVISIONS_CONTINGENCIES_PROGRAM_V1
+TITLE: Provisions & Contingencies Audit Program (IAS 37)
+LANG: EN
+TYPE: TEMPLATE
+STANDARDS: IAS37, ISA500, ISA540, ISA501, ISA240
+VERSION: 1.0
+
+# PURPOSE
+#   Provide a structured audit program for:
+#   - Provisions (legal, warranties, restructuring, onerous contracts, decommissioning)
+#   - Contingent liabilities
+#   - Contingent assets
+#   - Measurement and disclosure requirements under IAS 37
+#   - Integration with Legal Letters and Subsequent Events
+
+# PLACEHOLDERS
+#   {{client_name}}
+#   {{period_end}}
+#   {{provision_types}}
+#   {{risk_assessment}}
+#   {{legal_letter_summary}}
+#   {{provision_measurement}}
+#   {{contingency_evaluation}}
+#   {{onerous_contracts}}
+#   {{warranty_analysis}}
+#   {{decommissioning_review}}
+#   {{exceptions_summary}}
+#   {{conclusion}}
+#   {{appendices}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[HEADER]
+PROVISIONS & CONTINGENCIES — IAS 37  
+Client: {{client_name}}  
+Period Ended: {{period_end}}
+
+Includes legal provisions, warranties, restructuring, environmental liabilities,
+onerous contracts, decommissioning provisions, and contingent liabilities.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[1. PROVISION TYPES]
+
+{{provision_types}}
+
+Common IAS 37 categories:
+- Legal claims / litigation  
+- Regulatory fines  
+- Warranty provisions  
+- Onerous contracts  
+- Environmental restoration / decommissioning  
+- Restructuring provisions  
+- Employee-related obligations (non-payroll)  
+- Tax-related provisions (coordination with E26)  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2. RISK ASSESSMENT — ISA 315 + ISA 540]
+
+{{risk_assessment}}
+
+Key risks:
+- Understatement of provisions (common bias)  
+- Failure to recognise a present obligation  
+- Overly optimistic management assumptions  
+- Incorrect discount rates  
+- Missing legal/dispute information  
+- Inadequate disclosures (ISA 701 KAM linkage possible)  
+
+Fraud risks (ISA 240):
+- Failure to record expected outflows  
+- Releasing provisions inappropriately to improve profit  
+- Manipulating assumptions (probability, amounts)  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[3. MACHINE-READABLE PROVISION SCHEMA]
+
+PROVISION_SCHEMA:
+  id: "<PRxx>"
+  type: "<legal|warranty|onerous_contract|restructuring|environmental|other>"
+  description: "<text>"
+  present_obligation: "<true|false>"
+  probability_of_outflow: "<probable|possible|remote>"
+  expected_outflow: "<numeric>"
+  discount_rate: "<numeric>"
+  provision_amount: "<numeric>"
+  evidence_ref: "<WP ref>"
+  linked_legal_letter: "<LLxx>"
+  linked_subsequent_event: "<SExx>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[4. LEGAL LETTERS (ISA 501 LINKAGE)**]
+
+{{legal_letter_summary}}
+
+From legal letters auditor must extract:
+- ongoing litigation  
+- probability of loss  
+- estimated amounts  
+- uncertainties  
+- changes since YE  
+
+Machine schema:
+
+LEGAL_ISSUE_SCHEMA:
+  id: "<LLxx>"
+  description: "<text>"
+  lawyer_assessment: "<probable|possible|remote>"
+  amount_estimate: "<numeric>"
+  status: "<open|closed|appeal>"
+  impact_on_provision: "<text>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[5. PROVISION MEASUREMENT TESTING (IAS 37 + ISA 540)**]
+
+{{provision_measurement}}
+
+Provisions must be measured at:
+- best estimate of outflow  
+- discounted when material  
+- risk-adjusted if applicable  
+
+Steps:
+- Inspect management calculations  
+- Recalculate models (discounting, probability weighting)  
+- Evaluate assumptions (inflation, settlement date, risk adjustments)  
+- Test completeness of claims and disputes  
+- Evaluate historical accuracy of estimates  
+- Validate legal basis for recognition of present obligation  
+
+Machine schema:
+
+MEASUREMENT_SCHEMA:
+  id: "<MEASxx>"
+  provision_id: "<PRxx>"
+  model_used: "<expected_value|most_likely|discounted>"
+  assumptions_tested: ["<assumption1>", "<assumption2>"]
+  auditor_value: "<numeric>"
+  management_value: "<numeric>"
+  variance: "<numeric>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[6. CONTINGENCY EVALUATION — CONTINGENT LIABILITIES & ASSETS]
+
+{{contingency_evaluation}}
+
+Audit categories:
+
+- **Contingent liability**  
+  *Possible* → disclose  
+  *Remote* → no disclosure  
+  *Probable but unmeasurable* → disclose  
+
+- **Contingent assets**  
+  *Recognise only when virtually certain*  
+
+Machine schema:
+
+CONTINGENCY_SCHEMA:
+  id: "<CONTxx>"
+  description: "<text>"
+  type: "<liability|asset>"
+  probability: "<possible|remote|virtually_certain>"
+  disclosure_required: "<true|false>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[7. ONEROUS CONTRACTS TESTING]
+
+{{onerous_contracts}}
+
+IAS 37 rule:
+- A contract is onerous when unavoidable costs > economic benefits.
+
+Procedures:
+- Evaluate contract terms  
+- Test estimates of unavoidable costs  
+- Review forecasts of economic benefits  
+- Inspect termination clauses  
+- Link with impairment tests (E19 / E16)  
+
+Schema:
+
+ONEROUS_SCHEMA:
+  id: "<ONxx>"
+  contract_name: "<text>"
+  unavoidable_costs: "<numeric>"
+  economic_benefits: "<numeric>"
+  onerous: "<true|false>"
+  provision_required: "<true|false>"
+  provision_amount: "<numeric>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[8. WARRANTY PROVISION TESTING]
+
+{{warranty_analysis}}
+
+Procedures:
+- Test historical claims ratio  
+- Evaluate volume/quality trends  
+- Inspect after-sales logs  
+- Test reasonableness of assumptions  
+- Evaluate changes in warranty period  
+- Recalculate provision  
+
+Schema:
+
+WARRANTY_SCHEMA:
+  id: "<WARxx>"
+  product_line: "<string>"
+  warranty_claim_history: "<numeric>"
+  expected_claims: "<numeric>"
+  provision_amount: "<numeric>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[9. DECOMMISSIONING / ENVIRONMENTAL PROVISION (IFRS & IAS 37 LINKED TO IFRS 16)**]
+
+{{decommissioning_review}}
+
+Applies when:
+- Obligation to restore site  
+- Long-term industrial assets  
+- Oil, gas, telecom, manufacturing, mining  
+
+Procedures:
+- Inspect legal/environmental obligations  
+- Review discount rates and inflation assumptions  
+- Recalculate present value of expected cost  
+- Link to PPE (E19) → adjust ROU asset and DTL if IFRS 16 relevant  
+
+Schema:
+
+DECOM_SCHEMA:
+  id: "<DECxx>"
+  asset_id: "<PPExx>"
+  estimated_cost: "<numeric>"
+  discount_rate: "<numeric>"
+  inflation_rate: "<numeric>"
+  present_value: "<numeric>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[10. EXCEPTIONS SUMMARY]
+
+{{exceptions_summary}}
+
+EXCEPTION_SCHEMA:
+  id: "<string>"
+  provision_id: "<PRxx>"
+  area: "<measurement|legal|onerous|warranty|decommissioning|classification>"
+  description: "<text>"
+  amount: "<numeric>"
+  severity: "<Low|Medium|High>"
+  linked_misstatement: "<MISID or null>"
+  impact_on_FS: "<text>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[11. INTEGRATION WITH OTHER AREAS]
+
+Links:
+- E12 Subsequent Events  
+- E11 Journal Entries  
+- E16 Estimates  
+- E19 PPE (decommissioning provisions)  
+- E26 Income Tax (tax-related provisions)  
+- E20 Cash (settlement payments)  
+- E7 ACM  
+- E8 SUD  
+- Legal Matrix (ISA 501)  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[12. OVERALL CONCLUSION]
+
+{{conclusion}}
+
+Conclusion categories:
+1. Provisions reasonable and compliant with IAS 37  
+2. Contingencies adequately disclosed  
+3. Some exceptions immaterial  
+4. Material misstatement exists  
+5. Insufficient evidence → scope limitation  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[13. APPENDICES]
+
+{{appendices}}
+
+Typical:
+- Legal letters  
+- Litigation summaries  
+- Warranty claim logs  
+- Restoration obligations  
+- Contracts and purchase commitments  
+- Management models  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[END OF DOCUMENT]

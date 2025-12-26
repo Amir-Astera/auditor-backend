@@ -1,0 +1,215 @@
+ID: E14_RELATED_PARTIES_PROGRAM_V1
+TITLE: Audit Program — Related Parties (ISA 550)
+LANG: EN
+TYPE: TEMPLATE
+STANDARDS: ISA550, ISA240, ISA315, ISA330
+VERSION: 1.0
+
+# PURPOSE
+#   Provide a complete and structured audit program for identifying, assessing,
+#   and testing related party relationships and transactions, in accordance
+#   with ISA 550 and Big4 best practices.
+
+# PLACEHOLDERS:
+#   {{client_name}}
+#   {{period_end}}
+#   {{related_party_list}}
+#   {{identified_transactions}}
+#   {{risk_assessment_summary}}
+#   {{detailed_testing_table}}
+#   {{exceptions_summary}}
+#   {{conclusion}}
+#   {{appendices}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[HEADER]
+RELATED PARTIES AUDIT PROGRAM — ISA 550  
+Client: {{client_name}}  
+Period Ended: {{period_end}}
+
+This document sets out the procedures performed in identifying and assessing related party 
+relationships and transactions, evaluating disclosures, and forming a conclusion on 
+compliance with the applicable financial reporting framework.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[1. OBJECTIVES OF THE PROCEDURES]
+
+In accordance with ISA 550, the objectives of the auditor are to:
+
+1. Identify related parties and understand the nature of the relationships.
+2. Obtain sufficient appropriate audit evidence regarding related party transactions.
+3. Determine whether related party transactions have been appropriately accounted for 
+   and disclosed in the financial statements.
+4. Identify undisclosed related parties or relationships.
+5. Evaluate whether transactions were conducted at arm’s length (when relevant).
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2. MACHINE-READABLE SCHEMA]
+
+RP_SCHEMA:
+  id: "<RPxx>"
+  name: "<entity or individual>"
+  relationship_type: "<parent|subsidiary|associate|key management|close family member|entity under common control>"
+  source_of_identification: "<management list|analytics|public records|ledger review|inquiry>"
+  completeness_flag: "<true|false>"
+  transactions:
+    - transaction_id: "<string>"
+      description: "<text>"
+      amount: "<numeric>"
+      nature: "<sale|purchase|loan|guarantee|service|other>"
+      terms: "<text>"
+      assertions: ["occurrence", "valuation", "presentation"]
+      arm_length_flag: "<true|false>"
+      evidence_reference: "<WP ref>"
+  disclosure_adequate: "<true|false>"
+  auditor_comment: "<text>"
+  fraud_risk_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[3. RISK ASSESSMENT SUMMARY (ISA 315/240)]
+
+{{risk_assessment_summary}}
+
+Topics to address:
+- Incentives for manipulation via related parties
+- Use of shell companies or entities under common control
+- Non-standard terms or conditions
+- Round-dollar or end-of-period transactions
+- Links with identified fraud risks (ISA 240)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[4. IDENTIFICATION PROCEDURES]
+
+AUDITOR PROCEDURES REQUIRED BY ISA 550:
+
+1. **Obtain management’s list of related parties**  
+   {{related_party_list}}
+
+2. **Evaluate completeness of management’s list**  
+   Methods include:
+   - Review of shareholder registry  
+   - Review of minutes of board meetings  
+   - Review of KYC documents  
+   - Search for common directors/owners across entities  
+   - Review of large or unusual transactions  
+   - Cross-check against vendor and customer master files  
+   - Review of loan agreements and guarantees  
+
+3. **Perform name-matching analytics**  
+   Examples:
+   - Fuzzy match of vendor/customer names against management list  
+   - Identification of repeated surnames  
+   - Identification of addresses or phone numbers shared with management  
+
+4. **Review of GL for unusual related-party indicators**  
+   - Accounts with "related", "interco", "affiliate", "director", "loan to/from"  
+   - Manual journal entries affecting related-party accounts (link to E11)  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[5. IDENTIFIED RELATED PARTY TRANSACTIONS]
+
+{{identified_transactions}}
+
+Recommended table:
+
+# | RP ID | Transaction ID | Nature | Amount | Terms | Rationale | Evidence | Arm’s Length? | Assertions | Risk Level |
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[6. TESTING PROCEDURES (ISA 550 REQUIREMENTS)]
+
+TESTING MATRIX:
+
+1. **Existence / Occurrence**
+   - Trace transactions to supporting documentation  
+   - Inspect contracts, agreements, loan documents  
+   - Confirm balances with related entities (if appropriate)
+
+2. **Valuation**
+   - Agree amounts to invoices, statements, repayment schedules  
+   - For loans: recalculate interest  
+   - Evaluate fairness of valuation inputs
+
+3. **Arm’s Length Assessment**
+   - Compare terms to market-based pricing  
+   - Check whether similar deals exist with non-related parties  
+   - Identify preferential or punitive terms
+
+4. **Presentation & Disclosure**
+   - Compare disclosures to IFRS/GAAP requirements  
+   - Evaluate completeness and accuracy of related party note  
+   - Assess consistency with entity’s list and accounting records  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[7. DETAILED TESTING TABLE]
+
+{{detailed_testing_table}}
+
+Recommended format:
+
+# | Ref | RP | Transaction | Assertions Tested | Procedures | Evidence | Exceptions | Arm’s Length? |
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[8. EXCEPTIONS SUMMARY]
+
+{{exceptions_summary}}
+
+Schema for exceptions:
+
+EXCEPTION_SCHEMA:
+  id: "<string>"
+  rp_id: "<RPxx>"
+  transaction_id: "<string>"
+  description: "<text>"
+  amount: "<numeric>"
+  non_arm_length: "<true|false>"
+  disclosure_issue: "<true|false>"
+  fraud_indicator: "<true|false>"
+  impact_on_FS: "<text>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[9. FRAUD-RELATED PROCEDURES (ISA 240 LINKAGE)]
+
+Mandatory fraud evaluation items:
+- Whether any related parties are undisclosed  
+- Whether transactions lack commercial rationale  
+- Whether transactions seem designed to manipulate results  
+- Whether related parties used for round-trip transactions  
+- Whether significant adjustments affect related party accounts  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[10. EVALUATION OF DISCLOSURE ADEQUACY]
+
+Criteria:
+- Completeness of relationships listed  
+- Completeness of transaction disclosures  
+- Accuracy of balances and terms  
+- Compliance with IFRS (IAS 24)  
+- Whether any material undisclosed related parties remain  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[11. OVERALL CONCLUSION]
+
+Conclusion on related parties:
+{{conclusion}}
+
+Include:
+- Whether disclosures are complete  
+- Whether any related party is undisclosed  
+- Whether any transaction is not at arm’s length  
+- Whether any misstatements were identified (link to SUD — E8)  
+- Impact on opinion (ISA 700–706)  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[12. APPENDICES]
+
+{{appendices}}
+
+Suggested appendices:
+- List of all RP identifiers  
+- Name-matching analytics output  
+- Confirmation letters (if applicable)  
+- Extracts of JE testing related to related parties  
+- Flowchart of identification procedures  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[END OF DOCUMENT]

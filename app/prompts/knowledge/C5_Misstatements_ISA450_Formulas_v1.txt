@@ -1,0 +1,42 @@
+ID: C5_MISSTATEMENTS_FORMULAS_V1
+TITLE: Misstatements & SUD Logic (ISA 450)
+LANG: EN
+TYPE: FORMULAS
+STANDARDS: ISA450
+VERSION: 1.0
+
+# TYPES
+MISSTATEMENT_TYPE:
+  - factual
+  - judgmental
+  - projected
+
+# AGGREGATION LOGIC (high-level)
+FORMULA:
+  name: total_unadjusted_misstatements
+  expression: "SUM(amount WHERE is_adjusted = false)"
+
+FORMULA:
+  name: projected_misstatement
+  description: "for sampling-based tests"
+  expression: "sample_error_rate * population_value"
+
+FORMULA:
+  name: compare_to_PM
+  description: "decision rule vs Performance Materiality (PM)"
+  expression: |
+    IF total_unadjusted_misstatements > PM:
+        flag = "Above_PM"
+    ELSE IF total_unadjusted_misstatements > 0.8 * PM:
+        flag = "Close_to_PM"
+    ELSE:
+        flag = "Below_PM"
+
+# SUD OUTPUT FIELDS (G2.11)
+FIELDS_G2_11:
+  - project_id
+  - area
+  - type
+  - amount
+  - is_adjusted
+  - rationale

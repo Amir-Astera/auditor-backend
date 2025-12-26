@@ -1,0 +1,42 @@
+ID: B6_GOING_CONCERN_INDICATORS_V1
+TITLE: Going Concern Indicators (ISA 570)
+LANG: EN
+TYPE: CHECKLIST_LIBRARY
+STANDARDS: ISA570
+VERSION: 1.0
+
+# CATEGORIES: Financial, Operating, Other
+
+INDICATOR:
+  id: GC_FIN01
+  category: Financial
+  description: "Net liability or net current liability position."
+
+INDICATOR:
+  id: GC_FIN02
+  category: Financial
+  description: "Negative operating cash flows and recurring losses."
+
+INDICATOR:
+  id: GC_OP01
+  category: Operating
+  description: "Loss of key market, customer or supplier."
+
+INDICATOR:
+  id: GC_OP02
+  category: Operating
+  description: "Labour difficulties, strikes, or shortage of key staff."
+
+INDICATOR:
+  id: GC_OTHER01
+  category: Other
+  description: "Legal proceedings that may threaten the entity's ability to continue."
+
+# OUTPUT FIELDS EXAMPLE
+OUTPUT_TEMPLATE:
+  {
+    "indicator_id": "<id>",
+    "present": true,
+    "evidence_reference": "<WP ref>",
+    "management_assessment_obtained": true
+  }

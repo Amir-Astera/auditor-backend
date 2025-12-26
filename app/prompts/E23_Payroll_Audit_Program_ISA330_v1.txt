@@ -1,0 +1,309 @@
+ID: E23_PAYROLL_PROGRAM_V1
+TITLE: Payroll & HR Audit Program (ISA 330)
+LANG: EN
+TYPE: TEMPLATE
+STANDARDS: ISA330, ISA500, ISA240, IAS19 (limited), HR legislation (jurisdiction-specific)
+VERSION: 1.0
+
+# PURPOSE
+#   Provide a Big4-level audit program for payroll processes, salary calculations,
+#   HR master data, employee existence testing, tax/social contributions, and fraud risks.
+
+# PLACEHOLDERS
+#   {{client_name}}
+#   {{period_end}}
+#   {{payroll_population}}
+#   {{risk_assessment}}
+#   {{controls_testing}}
+#   {{analytics}}
+#   {{employee_existence}}
+#   {{salary_recalculation}}
+#   {{bonuses_and_allowances}}
+#   {{terminations_and_hires}}
+#   {{taxes_and_contributions}}
+#   {{je_testing_link}}
+#   {{exceptions_summary}}
+#   {{conclusion}}
+#   {{appendices}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[HEADER]
+PAYROLL & HR AUDIT PROGRAM — ISA 330  
+Client: {{client_name}}  
+Period Ended: {{period_end}}
+
+Payroll is one of the highest OPEX categories.  
+Major risks: existence of employees, accuracy of payments, fraud through ghost employees.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[1. PAYROLL POPULATION]
+
+{{payroll_population}}
+
+Include:
+- Full-time employees  
+- Part-time employees  
+- Contractors (if payroll-processed)  
+- Bonus & incentive programs  
+- Overtime  
+- Allowances (transportation, meals, housing, hardship)  
+- Terminated staff in period  
+- New hires  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2. RISK ASSESSMENT — ISA 315 + ISA 240]
+
+{{risk_assessment}}
+
+Typical payroll risks:
+- **Ghost employees** (fraud — ISA 240)  
+- Incorrect salary rates  
+- Unauthorized changes to HR master data  
+- Incorrect accrual of bonuses/leave  
+- Incorrect payroll taxes and contributions  
+- Duplicate or manual payments  
+- Backdated terminations  
+
+Fraud red flags:
+- Payroll manager with system admin rights  
+- Payments to unknown bank accounts  
+- Salary increases without approval  
+- Split payments (salary divided across accounts)  
+- Employees without contracts  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[3. MACHINE-READY PAYROLL SCHEMA]
+
+PAYROLL_SCHEMA:
+  id: "<PAYxx>"
+  employee_id: "<string>"
+  full_name: "<text>"
+  position: "<text>"
+  salary_rate: "<numeric>"
+  bonuses: "<numeric>"
+  allowances: "<numeric>"
+  overtime_hours: "<numeric>"
+  gross_salary: "<numeric>"
+  taxes_withheld: "<numeric>"
+  net_pay: "<numeric>"
+  bank_account: "<string>"
+  active_status: "<active|terminated>"
+  hire_date: "<date>"
+  termination_date: "<date or null>"
+  support_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[4. PAYROLL CONTROLS TESTING]
+
+{{controls_testing}}
+
+Key controls:
+- authorized HR master data changes  
+- segregation of duties (HR vs Payroll vs Finance)  
+- restricted access to payroll system  
+- approval workflow for salary changes  
+- approved bonus and overtime policies  
+- reconciliation of payroll register to GL and bank  
+
+If controls rely upon IT:
+- access rights  
+- change logs  
+- segregation of admin roles  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[5. ANALYTICAL PROCEDURES]
+
+{{analytics}}
+
+Procedures:
+- Compare headcount month-to-month  
+- Compare salary expense trends  
+- Identify unusual spikes (bonuses, overtime)  
+- Compare average salary by department  
+- Review ratio: payroll expense / revenue  
+- Identify negative payroll figures  
+- Investigate employees with round-number salaries  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[6. EMPLOYEE EXISTENCE TESTING (ANTI-FRAUD)**]
+
+{{employee_existence}}
+
+Procedures:
+- Obtain HR master data  
+- Verify selected employees:
+  * employment contracts  
+  * ID/passport  
+  * personnel file  
+  * attendance / timesheets  
+  * physical existence (site visit if needed)  
+- Verify termination:
+  * termination order  
+  * final settlement  
+  * removal from payroll system  
+
+Schema:
+
+EMPLOYEE_EXISTENCE_SCHEMA:
+  id: "<EXISTxx>"
+  employee_id: "<string>"
+  verified: "<true|false>"
+  verification_method: "<documents|interview|site visit>"
+  discrepancies: "<text>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[7. SALARY RECALCULATION TESTING]
+
+{{salary_recalculation}}
+
+Procedures:
+- Recalculate gross salary:
+  * base salary  
+  * overtime → check authorization  
+  * allowances  
+- Verify salary rate to employment contract  
+- Check retroactive salary increases  
+- Verify paid days vs worked days  
+
+Schema:
+
+SALARY_TEST_SCHEMA:
+  id: "<SALxx>"
+  employee_id: "<string>"
+  contract_salary: "<numeric>"
+  payroll_salary: "<numeric>"
+  variance: "<numeric>"
+  justification: "<text>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[8. BONUSES, ALLOWANCES & OVERTIME TESTING]
+
+{{bonuses_and_allowances}}
+
+Procedures:
+- Recalculate bonus accrual based on policy  
+- Verify approvals by management  
+- For allowances:
+  * transportation/housing allowances require supporting docs  
+- For overtime:
+  * verify authorization  
+  * verify hours against timekeeping system  
+
+Schema:
+
+BONUS_SCHEMA:
+  id: "<BONxx>"
+  employee_id: "<string>"
+  bonus_policy_applied: "<true|false>"
+  amount: "<numeric>"
+  approval_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[9. TERMINATIONS & NEW HIRES TESTING]
+
+{{terminations_and_hires}}
+
+Procedures for terminations:
+- Check final settlement  
+- Ensure removal from payroll from correct date  
+- Check for post-termination payments  
+
+Procedures for hires:
+- Verify contract, approved rate  
+- Verify onboarding documentation  
+- Check correct effective date  
+
+Schema:
+
+HR_EVENT_SCHEMA:
+  id: "<HRxx>"
+  employee_id: "<string>"
+  event: "<hire|termination>"
+  event_date: "<date>"
+  documentation_ok: "<true|false>"
+  payroll_effective_date: "<date>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[10. TAXES & SOCIAL CONTRIBUTIONS TESTING]
+
+{{taxes_and_contributions}}
+
+Procedures:
+- Recalculate PIT (personal income tax)  
+- Recalculate employer contributions  
+- Review tax tables used  
+- Check timely submission of payroll tax returns  
+- Trace payments to bank statements  
+
+Schema:
+
+PAYROLL_TAX_SCHEMA:
+  id: "<TAXxx>"
+  employee_id: "<string>"
+  tax_calculated: "<numeric>"
+  tax_per_payroll: "<numeric>"
+  variance: "<numeric>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[11. JOURNAL ENTRY TESTING LINKAGE (ISA 240)]
+
+{{je_testing_link}}
+
+Risks:
+- Manual payroll accruals  
+- Reclassification entries  
+- Ghost employee payments  
+- Unauthorized bonus postings  
+
+Reference: E11_JETE_Journal_Entries
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[12. EXCEPTIONS SUMMARY]
+
+{{exceptions_summary}}
+
+EXCEPTION_SCHEMA:
+  id: "<string>"
+  employee_id: "<string>"
+  type: "<salary_error|tax_error|bonus_issue|existence_issue|fraud_indicator>"
+  description: "<text>"
+  amount: "<numeric>"
+  severity: "<Low|Medium|High>"
+  linked_misstatement: "<MISID or null>"
+  impact_on_FS: "<text>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[13. OVERALL CONCLUSION]
+
+{{conclusion}}
+
+Conclusion categories:
+1. Payroll complete and accurate  
+2. HR master data correct  
+3. Taxes and contributions accurate  
+4. Misstatements identified but not material  
+5. Material misstatement exists  
+6. Insufficient evidence → possible scope limitation  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[14. APPENDICES]
+
+{{appendices}}
+
+Typical:
+- Payroll register  
+- HR master data  
+- Contracts and termination letters  
+- Tax calculation sheets  
+- Timekeeping records  
+- Bonus approvals  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[END OF DOCUMENT]

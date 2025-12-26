@@ -26,7 +26,7 @@ def _create_engine():
 
     try:
         return create_engine(
-            settings.DATABASE_URL,
+            str(settings.DATABASE_URL),
             pool_pre_ping=True,
             connect_args={"client_encoding": "utf8"},
         )

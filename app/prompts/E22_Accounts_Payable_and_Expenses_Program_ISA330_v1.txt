@@ -1,0 +1,255 @@
+ID: E22_AP_EXPENSES_PROGRAM_V1
+TITLE: Accounts Payable & Expenses Audit Program (ISA 330)
+LANG: EN
+TYPE: TEMPLATE
+STANDARDS: ISA330, ISA500, ISA240, ISA315
+VERSION: 1.0
+
+# PURPOSE
+#   Provide a structured, machine-readable audit program for Accounts Payable (AP),
+#   operating expenses, cut-off, and unrecorded liabilities testing in accordance
+#   with ISA 330 and best Big4 practices.
+
+# PLACEHOLDERS
+#   {{client_name}}
+#   {{period_end}}
+#   {{ap_population}}
+#   {{risk_assessment}}
+#   {{cutoff_testing}}
+#   {{surl_procedures}}
+#   {{expense_testing}}
+#   {{vendor_confirmations}}
+#   {{je_testing_link}}
+#   {{exceptions_summary}}
+#   {{conclusion}}
+#   {{appendices}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[HEADER]
+ACCOUNTS PAYABLE & EXPENSES AUDIT PROGRAM — ISA 330  
+Client: {{client_name}}  
+Period Ended: {{period_end}}
+
+Main risk: **Completeness** (unrecorded liabilities).  
+High fraud sensitivity under ISA 240.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[1. AP POPULATION & STRUCTURE]
+
+{{ap_population}}
+
+Breakdown:
+- Trade payables  
+- Accrued expenses  
+- GRNI (Goods Received Not Invoiced)  
+- Related party payables  
+- Long-outstanding balances  
+- Credit notes payable  
+- Expense categories (OPEX components)  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2. RISK ASSESSMENT — ISA 315 + ISA 240]
+
+{{risk_assessment}}
+
+Key AP risks:
+- **Completeness** of liabilities (major risk)  
+- Cut-off errors  
+- Accruals understated  
+- Fictitious vendors (fraud)  
+- Manual override of payments or AP entries  
+- Unrecorded GRNI  
+- Incorrect expense classification (CAPEX vs OPEX)  
+
+Fraud red flags:
+- New or unusual vendors  
+- Duplicate bank accounts  
+- Last-minute manual JEs (E11 linkage)  
+- Round-number invoices  
+- Related-party schemes  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[3. MACHINE-READABLE AP SCHEMA]
+
+AP_ITEM_SCHEMA:
+  id: "<APxx>"
+  vendor: "<string>"
+  invoice_no: "<string>"
+  invoice_date: "<date>"
+  posting_date: "<date>"
+  due_date: "<date>"
+  amount: "<numeric>"
+  grni_related: "<true|false>"
+  accrued_liability: "<true|false>"
+  support_ref: "<WP ref>"
+  completeness_issue: "<true|false>"
+  classification_issue: "<true|false>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[4. CUT-OFF TESTING (MANDATORY)]
+
+{{cutoff_testing}}
+
+Procedures:
+- Select receipts of goods/services around YE  
+- Match:
+  * PO → GRN → invoice → AP posting  
+- Inspect goods received **before** YE but invoiced **after** YE  
+- Trace payments after YE to invoices (identify unrecorded items)  
+
+Machine schema:
+
+AP_CUTOFF_SCHEMA:
+  id: "<COxx>"
+  vendor: "<string>"
+  po: "<string>"
+  grn_date: "<date>"
+  invoice_date: "<date>"
+  posting_date: "<date>"
+  correct_period: "<true|false>"
+  difference_amount: "<numeric>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[5. SEARCH FOR UNRECORDED LIABILITIES (SURL) — KEY BIG4 TEST]
+
+{{surl_procedures}}
+
+Mandatory SURL steps:
+- Examine cash disbursements 30–60 days after YE  
+- Match payments to underlying invoices  
+- Identify invoices relating to pre-year-end services  
+- Review unmatched GRNs  
+- Review unpaid vendor statements  
+- Enquire with management about unrecorded obligations  
+- Review legal letters (link to ISA 501 matrix)
+
+Machine schema:
+
+SURL_SCHEMA:
+  id: "<SURLxx>"
+  payment_date: "<date>"
+  amount_paid: "<numeric>"
+  underlying_invoice_date: "<date>"
+  service_period: "<pre-YE|post-YE>"
+  unrecorded_liability: "<true|false>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[6. EXPENSE TESTING (OPEX / CAPEX SPLIT)]
+
+{{expense_testing}}
+
+Procedures:
+- Vouch expenses to invoices, contracts, approvals  
+- Evaluate business purpose  
+- Ensure correct period recognition  
+- Identify duplicate payments  
+- Evaluate classification:
+  * capital vs operating  
+  * repairs vs improvements  
+
+Schema:
+
+EXPENSE_TEST_SCHEMA:
+  id: "<EXPxx>"
+  vendor: "<string>"
+  description: "<text>"
+  amount: "<numeric>"
+  support_ok: "<true|false>"
+  classification_ok: "<true|false>"
+  correct_period: "<true|false>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[7. OPTIONAL VENDOR CONFIRMATIONS (ISA 505)]  
+*(Used when completeness risk is high or vendor statements available)*
+
+{{vendor_confirmations}}
+
+Schema:
+
+VENDOR_CONFIRMATION_SCHEMA:
+  id: "<VCxx>"
+  vendor: "<string>"
+  balance_per_client: "<numeric>"
+  balance_per_vendor: "<numeric>"
+  difference: "<numeric>"
+  vendor_comment: "<text>"
+  confirmation_received: "<true|false>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[8. JOURNAL ENTRY TESTING LINKAGE (ISA 240)]
+
+{{je_testing_link}}
+
+Focus:
+- Manual accruals & reversals at YE  
+- Round-number accruals  
+- JE to expense accounts without documentation  
+- Reclassification JE (OPEX → CAPEX or vice versa)  
+- Backdated invoices  
+
+Reference: E11_JETE_Journal_Entries
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[9. DETAILED TESTING TABLE]
+
+# | Ref | Vendor | Invoice | Amount | Cutoff OK? | SURL Issue? | Classification | Exception? |
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[10. EXCEPTIONS SUMMARY]
+
+{{exceptions_summary}}
+
+EXCEPTION_SCHEMA:
+  id: "<string>"
+  ap_id: "<APxx>"
+  description: "<text>"
+  type: "<cutoff_error|unrecorded_liability|classification_error|unsupported_expense|fraud_indicator>"
+  amount: "<numeric>"
+  severity: "<Low|Medium|High>"
+  linked_misstatement: "<MISID or null>"
+  impact_on_FS: "<text>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[11. INTEGRATION WITH OTHER AREAS]
+
+Links:
+- E11 Journal Entries  
+- E18 Revenue Testing  
+- E20 Cash & Bank (subsequent payments)  
+- E17 Inventory (GRN linkage)  
+- E8 SUD (misstatements)  
+- E7 ACM (AP/Expenses section)  
+- Legal Matrix (ISA 501)  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[12. OVERALL CONCLUSION]
+
+{{conclusion}}
+
+Conclusion categories:
+1. AP complete and fairly stated  
+2. Expenses properly recorded and classified  
+3. Some exceptions identified but not material  
+4. Material misstatement exists (completeness issue)  
+5. Insufficient evidence → scope limitation  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[13. APPENDICES]
+
+{{appendices}}
+
+Including:
+- Vendor statements  
+- Payment listings  
+- Unmatched GRNs  
+- Expense invoices  
+- SURL workbook  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[END OF DOCUMENT]

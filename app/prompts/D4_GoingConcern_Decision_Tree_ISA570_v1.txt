@@ -1,0 +1,47 @@
+ID: D4_GOING_CONCERN_TREE_V1
+TITLE: Going Concern Decision Tree
+LANG: EN
+TYPE: DECISION_TREE
+STANDARDS: ISA570
+VERSION: 1.0
+
+# INPUTS:
+#   indicators_present (true/false)
+#   management_assessment_prepared (true/false)
+#   material_uncertainty_exists (true/false)
+#   disclosure_adequate (true/false)
+
+NODE G1
+QUESTION: "Are there significant going concern indicators?"
+YES: G2
+NO: OUTCOME_NO_GC_ISSUE
+
+NODE G2
+QUESTION: "Has management prepared a formal going concern assessment?"
+YES: G3
+NO: OUTCOME_SCOPE_LIMITATION_OR_DEFICIENCY
+
+NODE G3
+QUESTION: "Does management's assessment indicate a material uncertainty?"
+YES: G4
+NO: OUTCOME_NO_MATERIAL_UNCERTAINTY
+
+NODE G4
+QUESTION: "Is the disclosure in the financial statements adequate and transparent?"
+YES: OUTCOME_MATERIAL_UNCERTAINTY_DISCLOSED
+NO: OUTCOME_INADEQUATE_DISCLOSURE
+
+OUTCOME_NO_GC_ISSUE:
+  result: "No material going concern issue identified."
+
+OUTCOME_SCOPE_LIMITATION_OR_DEFICIENCY:
+  result: "Need additional procedures; potential scope limitation or control deficiency."
+
+OUTCOME_NO_MATERIAL_UNCERTAINTY:
+  result: "No material uncertainty; consider EOM only if disclosure is made voluntarily."
+
+OUTCOME_MATERIAL_UNCERTAINTY_DISCLOSED:
+  result: "Material uncertainty appropriately disclosed; EOM paragraph required."
+
+OUTCOME_INADEQUATE_DISCLOSURE:
+  result: "Material misstatement; consider Qualified or Adverse opinion."

@@ -1,0 +1,44 @@
+ID: D2_ACCEPTANCE_CONTINUANCE_TREE_V1
+TITLE: Acceptance & Continuance Decision Tree
+LANG: EN
+TYPE: DECISION_TREE
+STANDARDS: ISQM1, ISA220, ISA210
+VERSION: 1.0
+
+# NODE FORMAT:
+#   NODE <id>
+#     QUESTION: ...
+#     YES: <next_node or outcome>
+#     NO: <next_node or outcome>
+
+NODE A1
+QUESTION: "Are independence threats identified that cannot be eliminated or reduced to an acceptable level?"
+YES: OUTCOME_REJECT
+NO: A2
+
+NODE A2
+QUESTION: "Are there serious concerns about management integrity (e.g., suspected fraud, non-compliance, reputation)?"
+YES: OUTCOME_ESCALATE_PARTNER
+NO: A3
+
+NODE A3
+QUESTION: "Does the firm have adequate competence and resources in the relevant industry and jurisdiction?"
+YES: A4
+NO: OUTCOME_REJECT_OR_PARTNER_DECISION
+
+NODE A4
+QUESTION: "Have preconditions for an audit (ISA 210) been agreed with management?"
+YES: OUTCOME_ACCEPT
+NO: OUTCOME_REJECT
+
+OUTCOME_ACCEPT:
+  decision: "ACCEPT_ENGAGEMENT"
+
+OUTCOME_REJECT:
+  decision: "REJECT_ENGAGEMENT"
+
+OUTCOME_ESCALATE_PARTNER:
+  decision: "ESCALATE_FOR_PARTNER_REVIEW"
+
+OUTCOME_REJECT_OR_PARTNER_DECISION:
+  decision: "PARTNER_TO_DECIDE_DUE_TO_RESOURCE_LIMITS"

@@ -1,0 +1,143 @@
+File: 07_Legal_Matrix_ISA560_501_v1.txt  
+Author: Igor Tilepin  
+Trusted Source: TRI-S-AUDIT  
+
+─────────────────────────────────────────────
+DOCUMENT: LEGAL MATRIX (ISA 560 / ISA 501)
+
+Purpose
+-------
+The Legal Matrix is the auditor’s structured register and decision framework for managing all legal and regulatory matters that may affect financial statements. It ensures complete identification, evaluation, documentation, and reporting of:
+- Litigation & claims (asserted/unasserted)
+- Regulatory investigations, fines, sanctions
+- Contract disputes, guarantees, penalties
+- Compliance breaches / NOCLAR
+- Subsequent events (ISA 560)
+
+Relevant Standards:
+- ISA 501 (Audit Evidence – Litigation and Claims)
+- ISA 560 (Subsequent Events)
+- ISA 250 (Consideration of Laws and Regulations)
+- ISA 580 (Written Representations)
+- ISA 240 / ISA 330 (fraud, risk responses)
+- IFRS: IAS 37 (Provisions, Contingent Liabilities and Contingent Assets), IAS 10 (Events after the Reporting Period)
+
+─────────────────────────────────────────────
+Identification Channels
+-----------------------
+- Management inquiry and in-house legal department
+- External counsel letter (lawyer’s letter)
+- Board of Directors and Audit Committee minutes
+- General ledger scan of legal/professional fees
+- Correspondence with regulators, tax authorities, plaintiffs
+- Complaints register
+- Public domain: press releases, regulator websites
+
+─────────────────────────────────────────────
+Decision Rules (IAS 37 / IAS 10)
+--------------------------------
+- Probable → Provision (recognise liability in FS)
+- Possible → Contingent liability disclosure only
+- Remote → No disclosure required
+- Adjusting event (IAS 10): condition existed at reporting date → adjust FS
+- Non-adjusting event: condition arose after reporting date → disclose only
+- Refusal to provide lawyer’s letter or mgmt limitation → consider scope limitation (ISA 705)
+
+─────────────────────────────────────────────
+Table Template: Legal Matters Register
+--------------------------------------
+
+| ID   | Title / Counterparty | Type (Litigation / Regulatory / Contract / NOCLAR / Subsequent) | Period Impacted | Assertions @Risk (E, C, R&O, V, P) | Risk Level | Probability | Financial Impact (Range / Best est.) | IFRS Ref. (IAS 37 / IAS 10) | Required FS Action (Provision / Disclosure / None) | Evidence Required | ISA References | Owner (Client / Audit) | Due Date | Status | Through-date (ISA 560) | Linkages (KAM / Forensic / Rep Letter) |
+
+Example Entries:
+
+| L-01 | Claim by Supplier X | Litigation | FY2025 | Valuation, R&O | High | Probable | 1.2m – 1.5m USD | IAS 37 | Provision | Counsel letter, GL scan, BoD minutes | 501, 580 | CFO / Audit Sr. | 15 Mar 2026 | Open | 10 Apr 2026 | KAM=Yes / Forensic=No / Rep Letter=Yes |
+| L-02 | Draft fine by Regulator Y | Regulatory | FY2025 | Completeness, Presentation | Medium | Possible | est. 0.8m USD | IAS 37, IAS 10 | Disclosure | Regulator notice, mgmt inquiry | 250, 560 | Compliance Officer | 20 Mar 2026 | Open | 10 Apr 2026 | KAM=No / Forensic=Yes / Rep Letter=Yes |
+
+
+Section: Purpose
+- Define scope: litigation, claims, regulatory, NOCLAR, subsequent events
+- Standards: ISA 501, ISA 560, ISA 250, ISA 580, ISA 240/330; IFRS: IAS 37, IAS 10
+
+Section: Identification Channels
+- Management & in-house legal inquiry
+- External counsel letter (lawyer’s letter)
+- BoD minutes, AC minutes
+- Legal expense GL scan, correspondence with regulators, complaints register
+- Press/regulatory releases monitoring
+
+Section: Decision Rules (IAS 37 / IAS 10)
+- Probability matrix and disclosure triggers
+- Adjusting vs non-adjusting events logic
+- Escalation & reporting (KAM candidates)
+
+Table: Legal Matters Register (one line per matter)
+- ID
+- Matter Title / Counterparty
+- Type (Litigation / Claim / Regulatory / Contract Dispute / NOCLAR / Subsequent)
+- Period Impacted (FS line items & notes)
+- Assertions @Risk (Existence/Completeness/R&O/Valuation/Presentation)
+- Risk Level (H/M/L) and Materiality Link
+- Probability (Probable/Possible/Remote)
+- Financial Impact (Range/Best estimate) — currency
+- IFRS Reference (IAS 37 / IAS 10 decision)
+- Required FS Action (Provision / Contingent disclosure / None)
+- Evidence Required (ext. counsel letter; mgmt rep; minutes; GL; contracts)
+- ISA References (501§9-12; 560; 250; 580; 240/330)
+- Owner (Client legal/CFO) | Audit Owner | Due Date
+- Status (Open/Closed) | Last Updated | Through-date (ISA 560)
+- Linkages (KAM? Y/N; Forensic flags? Y/N; Rep letter para)
+
+Procedures Checklist (per matter)
+- Planned Procedures
+- Performed & Evidence obtained (cross-refs to WP)
+- Findings & Conclusion
+- Reviewer notes / Partner sign-off
+
+Section: Reporting & Bring-Down
+- Update cadence to report date; bring-down inquiry to counsel
+- Final tie-out to notes disclosure & opinion impacts
+
+
+─────────────────────────────────────────────
+Procedures Checklist (Per Matter)
+---------------------------------
+- Identify and record matter in register
+- Obtain external counsel letter and reconcile to mgmt assertions
+- Review minutes, GL accounts, correspondence
+- Evaluate probability and financial impact
+- Apply IAS 37 and IAS 10 decision rules
+- Determine required FS action
+- Cross-reference to evidence obtained (work papers)
+- Document findings and conclusion
+- Partner review and sign-off
+
+─────────────────────────────────────────────
+Reporting & Bring-Down
+----------------------
+- Continuous update of register through audit
+- Final update through report date
+- Bring-down inquiry to legal counsel before signing audit report
+- Tie-out matrix to financial statement notes and disclosures
+- Escalate unresolved or material issues as:
+  - Key Audit Matters (ISA 701)
+  - Basis for modified opinion (ISA 705)
+  - Emphasis of Matter (ISA 706)
+
+─────────────────────────────────────────────
+Linkages with Other Working Papers
+----------------------------------
+- 08_PBC_Master_List: requests for legal letters, BoD minutes, claims register
+- 10_Management_Rep_Full_ISA580: representations on litigation, claims, subsequent events
+- 12_KAM_Skeletons_ISA701: templates if legal risks are material
+- 13_Forensic_RedFlags: escalation triggers (hidden agreements, side letters)
+- tri_s_audit_audit_templates: lawyer’s letter templates and FS disclosure samples
+- 05_Materiality_Playbook: thresholds for recognition and disclosure
+
+─────────────────────────────────────────────
+Summary
+-------
+The Legal Matrix is a **central audit tool** to monitor legal exposures, ensure compliance with ISA/IFRS, and connect evidence, probability assessment, and reporting implications. It creates audit traceability from identification to opinion impact.
+
+─────────────────────────────────────────────
+END OF DOCUMENT

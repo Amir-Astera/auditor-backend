@@ -1,0 +1,230 @@
+ID: E9_AUDIT_PLANNING_MEMO_V1
+TITLE: Audit Planning Memorandum (APM)
+LANG: EN
+TYPE: TEMPLATE
+STANDARDS: ISA300, ISA315, ISA330, ISA240
+VERSION: 1.0
+
+# PURPOSE
+#   Summarise audit strategy, scoping decisions, understanding of the entity,
+#   materiality, significant risks, resource plan, and key milestones
+#   as required by ISA 300 and ISA 315.
+
+# PLACEHOLDERS:
+#   {{client_name}}
+#   {{period_end}}
+#   {{engagement_partner}}
+#   {{manager}}
+#   {{team_structure}}
+#   {{overall_materiality}}
+#   {{performance_materiality}}
+#   {{component_materiality}}
+#   {{business_overview}}
+#   {{industry_analysis}}
+#   {{key_processes}}
+#   {{it_environment}}
+#   {{control_environment}}
+#   {{significant_risks}}
+#   {{other_risks}}
+#   {{fraud_risks}}
+#   {{planned_responses}}
+#   {{scope_summary}}
+#   {{locations_and_components}}
+#   {{timeline}}
+#   {{pbc_plan}}
+#   {{reliance_on_controls}}
+#   {{specialists_involved}}
+#   {{independence_confirmation}}
+#   {{appendices}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[HEADER]
+AUDIT PLANNING MEMORANDUM (APM)
+Client: {{client_name}}
+Period Ended: {{period_end}}
+Engagement Partner: {{engagement_partner}}
+Manager: {{manager}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[1. OBJECTIVES OF THE AUDIT (ISA 200)]
+This memorandum summarises the audit strategy and plan for {{client_name}} for the year 
+ended {{period_end}}, prepared in accordance with ISA 300. It integrates the understanding 
+of the entity (ISA 315), significant risks, materiality, and planned audit responses (ISA 330).
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2. TEAM STRUCTURE & RESPONSIBILITIES]
+Team structure:
+{{team_structure}}
+
+# Recommended structure:
+# - Engagement Partner
+# - Manager
+# - Seniors / Associates
+# - IT Auditor
+# - Actuarial / Valuation / Tax Specialists (if applicable)
+
+Responsibilities:
+- Partner: overall audit strategy, risk evaluation, key decisions
+- Manager: execution oversight, review, coaching
+- Senior: fieldwork coordination
+- Specialists: high-risk areas (valuation, ITGC, legal)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[3. MATERIALITY (ISA 320)]
+Overall Materiality (OM): {{overall_materiality}}  
+Performance Materiality (PM): {{performance_materiality}}  
+Component Materiality (if group): {{component_materiality}}
+
+Basis for OM:
+- Examples: 5%–7% PBT, 1%–2% Revenue, 1%–2% Total Assets  
+Rationale:
+- {{materiality_rationale}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[4. UNDERSTANDING THE ENTITY (ISA 315)]
+[BUSINESS OVERVIEW]
+{{business_overview}}
+
+[INDUSTRY ANALYSIS]
+{{industry_analysis}}
+
+[KEY BUSINESS PROCESSES]
+{{key_processes}}
+
+[IT ENVIRONMENT]
+{{it_environment}}
+
+[CONTROL ENVIRONMENT]
+{{control_environment}}
+
+# Machine-friendly block:
+UNDERSTANDING_SCHEMA:
+  industry: "<string>"
+  business_model: "<text>"
+  key_processes: ["sales", "procurement", "inventory", "payroll", "..."]
+  it_systems: "<text>"
+  control_environment: "<strong/weak/mixed>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[5. FRAUD CONSIDERATIONS (ISA 240)]
+FRAUD_RISKS:
+{{fraud_risks}}
+
+Mandatory fraud components:
+- Management override (journal entries, estimates bias, unusual transactions)
+- Revenue recognition (presumed fraud risk)
+- Fraud inquiries with management and TCWG
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[6. SIGNIFICANT RISKS (ISA 315/330)]
+The following risks have been assessed as significant due to inherent risk, complexity, 
+management judgement, susceptibility to fraud, or control weaknesses.
+
+SIGNIFICANT_RISKS:
+{{significant_risks}}
+
+# Recommended machine schema:
+RISK_SCHEMA:
+  id: "<SRxx>"
+  area: "<e.g. Revenue>"
+  assertion: "<occurrence/valuation/completeness>"
+  inherent_risk: "<Low/Med/High>"
+  control_risk: "<Low/Med/High>"
+  fraud_related: "<true|false>"
+  planned_response: "<text>"
+
+OTHER_RISKS:
+{{other_risks}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[7. AUDIT STRATEGY & RESPONSES (ISA 330)]
+PLANNED_RESPONSES:
+{{planned_responses}}
+
+Include:
+- Whether reliance on controls is planned (Yes/No)
+- Substantive strategy for high-risk areas
+- Specialists needed:
+  {{specialists_involved}}
+
+RELIANCE ON CONTROLS:
+{{reliance_on_controls}}
+
+If Yes → document:
+- Key controls to test
+- ToC approach
+- ITGC reliance
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[8. SCOPE OF THE AUDIT]
+SCOPE_SUMMARY:
+{{scope_summary}}
+
+LOCATIONS_AND_COMPONENTS:
+{{locations_and_components}}
+
+# Include:
+# - In-scope vs out-of-scope locations
+# - Group reporting requirements (if applicable)
+# - Materiality by component
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[9. TIMELINE & MILESTONES]
+Audit timeline:
+{{timeline}}
+
+Example milestones:
+- Planning complete: DD/MM/YYYY
+- PBC Wave 0: Sent / Received
+- Interim testing
+- YE fieldwork start
+- TCWG meeting date
+- Audit report issuance target: DD/MM/YYYY
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[10. PBC (CLIENT DELIVERABLES) PLAN]
+PBC_PLAN:
+{{pbc_plan}}
+
+# Suggested structure:
+# - Wave 0: Entity documents, policies, org structure
+# - Wave 1: Trial balance, GL, subledgers
+# - Wave 2: Area-specific support (inventory counts, legal letters)
+# - Wave 3: Final disclosures, post-adjustment TB
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[11. INDEPENDENCE & ETHICS (ISA 220)]
+We confirm:
+- Compliance with the IESBA Code of Ethics  
+- No prohibited relationships  
+- Safeguards implemented where necessary  
+
+INDEPENDENCE_CONFIRMATION:
+{{independence_confirmation}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[12. SIGNIFICANT MATTERS REQUIRING PARTNER ATTENTION]
+Examples:
+- Complex accounting issues  
+- Disagreements with management  
+- Expected modifications to opinion  
+- Going concern indicators  
+- Weak internal controls  
+
+Add content:
+{{partner_matters}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[13. APPENDICES]
+Possible appendices:
+- Detailed risk matrix
+- Preliminary analytics
+- Process narratives/flowcharts
+- ITGC scoping
+- Materiality calculations
+- JE risk analysis
+
+{{appendices}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[END OF DOCUMENT]

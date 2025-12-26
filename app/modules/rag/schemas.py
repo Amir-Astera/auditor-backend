@@ -6,12 +6,16 @@ from typing import Optional, List, Dict, Any
 class RAGQueryRequest(BaseModel):
     """Запрос к RAG системе."""
     question: str = Field(..., description="Вопрос пользователя")
+    customer_id: Optional[str] = Field(None, description="ID заказчика (обязателен для корректной работы)")
+    include_admin_laws: bool = Field(True, description="Включить общие законы и методички")
+    include_customer_docs: bool = Field(True, description="Включить документы заказчика")
     mode: str = Field(
         default="hybrid",
         description="Режим запроса: naive, local, global, hybrid"
     )
     top_k: int = Field(default=5, ge=1, le=20, description="Количество результатов")
     context_limit: Optional[int] = Field(None, description="Лимит контекста")
+    temperature: float = Field(default=0.3, ge=0.0, le=2.0, description="Temperature для генерации")
 
 
 class RAGQueryResponse(BaseModel):

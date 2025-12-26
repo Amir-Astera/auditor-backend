@@ -1,0 +1,254 @@
+ID: E16_ESTIMATES_PROGRAM_V1
+TITLE: Audit Program — Accounting Estimates (ISA 540 Revised)
+LANG: EN
+TYPE: TEMPLATE
+STANDARDS: ISA540(Revised), ISA315, ISA330, IFRS (IAS 36, IAS 37, IFRS 9, IFRS 13, IAS 19)
+VERSION: 1.0
+
+# PURPOSE
+#   Provide a structured and machine-readable framework for auditing accounting estimates
+#   with heightened professional scepticism, following ISA 540 (Revised).
+
+# PLACEHOLDERS:
+#   {{client_name}}
+#   {{period_end}}
+#   {{estimate_catalog}}
+#   {{risk_assessment}}
+#   {{estimates_table}}
+#   {{model_testing}}
+#   {{assumption_testing}}
+#   {{data_testing}}
+#   {{management_bias}}
+#   {{exceptions}}
+#   {{conclusion}}
+#   {{appendices}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[HEADER]
+ACCOUNTING ESTIMATES AUDIT PROGRAM — ISA 540 (REVISED)
+Client: {{client_name}}
+Period Ended: {{period_end}}
+
+This document provides a structured program to audit accounting estimates, 
+considering estimation uncertainty, complexity, model risk, management bias,
+and the quality of evidence, in accordance with ISA 540 (Revised).
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[1. OVERVIEW OF ESTIMATES (IFRS-BASED)]
+
+List of key estimates identified:
+{{estimate_catalog}}
+
+Examples:
+- Expected Credit Loss (IFRS 9)
+- Fair value of investment property / FV instruments (IFRS 13)
+- Provisions & contingencies (IAS 37)
+- Impairment testing (IAS 36)
+- Warranty reserves
+- Actuarial liabilities (IAS 19)
+- Inventory NRV assessments (IAS 2)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2. MACHINE-READABLE ESTIMATE SCHEMA]
+
+ESTIMATE_SCHEMA:
+  estimate_id: "<ESTxx>"
+  name: "<estimate name>"
+  standard: "<IFRS reference>"
+  model_used: "<model type or none>"
+  complexity_level: "<Low|Medium|High>"
+  estimation_uncertainty: "<Low|Medium|High>"
+  inherent_risk_level: "<Low|Medium|High>"
+  risk_drivers:
+    - "<complexity>"
+    - "<subjectivity>"
+    - "<management bias indicators>"
+    - "<data quality issues>"
+  management_approach:
+    model_description: "<text>"
+    assumptions: ["<key assumption>", "..."]
+    data_sources: ["<source>", "..."]
+    controls: "<summary of relevant controls>"
+  auditor_work:
+    model_testing_ref: "<WP reference>"
+    assumption_testing_ref: "<WP reference>"
+    data_testing_ref: "<WP reference>"
+  exceptions: "<summary>"
+  conclusion: "<supported|not_supported>"
+  impact_on_FS: "<amount or text>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[3. RISK ASSESSMENT (ISA 315 + ISA 540 REQUIREMENTS)]
+
+{{risk_assessment}}
+
+Risk factors to consider:
+- High estimation uncertainty  
+- Use of complex models  
+- Significant management judgment  
+- Susceptibility to bias  
+- Changes in method, assumptions, or inputs year-over-year  
+- Indicators from fraud risk assessment  
+
+Mandatory fraud considerations (ISA 240):
+- Bias indicators  
+- Overly optimistic assumptions  
+- Selective use of inputs  
+- Inconsistent rationale  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[4. ESTIMATE TESTING TABLE]
+
+{{estimates_table}}
+
+Recommended format:
+
+# | Est. ID | Name | Risk Level | Model? | Assumptions | Data Sources | Uncertainty | Procedures | Conclusion |
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[5. THREE-PART TESTING STRUCTURE (ISA 540 MANDATORY)]
+
+Auditor must evaluate:
+
+1. **The Model** (if applicable)  
+2. **The Assumptions**  
+3. **The Data**  
+
+Including whether each element is:
+- relevant  
+- complete  
+- accurate  
+- consistent  
+- unbiased  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[6. MODEL TESTING]
+
+{{model_testing}}
+
+MODEL_TESTING_SCHEMA:
+  est_id: "<ESTxx>"
+  model_type: "<statistical|actuarial|valuation|scenario model|none>"
+  model_complexity: "<Low|Medium|High>"
+  model_owner: "<management|external expert>"
+  controls_tested: "<yes/no>"
+  recalculation_performed: "<yes/no>"
+  independent_model_challenge: "<yes/no>"
+  assumptions_supported_by_model: "<list>"
+  weaknesses_identified: "<text>"
+
+Questions to document:
+- Is the model consistent with IFRS?  
+- Does it reflect market participant assumptions (IFRS 13)?  
+- Is the model mathematically correct?  
+- Does management understand the model?  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[7. ASSUMPTION TESTING]
+
+{{assumption_testing}}
+
+ASSUMPTION_SCHEMA:
+  est_id: "<ESTxx>"
+  assumption: "<text>"
+  type: "<key assumption|secondary>"
+  sensitivity: "<quantitative impact>"
+  benchmarked_against: "<external data|historical data|industry data>"
+  reasonableness_assessment: "<supported|not_supported>"
+  fraud_bias_indicator: "<true|false>"
+  evidence_reference: "<WP ref>"
+
+Common assumptions:
+- Discount rates  
+- Default rates (ECL)  
+- Recovery rates  
+- Growth rates  
+- Fair value inputs (yield, cap rate, volatility)  
+- Litigation probability/outflow  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[8. DATA TESTING]
+
+{{data_testing}}
+
+DATA_TESTING_SCHEMA:
+  est_id: "<ESTxx>"
+  data_source: "<internal|external>"
+  data_quality: "<High|Medium|Low>"
+  completeness_tested: "<yes/no>"
+  accuracy_tested: "<yes/no>"
+  outlier_review: "<yes/no>"
+  exceptions_found: "<text>"
+  evidence_reference: "<WP ref>"
+
+Examples of data:
+- Aged receivables (ECL)  
+- Appraisals / market data (IFRS 13)  
+- Historical actuals vs forecast  
+- Legal claims data (IAS 37)  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[9. MANAGEMENT BIAS EVALUATION (ISA 540 + ISA 240)]
+
+{{management_bias}}
+
+Bias indicators:
+- Consistently optimistic assumptions  
+- Selective use of data  
+- Omitting contradictory evidence  
+- Change in assumptions without basis  
+- Intentionally narrow scenario ranges  
+- Inconsistent explanations year-over-year  
+
+Bias Schema:
+
+BIAS_SCHEMA:
+  est_id: "<ESTxx>"
+  indicator: "<text>"
+  evidence: "<WP ref>"
+  severity: "<Low|Medium|High>"
+  conclusion: "<bias_present|no_bias>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[10. EXCEPTIONS SUMMARY]
+
+{{exceptions}}
+
+Exception schema:
+
+EXCEPTION_SCHEMA:
+  id: "<string>"
+  est_id: "<ESTxx>"
+  description: "<text>"
+  amount: "<numeric>"
+  issue_type: "<unsupported_assumption|weak_model|bad_data|bias|incorrect_method>"
+  severity: "<Low|Medium|High>"
+  linked_misstatement: "<MISID or null>"
+  impact_on_FS: "<text>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[11. OVERALL CONCLUSION ON ESTIMATES]
+
+{{conclusion}}
+
+Categories:
+1. **Estimates supported and reasonable**  
+2. **Estimates reasonable but require enhanced disclosure**  
+3. **Estimates materially misstated** → SUD impact → Opinion modification  
+4. **Insufficient evidence** → Scope limitation → Possible Disclaimer  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[12. APPENDICES]
+
+{{appendices}}
+
+Suggested appendices:
+- Sensitivity analysis worksheets  
+- ECL calculation models  
+- FV model extracts  
+- Historical accuracy study  
+- Benchmarking reports  
+- Expert reports (valuers, actuaries)  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[END OF DOCUMENT]

@@ -1,0 +1,54 @@
+ID: C4_TESTING_PROCEDURES_V1
+TITLE: Testing Procedures Framework (ToC, SAP, ToD)
+LANG: EN
+TYPE: PROCEDURE_FRAMEWORK
+STANDARDS: ISA500, ISA520, ISA530
+VERSION: 1.0
+
+# TEST TYPES
+TEST_TYPE:
+  code: ToC
+  name: "Test of Controls"
+  description: "Evaluate operating effectiveness of controls."
+  typical_use: "When relying on controls to reduce substantive testing."
+
+TEST_TYPE:
+  code: SAP
+  name: "Substantive Analytical Procedure"
+  description: "Use analytical procedures to obtain audit evidence."
+  typical_use: "High-volume, predictable relationships."
+
+TEST_TYPE:
+  code: ToD
+  name: "Test of Details"
+  description: "Inspect individual transactions or balances."
+  typical_use: "Higher risk areas, less predictable balances."
+
+# SAMPLE SIZE LOGIC (high-level placeholders)
+SAMPLE_SIZE_RULE:
+  risk_level: Low
+  base_sample_size: 10
+
+SAMPLE_SIZE_RULE:
+  risk_level: Medium
+  base_sample_size: 25
+
+SAMPLE_SIZE_RULE:
+  risk_level: High
+  base_sample_size: 40
+
+# LINK TO DB TABLE G2.9 / G2.10 (from system design)
+FIELDS_G2_9:
+  - project_id
+  - risk_id
+  - test_type
+  - description
+  - sample_size
+  - status
+
+FIELDS_G2_10:
+  - procedure_id
+  - exception_desc
+  - amount
+  - resolution
+  - is_misstatement

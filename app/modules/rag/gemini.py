@@ -1,9 +1,11 @@
 import requests
 import logging
 
+from app.core.config import settings
 
-GEMINI_API_KEY = "AIzaSyBfxC1LZ8x17UcHUi0oLQC72mcUPaeGg-w" 
-MODEL_NAME = 'gemini-2.0-flash' 
+
+GEMINI_API_KEY = settings.GEMINI_API_KEY or "" 
+MODEL_NAME = settings.GEMINI_MODEL or 'gemini-2.0-flash' 
 # FILE_API_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/files"
 
 # Настройка логгера

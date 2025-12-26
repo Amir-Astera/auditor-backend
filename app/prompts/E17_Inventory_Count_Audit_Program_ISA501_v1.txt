@@ -1,0 +1,232 @@
+ID: E17_INVENTORY_COUNT_PROGRAM_V1
+TITLE: Inventory Count Audit Program (ISA 501 + IAS 2)
+LANG: EN
+TYPE: TEMPLATE
+STANDARDS: ISA501, ISA500, ISA315, IAS2
+VERSION: 1.0
+
+# PURPOSE
+#   Provide a complete and machine-readable audit program for physical inventory counts,
+#   valuation testing, roll-forward procedures, NRV evaluation, and documentation of count results.
+
+# PLACEHOLDERS:
+#   {{client_name}}
+#   {{period_end}}
+#   {{count_date}}
+#   {{locations}}
+#   {{risk_assessment}}
+#   {{pre_count_procedures}}
+#   {{during_count_procedures}}
+#   {{post_count_procedures}}
+#   {{valuation_testing}}
+#   {{exceptions_summary}}
+#   {{conclusion}}
+#   {{appendices}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[HEADER]
+INVENTORY AUDIT PROGRAM — ISA 501  
+Client: {{client_name}}  
+Financial Year End: {{period_end}}  
+Count Date(s): {{count_date}}  
+Locations: {{locations}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[1. INVENTORY RISK ASSESSMENT (ISA 315)]
+
+{{risk_assessment}}
+
+Typical risk factors:
+- Susceptibility to theft or manipulation  
+- High volume of transactions  
+- Manual inventory processes  
+- Complex SKU structure  
+- High estimation uncertainty in NRV  
+- Slow-moving or obsolete items  
+- Weak IT controls (if inventory managed through ERP)  
+
+Mandatory link to SRM (E10):
+- Inventory existence risk → High  
+- Inventory valuation (NRV) → High  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2. MACHINE-READABLE SCHEMA]
+
+INVENTORY_COUNT_SCHEMA:
+  id: "<ICxx>"
+  sku: "<string>"
+  description: "<text>"
+  category: "<raw material|WIP|finished goods>"
+  auditor_count: "<qty>"
+  client_count: "<qty>"
+  variance: "<qty>"
+  variance_value: "<numeric>"
+  reason_for_variance: "<text>"
+  evidence_reference: "<WP ref>"
+  follow_up_required: "<true|false>"
+  valuation_test_ref: "<VALxx>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[3. PRE-COUNT PROCEDURES (MANDATORY)]
+
+{{pre_count_procedures}}
+
+Checklist:
+- Obtain and review inventory count instructions from management  
+- Evaluate count procedures for adequacy:  
+  * segregation of duties  
+  * count team independence  
+  * use of pre-numbered tags or scanners  
+- Walkthrough of the physical process (if possible)  
+- Identify high-risk items for targeted procedures  
+- Determine sampling approach  
+- Ensure completeness of inventory listing  
+- Evaluate risks of manipulation before count (ISA 240 link)  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[4. DURING-COUNT PROCEDURES]
+
+{{during_count_procedures}}
+
+Mandatory ISA 501 requirements:
+
+1. **Observe counting procedures**  
+   - Ensure compliance with management’s instructions  
+   - Confirm no movement of goods during count  
+   - Observe scanning/tagging activity  
+   - Assess controls over count sheets  
+
+2. **Perform test counts (two-directional testing)**  
+   - *Sheet-to-floor:* verify listed items exist  
+   - *Floor-to-sheet:* verify all items counted are listed  
+
+3. **Evaluate count variances**  
+   - Investigate variances  
+   - Review recounts  
+   - Evaluate validity of adjustments  
+
+4. **High-risk targeted testing**  
+   - High-value SKUs  
+   - Easily concealable items  
+   - Slow-moving or obsolete stock  
+   - Negative quantity items  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[5. POST-COUNT PROCEDURES]
+
+{{post_count_procedures}}
+
+Required steps:
+
+- Obtain final count sheets and reconcile to auditor’s observations  
+- Review management adjustments to inventory  
+- Test *roll-forward* from count date to YE  
+- If count after YE → *roll-back* procedures  
+- Test cut-off for purchases and sales  
+- Analyze unusual journal entries affecting inventory (link to E11)  
+- Test inventory reconciliation between subledger and GL  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[6. VALUATION TESTING (IAS 2 COMPLIANCE)]
+
+{{valuation_testing}}
+
+Inventory must be valued at:
+- **Lower of cost and net realisable value (NRV)**  
+
+NRV testing includes:
+- Aging analysis  
+- Subsequent selling prices  
+- Cost-to-complete  
+- Write-down policies  
+- NRV adjustments  
+
+Machine schema:
+
+VALUATION_TEST_SCHEMA:
+  id: "<VALxx>"
+  est_id: "<ESTxx if valuation considered an estimate>"
+  sku: "<string>"
+  cost: "<numeric>"
+  nrv: "<numeric>"
+  lower_of_cost_or_nrv: "<numeric>"
+  write_down_required: "<true|false>"
+  write_down_amount: "<numeric>"
+  supporting_evidence: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[7. INVENTORY ANALYTICS]
+
+Mandatory analytics:
+- Gross margin analysis  
+- Inventory turnover  
+- Days inventory outstanding (DIO)  
+- Identification of unusual or negative-margin SKUs  
+- Comparison to prior year counts  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[8. DETAILED INVENTORY TESTING TABLE]
+
+Recommended table:
+
+{{inventory_testing_table}}
+
+# | SKU | Description | Client Qty | Auditor Qty | Variance | Value Impact | NRV Adjustment | Evidence | Exception? |
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[9. EXCEPTIONS SUMMARY]
+
+{{exceptions_summary}}
+
+Exception schema:
+
+EXCEPTION_SCHEMA:
+  id: "<string>"
+  sku: "<string>"
+  variance: "<qty>"
+  variance_value: "<numeric>"
+  nature_of_issue: "<count_error|theft_indicator|listing_incomplete|valuation_issue>"
+  severity: "<Low|Medium|High>"
+  linked_misstatement: "<MISID or null>"
+  impact_on_FS: "<text>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[10. INTEGRATION WITH OTHER AREAS]
+
+Links to:
+- SRM (E10): existence + valuation risks  
+- Estimates (E16): NRV is an estimate  
+- JE Testing (E11): inventory adjustments  
+- SUD (E8): unadjusted variances and NRV issues  
+- ACM (E7): inventory section  
+- SE (E12): events impacting NRV post-YE  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[11. OVERALL CONCLUSION]
+
+{{conclusion}}
+
+Conclusion categories:
+1. Inventory quantities fairly stated  
+2. Inventory valuation reasonable and compliant with IAS 2  
+3. Misstatements identified but not material  
+4. Material misstatement → Qualified / Adverse  
+5. Insufficient evidence → Scope limitation → Disclaimer  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[12. APPENDICES]
+
+{{appendices}}
+
+Suggested appendices:
+- Count instructions  
+- Photos from count  
+- Count sheets  
+- Reconciliation logs  
+- NRV testing workbook  
+- High-risk SKUs list  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[END OF DOCUMENT]

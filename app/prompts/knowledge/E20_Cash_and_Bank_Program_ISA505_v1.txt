@@ -1,0 +1,264 @@
+ID: E20_CASH_BANK_PROGRAM_V1
+TITLE: Cash & Bank Audit Program (ISA 505 External Confirmations)
+LANG: EN
+TYPE: TEMPLATE
+STANDARDS: ISA505, ISA500, ISA240, ISA330
+VERSION: 1.0
+
+# PURPOSE
+#   Provide a complete and machine-readable audit program for cash & bank,
+#   including external confirmations, bank reconciliations, cut-off,
+#   restricted cash assessment, and fraud-related procedures.
+
+# PLACEHOLDERS:
+#   {{client_name}}
+#   {{period_end}}
+#   {{bank_accounts}}
+#   {{risk_assessment}}
+#   {{confirmations_plan}}
+#   {{bank_reconciliations}}
+#   {{cutoff_testing}}
+#   {{restricted_cash}}
+#   {{alt_procedures}}
+#   {{exceptions_summary}}
+#   {{conclusion}}
+#   {{appendices}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[HEADER]
+CASH & BANK AUDIT PROGRAM — ISA 505  
+Client: {{client_name}}  
+Period Ended: {{period_end}}
+
+This program provides a complete ISA 505-based approach to external confirmations,
+testing reconciliations, evaluating restrictions, and performing cut-off procedures.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[1. BANK ACCOUNTS OVERVIEW]
+
+{{bank_accounts}}
+
+Typical categories:
+- Operating accounts  
+- FX accounts  
+- Deposit accounts  
+- Escrow accounts  
+- Restricted/pledged balances  
+- Credit facilities  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2. RISK ASSESSMENT (ISA 315 + ISA 240)]
+
+{{risk_assessment}}
+
+Key risks:
+- existence risk (overstatement)  
+- fraud risk (ISA 240 → manipulation of cash, fictitious balances)  
+- restriction classification issues  
+- unrecorded loans or overdrafts  
+- foreign currency misstatement  
+
+Mandatory fraud considerations:
+- unusual transfers near period-end  
+- manual JEs to bank accounts (link to E11)  
+- unusual bank accounts not disclosed by management  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[3. MACHINE-READABLE CONFIRMATION SCHEMA]
+
+BANK_CONFIRMATION_SCHEMA:
+  id: "<CONFxx>"
+  bank_name: "<string>"
+  account_number: "<string>"
+  currency: "<string>"
+  confirmed_balance: "<numeric>"
+  client_balance: "<numeric>"
+  difference: "<numeric>"
+  credit_facilities: "<details>"
+  guarantees: "<details>"
+  restrictions: "<details>"
+  confirmation_received: "<true|false>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[4. CONFIRMATIONS PLAN (ISA 505 MANDATORY FOR CASH)]
+
+{{confirmations_plan}}
+
+ISA 505 requires:
+- direct communication with the bank  
+- auditor controls the request and response  
+- positive confirmation (always for cash)
+
+Plan must include:
+- all bank accounts, including sleeping accounts  
+- loan facilities  
+- guarantees  
+- pledged deposits  
+- escrow accounts  
+
+Indicators of fraud:
+- management refusal to allow confirmations  
+- delays or unusual responses  
+- requests to use non-standard format  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[5. BANK RECONCILIATION TESTING]
+
+{{bank_reconciliations}}
+
+Steps:
+- Obtain year-end bank reconciliations  
+- Agree bank balance per reconciliation to confirmation  
+- Test outstanding deposits:
+  * trace to subsequent bank statement  
+- Test outstanding cheques/payments:
+  * trace to subsequent clearing  
+- Investigate long-outstanding items  
+- Recalculate the reconciliation  
+
+Machine schema:
+
+BANK_REC_SCHEMA:
+  id: "<RECxx>"
+  account_number: "<string>"
+  book_balance: "<numeric>"
+  confirmed_balance: "<numeric>"
+  outstanding_deposits: "<numeric>"
+  outstanding_payments: "<numeric>"
+  reconciling_items_valid: "<true|false>"
+  difference_unexplained: "<numeric>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[6. CUT-OFF TESTING]
+
+{{cutoff_testing}}
+
+Cut-off testing includes:
+- tracing pre- and post-period-end cash receipts to AR  
+- tracing pre- and post-period-end cash disbursements to AP  
+- inspecting large transfers between accounts (ISA 240 fraud indicator)  
+- verifying unusual late postings  
+
+Machine schema:
+
+CASH_CUTOFF_SCHEMA:
+  id: "<COxx>"
+  transaction_type: "<receipt|payment|transfer>"
+  amount: "<numeric>"
+  bank_date: "<date>"
+  posting_date: "<date>"
+  correct_period: "<true|false>"
+  counter-account: "<AR|AP|Loan|Other>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[7. RESTRICTED / PLEDGED CASH (CLASSIFICATION TESTING)]
+
+{{restricted_cash}}
+
+Restricted cash must be:
+- separately disclosed  
+- not included in cash equivalents if restricted  
+- tested for restrictions / pledges  
+- confirmed with banks
+
+Testing:
+- review loan agreements  
+- review guarantee letters  
+- inspect pledge agreements  
+- ensure proper classification  
+
+Schema:
+
+RESTRICTED_CASH_SCHEMA:
+  id: "<RCxx>"
+  account_number: "<string>"
+  restriction_type: "<pledge|escrow|legal_hold>"
+  restriction_source: "<contract|court|bank>"
+  amount: "<numeric>"
+  disclosure_adequate: "<true|false>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[8. ALTERNATIVE PROCEDURES (IF CONFIRMATION NOT RECEIVED)]
+
+{{alt_procedures}}
+
+Acceptable alternatives:
+- inspect subsequent bank statements  
+- inspect original bank documents  
+- inspect online banking screenshots **only if verified independently**  
+- review agreements and statements directly obtained  
+
+Not acceptable (ISA 505):
+- management-prepared screenshots without independent evidence  
+- verbal confirmations  
+- spreadsheets with balances  
+
+Evidence hierarchy:
+external > auditor-obtained > internal > management representations  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[9. DETAILED TESTING TABLE]
+
+# | Ref | Bank | Account | Confirmation | Rec Tested | Cut-off | Restrictions | Exception? |
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[10. EXCEPTIONS SUMMARY]
+
+{{exceptions_summary}}
+
+EXCEPTION_SCHEMA:
+  id: "<string>"
+  account_number: "<string>"
+  description: "<text>"
+  amount: "<numeric>"
+  type: "<unexplained_difference|restriction_not_disclosed|no_confirmation|cutoff_error>"
+  severity: "<Low|Medium|High>"
+  linked_misstatement: "<MISID or null>"
+  impact_on_FS: "<text>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[11. INTEGRATION WITH OTHER AREAS]
+
+Links:
+- E11 Journal Entries Testing  
+- E18 Revenue Cut-off (cash receipts testing)  
+- E21 Receivables Testing (cash subsequent receipts)  
+- E22 Payables Testing (cash disbursements)  
+- E12 Subsequent Events (loans, restrictions)  
+- E8 SUD (unrecorded misstatements)  
+- E7 ACM (cash section)  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[12. OVERALL CONCLUSION]
+
+{{conclusion}}
+
+Conclusion categories:
+1. Cash balances exist and are free from restriction  
+2. Balances agree to bank confirmations  
+3. Reconciling items valid and supported  
+4. Restrictions appropriately disclosed  
+5. Misstatements identified (quantify)  
+
+If confirmations not received → evaluate scope limitation.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[13. APPENDICES]
+
+{{appendices}}
+
+Typical:
+- Bank confirmations  
+- Bank statements  
+- Reconciliations  
+- Loan agreements  
+- Guarantees  
+- Pledge agreements  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[END OF DOCUMENT]

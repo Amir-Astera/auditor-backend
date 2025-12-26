@@ -1,0 +1,221 @@
+ID: E7_ACM_COMPLETION_MEMO_V1
+TITLE: Audit Completion Memorandum (ACM)
+LANG: EN
+TYPE: TEMPLATE
+STANDARDS: ISA230, ISA330, ISA450, ISA520, ISA560, ISA570, ISA700–706
+VERSION: 1.0
+
+# PURPOSE
+#   Provide a structured completion memorandum summarising audit results,
+#   misstatements, conclusions on significant risks, going concern,
+#   independence, and the proposed audit opinion.
+
+# PLACEHOLDERS:
+#   {{client_name}}
+#   {{period_end}}
+#   {{audit_firm}}
+#   {{audit_partner}}
+#   {{manager_name}}
+#   {{overall_materiality}}
+#   {{performance_materiality}}
+#   {{summary_of_risks}}
+#   {{risk_responses}}
+#   {{testing_summary}}
+#   {{misstatements_summary}}
+#   {{sud_table}}
+#   {{going_concern_conclusion}}
+#   {{subsequent_events_conclusion}}
+#   {{related_parties_conclusion}}
+#   {{fraud_conclusion}}
+#   {{estimates_conclusion}}
+#   {{legal_conclusion}}
+#   {{opinion_recommendation}}
+#   {{appendices}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[HEADER]
+AUDIT COMPLETION MEMORANDUM  
+Client: {{client_name}}  
+Period Ended: {{period_end}}  
+Prepared by: {{manager_name}}, {{audit_firm}}  
+Reviewed by: {{audit_partner}}  
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[1. EXECUTIVE SUMMARY]
+This Audit Completion Memorandum (ACM) summarises the results of the audit of the financial
+statements of {{client_name}} for the year ended {{period_end}}, conducted in accordance with
+International Standards on Auditing.
+
+Key topics covered:
+- Overall audit strategy and materiality
+- Significant risks and responses
+- Results of audit procedures
+- Misstatements (corrected and uncorrected)
+- Going concern
+- Subsequent events
+- Related parties
+- Fraud considerations
+- Legal matters
+- Proposed audit opinion
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2. MATERIALITY]
+Overall Materiality (OM): {{overall_materiality}}  
+Performance Materiality (PM): {{performance_materiality}}  
+PM Rationale: Based on risk assessment, control environment, and prior year results.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[3. SIGNIFICANT RISKS (ISA 315/330)]
+Below is a summary of all significant risks identified and our responses.
+
+{{summary_of_risks}}
+
+[RISK_RESPONSES]
+{{risk_responses}}
+
+# Suggest machine-readable RISK format:
+# RISK_BLOCK:
+#   id: "SR01"
+#   name: "Revenue recognition – fraud risk"
+#   assertion: "occurrence"
+#   response: "Performed detailed cut-off testing, analytical procedures, JE testing."
+#   conclusion: "No material misstatement identified."
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[4. RESULTS OF AUDIT PROCEDURES (ISA 500/520/530)]
+High-level summary of testing results across areas:
+
+{{testing_summary}}
+
+# Recommended structure:
+# AREA_TEST_SUMMARY:
+#   area: "<e.g. Inventory>"
+#   tests_performed: "<ToC / SAP / ToD>"
+#   exceptions_found: "<summary or 'none'>"
+#   conclusion: "<text>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[5. MISSTATEMENTS & SUD (ISA 450)]
+Below is an overview of identified misstatements (corrected and uncorrected) and their aggregated impact.
+
+[MISSTATEMENTS_SUMMARY]
+{{misstatements_summary}}
+
+[SUD_TABLE]
+{{sud_table}}
+
+# Machine-Readable SUD Schema:
+# MISSTATEMENT:
+#   id:
+#   type: "Factual | Judgmental | Projected"
+#   amount:
+#   area:
+#   adjusted: true/false
+#   rationale:
+# TOTAL_UNADJUSTED:
+#   value:
+#   compared_to_PM:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[6. ACCOUNTING ESTIMATES (ISA 540)]
+Assessment of significant estimates:
+
+{{estimates_conclusion}}
+
+# Topics usually included:
+# - ECL / impairment
+# - Fair value measurements
+# - Provisions
+# - Useful lives / depreciation
+# - Expected credit losses (IFRS 9)
+# - Actuarial assumptions (if applicable)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[7. FRAUD CONSIDERATIONS (ISA 240)]
+Summary of fraud-related procedures and conclusions:
+
+{{fraud_conclusion}}
+
+# Mandatory topics:
+# - Revenue recognition (presumed risk)
+# - Management override (journal entries, estimates review, unusual transactions)
+# - Fraud inquiries with management and TCWG
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[8. GOING CONCERN (ISA 570)]
+Conclusion on the entity’s ability to continue as a going concern:
+
+{{going_concern_conclusion}}
+
+# Include:
+# - Indicators assessed
+# - Evaluation of management's assessment
+# - Whether a material uncertainty exists
+# - Disclosure adequacy
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[9. SUBSEQUENT EVENTS (ISA 560)]
+Conclusion on subsequent events:
+
+{{subsequent_events_conclusion}}
+
+# Typical content:
+# - Procedures performed up to the audit report date
+# - Adjusting / non-adjusting events found (if any)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[10. RELATED PARTIES (ISA 550)]
+Summary conclusion:
+
+{{related_parties_conclusion}}
+
+# Items typically addressed:
+# - Completeness of related party list
+# - Business rationale of related party transactions
+# - Disclosure adequacy
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[11. LEGAL & REGULATORY MATTERS (ISA 250)]
+Summary of legal matters:
+
+{{legal_conclusion}}
+
+# Examples:
+# - Claims & litigations
+# - Regulatory correspondence
+# - Compliance breaches
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[12. INDEPENDENCE CONFIRMATION]
+We confirm that we have complied with relevant ethical requirements, including independence,
+in accordance with the International Code of Ethics for Professional Accountants.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[13. OVERALL EVALUATION & OPINION RECOMMENDATION (ISA 700–706)]
+Based on the audit evidence obtained, we recommend issuing the following audit opinion:
+
+{{opinion_recommendation}}
+
+# Expected values:
+#   Unmodified
+#   Qualified (with Basis)
+#   Adverse
+#   Disclaimer
+#   Unmodified with EOM
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[14. APPENDICES]
+Supporting documentation (attach as required):
+
+{{appendices}}
+
+# Typical appendices:
+# - Detailed risk matrix
+# - JE testing results
+# - Estimate sensitivity analyses
+# - Materiality computations
+# - SUD workings
+# - Significant contracts/legal letters
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[END OF DOCUMENT]

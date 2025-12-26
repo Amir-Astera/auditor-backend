@@ -1,0 +1,29 @@
+ID: B8_SUBSEQUENT_EVENTS_LIBRARY_V1
+TITLE: Subsequent Events Library (ISA 560)
+LANG: EN
+TYPE: CHECKLIST_LIBRARY
+STANDARDS: ISA560
+VERSION: 1.0
+
+EVENT_TYPE:
+  id: SE_ADJ01
+  class: Adjusting
+  description: "Receipt of information confirming conditions existing at the balance sheet date (e.g. bankruptcy of a major customer)."
+
+EVENT_TYPE:
+  id: SE_NONADJ01
+  class: Non-adjusting
+  description: "Major business combination after the reporting period."
+
+CHECKLIST:
+  Q1: Have minutes, legal correspondence and subsequent financial information been reviewed up to the date of the auditor's report?
+  Q2: Have adjusting events been properly reflected in the financial statements?
+  Q3: Have material non-adjusting events been adequately disclosed?
+
+OUTPUT_TEMPLATE:
+  {
+    "event_id": "<id>",
+    "class": "Adjusting|Non-adjusting",
+    "impact": "Adjustment|Disclosure|No impact",
+    "notes": "<text>"
+  }

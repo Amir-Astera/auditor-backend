@@ -1,7 +1,9 @@
 from enum import Enum
 from typing import Optional
 
-from pydantic import BaseModel
+from uuid import UUID
+
+from pydantic import BaseModel, ConfigDict
 
 
 class FileScope(str, Enum):
@@ -10,7 +12,7 @@ class FileScope(str, Enum):
 
 
 class FileUploadResponse(BaseModel):
-    id: str
+    id: UUID
     scope: FileScope
     customer_id: Optional[str] = None
     bucket: str
@@ -18,8 +20,7 @@ class FileUploadResponse(BaseModel):
     original_filename: str
     is_indexed: bool
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class FileInfo(FileUploadResponse):

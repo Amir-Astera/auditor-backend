@@ -1,0 +1,27 @@
+ID: B7_RELATED_PARTIES_CHECKLIST_V1
+TITLE: Related Parties Checklist (ISA 550)
+LANG: EN
+TYPE: CHECKLIST
+STANDARDS: ISA550
+VERSION: 1.0
+
+# SECTIONS
+SECTION: Identification
+Q1: Has management provided a list of related parties (individuals and entities)?
+Q2: Are there any shareholders, key management, or close family members with significant influence?
+
+SECTION: Transactions
+Q3: Have all material transactions with related parties been identified and summarised?
+Q4: Are terms of related party transactions at arm's length?
+
+SECTION: Disclosure
+Q5: Are disclosures for related parties complete and in accordance with the applicable framework?
+Q6: Are there any undisclosed related parties identified during the audit?
+
+# OUTPUT
+{
+  "all_related_parties_identified": true,
+  "undisclosed_related_parties_found": false,
+  "disclosure_adequate": true,
+  "issues_summary": "<text>"
+}

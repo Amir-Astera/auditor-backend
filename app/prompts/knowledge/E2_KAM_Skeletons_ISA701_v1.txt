@@ -1,0 +1,115 @@
+12_KAM_Skeletons_ISA701_v1.txt  
+Author: Igor Tilepin  
+Trusted Source: TRI-S-AUDIT  
+
+─────────────────────────────────────────────
+DOCUMENT: KEY AUDIT MATTER (KAM) SKELETONS (ISA 701)
+
+Purpose
+-------
+This document provides ready-to-use skeletons for drafting **Key Audit Matters (KAMs)** in accordance with ISA 701.  
+It ensures consistency, completeness, and linkage with underlying audit evidence and judgments.  
+The structure is adaptable across industries and clients, with placeholders for entity-specific details.
+
+Relevant Standards:
+- ISA 701: Communicating Key Audit Matters in the Independent Auditor’s Report
+- ISA 260 / 265: Communication with Those Charged with Governance
+- ISA 570: Going Concern
+- ISA 540: Accounting Estimates
+- ISA 240: Fraud Considerations
+- Cross-references: ISA 330 (responses to risks), ISA 705/706 (modifications, emphasis)
+
+─────────────────────────────────────────────
+General Principles for KAMs
+---------------------------
+- KAMs are selected from matters communicated to TCWG that required significant auditor attention.
+- Not all significant risks are KAMs, but all KAMs arise from matters of most significance.
+- Language must be **entity-specific, balanced, informative, not boilerplate**.
+- KAMs describe:  
+  1. Why the matter was considered a KAM.  
+  2. How it was addressed in the audit.  
+  3. Reference to related disclosures in the FS.  
+- Avoid: disclosing original information not publicly disclosed by the entity.
+
+─────────────────────────────────────────────
+KAM Skeleton Structure
+----------------------
+
+Heading: [Descriptive Title of the Matter]
+
+Why This Matter Was Considered a KAM
+- Summarize the underlying risk or judgment.
+- Refer to financial statement areas impacted.
+- Highlight complexity, subjectivity, or potential material impact.
+
+How We Addressed the Matter in the Audit
+- Outline audit procedures performed (substantive + control testing).
+- Emphasize areas of auditor judgment and professional skepticism.
+- Link to evidence obtained.
+
+Reference
+- Direct user to related note(s) in the FS.
+
+─────────────────────────────────────────────
+Example Skeletons
+-----------------
+(… [same examples as before: Revenue Recognition, PPE Valuation, Insurance, ECL, Legal Provisions, Inventory, Going Concern] …)
+
+─────────────────────────────────────────────
+Template (Insert Entity-Specific Data)
+--------------------------------------
+
+**[Matter Title]**
+
+Why considered a KAM:  
+[Entity-specific description of complexity / subjectivity / significance.]
+
+How addressed:  
+[List audit procedures performed, judgments applied, use of specialists, substantive results.]
+
+Reference:  
+[Relevant FS note reference.]
+
+─────────────────────────────────────────────
+Quick Insert Phrases
+--------------------
+(Use for drafting, then tailor to client)
+
+- "This matter required significant auditor attention due to its complexity and material impact."
+- "Our audit procedures included, among others, …"
+- "We involved our internal specialists to assess …"
+- "We evaluated management’s assumptions by reference to …"
+- "We performed substantive testing on a sample of …"
+- "We reviewed the adequacy of related disclosures in Note [X]."
+
+─────────────────────────────────────────────
+Linkages with Other Working Papers
+----------------------------------
+- 11_TCWG_Communication_Pack: Source for matters communicated to governance.
+- 04_Risk_Library_by_Cycle: Risk drivers feeding into KAM selection.
+- 07_Legal_Matrix: Legal matters possibly escalating into KAM.
+- 05_Materiality_Playbook: Thresholds for significance.
+- 09_Audit_Templates: Reporting templates for ISA audit reports.
+
+─────────────────────────────────────────────
+Русское пояснение (для внутреннего использования)
+-------------------------------------------------
+KAM (ключевые вопросы аудита) — это те вопросы, которые:  
+- были наиболее значимыми при аудите отчётности,  
+- потребовали повышенного внимания аудитора,  
+- должны быть раскрыты в аудиторском заключении для прозрачности.  
+
+Каждый KAM описывается по схеме:  
+1. Почему это KAM (сложность, суждение, риск).  
+2. Как аудитор ответил на этот вопрос (процедуры, доказательства).  
+3. Ссылка на примечания отчётности.  
+
+Документ содержит шаблоны (skeletons) и быстрые фразы (Quick Insert), которые можно использовать при подготовке текста.  
+
+─────────────────────────────────────────────
+Summary
+-------
+This document serves as a **library of skeletons** to standardize drafting of KAMs while ensuring audit-specific tailoring. It balances transparency for FS users with compliance to ISA 701 requirements.
+
+─────────────────────────────────────────────
+END OF DOCUMENT

@@ -1,0 +1,303 @@
+ID: E29_LEASES_PROGRAM_V1
+TITLE: Leases Audit Program (IFRS 16)
+LANG: EN
+TYPE: TEMPLATE
+STANDARDS: IFRS16, IAS36, IAS37, ISA500, ISA540
+VERSION: 1.0
+
+# PURPOSE
+#   Provide a Big4-level audit program for IFRS 16 leases, including:
+#   - Lease identification
+#   - ROU asset and lease liability testing
+#   - Discount rate testing (IBR)
+#   - Modifications
+#   - Exemptions
+#   - Sale-and-leaseback
+#   - Machine-ready schemas for RAG
+
+# PLACEHOLDERS
+#   {{client_name}}
+#   {{period_end}}
+#   {{lease_population}}
+#   {{risk_assessment}}
+#   {{contract_identification}}
+#   {{initial_measurement}}
+#   {{subsequent_measurement}}
+#   {{discount_rate_testing}}
+#   {{modifications}}
+#   {{sale_and_leaseback}}
+#   {{exceptions_summary}}
+#   {{conclusion}}
+#   {{appendices}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[HEADER]
+LEASES — IFRS 16  
+Client: {{client_name}}  
+Period Ended: {{period_end}}
+
+This program covers identification, recognition, measurement, impairment,
+discount rate derivation, exemption application, and modifications.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[1. LEASE POPULATION]
+
+{{lease_population}}
+
+Include:
+- Property leases (offices, warehouses, retail spaces)  
+- Equipment leases (machinery, servers, vehicles)  
+- IT equipment leases  
+- Embedded leases in service agreements  
+- Short-term leases  
+- Low-value leases  
+- Variable consideration leases  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2. RISK ASSESSMENT — IFRS 16 + ISA 540]
+
+{{risk_assessment}}
+
+Key risks:
+- Missing leases (most common critical risk)  
+- Incorrect classification of service contracts  
+- Incorrect discount rates (IBR too low)  
+- Incorrect lease term (optional periods handling)  
+- Incorrect ROU asset / liability measurement  
+- Ignoring lease modifications  
+- Impairment of ROU assets (linked to IAS 36)  
+- Incorrect variable payment accounting  
+
+Fraud risks:
+- Understating lease liabilities to improve leverage ratios  
+- Aggressive use of exemptions  
+- Manipulated discount rates  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[3. MACHINE-READABLE LEASE SCHEMA]
+
+LEASE_SCHEMA:
+  id: "<Lxx>"
+  asset_description: "<text>"
+  contract_id: "<string>"
+  lease_term_years: "<numeric>"
+  non_cancellable_period: "<numeric>"
+  extension_options: "<included|excluded>"
+  termination_options: "<included|excluded>"
+  fixed_payments: "<numeric>"
+  variable_payments: "<numeric>"
+  discount_rate: "<numeric>"
+  lease_liability_initial: "<numeric>"
+  rou_asset_initial: "<numeric>"
+  modification_flag: "<true|false>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[4. CONTRACT IDENTIFICATION (LEASE vs NON-LEASE)**]
+
+{{contract_identification}}
+
+Test if the contract conveys:
+1. Right to control  
+2. Identified asset  
+3. Economic benefits  
+
+Embedded lease analysis needed for:
+- IT outsourcing  
+- Equipment with operator  
+- Transportation contracts  
+
+Schema:
+
+LEASE_ID_SCHEMA:
+  id: "<LIDxx>"
+  contract_id: "<string>"
+  identified_asset: "<true|false>"
+  control_present: "<true|false>"
+  substation_right: "<true|false>"
+  lease_exists: "<true|false>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[5. INITIAL MEASUREMENT TESTING**
+
+{{initial_measurement}}
+
+Verify:
+- Lease liability = PV of lease payments  
+- ROU asset =  
+  lease liability  
+  + initial direct costs  
+  + restoration obligations (E27)  
+  - incentives received  
+
+Schema:
+
+INITIAL_MEASURE_SCHEMA:
+  id: "<IMxx>"
+  lease_id: "<Lxx>"
+  lease_liability_calc: "<numeric>"
+  rou_calc: "<numeric>"
+  auditor_lease_liability: "<numeric>"
+  auditor_rou: "<numeric>"
+  variance: "<numeric>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[6. SUBSEQUENT MEASUREMENT TESTING]
+
+{{subsequent_measurement}}
+
+Test:
+- Interest accretion  
+- Lease payment allocation  
+- ROU depreciation  
+- Variable lease payments  
+- Impairment triggers for ROU assets  
+
+Schema:
+
+SUBSEQUENT_SCHEMA:
+  id: "<SUBxx>"
+  lease_id: "<Lxx>"
+  interest_expense: "<numeric>"
+  depreciation_expense: "<numeric>"
+  liability_closing_balance: "<numeric>"
+  rou_closing_balance: "<numeric>"
+  impairment_required: "<true|false>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[7. DISCOUNT RATE TESTING (IBR)**]
+
+{{discount_rate_testing}}
+
+Steps:
+- Start with risk-free rate  
+- Add credit spread  
+- Add asset-specific risk premium  
+- Adjust for lease term  
+- Compare to external benchmarking data  
+
+Schema:
+
+DISCOUNT_RATE_SCHEMA:
+  id: "<DRxx>"
+  lease_id: "<Lxx>"
+  risk_free_rate: "<numeric>"
+  credit_spread: "<numeric>"
+  adjustments: "<numeric>"
+  final_ibr: "<numeric>"
+  auditor_rate: "<numeric>"
+  variance: "<numeric>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[8. MODIFICATION TESTING**
+
+{{modifications}}
+
+Modification triggers:
+- Changes in lease term  
+- Renegotiations in payment terms  
+- Changes from termination/extension decisions  
+- Add/remove underlying assets  
+
+Auditor must test:
+- Remeasurement of liability  
+- Corresponding adjustment to ROU asset  
+
+Schema:
+
+MODIFICATION_SCHEMA:
+  id: "<MODxx>"
+  lease_id: "<Lxx>"
+  modification_event: "<text>"
+  liability_after_mod: "<numeric>"
+  rou_after_mod: "<numeric>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[9. SALE-AND-LEASEBACK TESTING**
+
+{{sale_and_leaseback}}
+
+Test:
+- Whether a sale occurred per IFRS 15  
+- Correct recognition of gain/loss  
+- Correct measurement of ROU asset proportion  
+- Transaction structuring risk  
+
+Schema:
+
+SLB_SCHEMA:
+  id: "<SLBxx>"
+  asset_description: "<text>"
+  sale_price: "<numeric>"
+  carrying_amount: "<numeric>"
+  gain_loss_recognized: "<numeric>"
+  proportion_of_use_transferred: "<numeric>"
+  compliant_with_IFRS15: "<true|false>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[10. EXCEPTIONS SUMMARY]
+
+{{exceptions_summary}}
+
+EXCEPTION_SCHEMA:
+  id: "<string>"
+  lease_id: "<Lxx>"
+  area: "<identification|initial_measurement|subsequent|discount_rate|modification|SLB>"
+  description: "<text>"
+  amount: "<numeric>"
+  severity: "<Low|Medium|High>"
+  linked_misstatement: "<MISID or null>"
+  impact_on_FS: "<text>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[11. INTEGRATION WITH OTHER MODULES]
+
+Cross-link with:
+- E19 PPE (impairment for ROU assets)  
+- E27 Provisions (restoration obligations → increase ROU)  
+- E26 Tax (temporary differences ROU vs liability)  
+- E12 Subsequent Events  
+- E11 JE Testing (lease-related reclass entries)  
+- E20 Cash (lease payments verification)  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[12. OVERALL CONCLUSION]
+
+{{conclusion}}
+
+Conclusion categories:
+1. Leases complete and identified correctly  
+2. Initial and subsequent measurement correct  
+3. Discount rates reasonable  
+4. Modifications accounted correctly  
+5. Exceptions immaterial  
+6. Material misstatement exists  
+7. Insufficient evidence → scope limitation  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[13. APPENDICES]
+
+{{appendices}}
+
+Typical:
+- Lease contracts  
+- IBR calculations  
+- ROU asset schedules  
+- Lease liability amortization schedules  
+- Modification documents  
+- Sale-and-leaseback agreements  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[END OF DOCUMENT]

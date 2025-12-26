@@ -1,0 +1,62 @@
+ID: D3_OPINION_DECISION_TREE_V1
+TITLE: Opinion Type Decision Tree
+LANG: EN
+TYPE: DECISION_TREE
+STANDARDS: ISA700, ISA705, ISA706
+VERSION: 1.0
+
+# KEY INPUTS:
+#   misstatements_material (true/false)
+#   misstatements_pervasive (true/false)
+#   scope_limitation_material (true/false)
+#   scope_limitation_pervasive (true/false)
+#   going_concern_material_uncertainty (none/disclosed/not_disclosed)
+
+NODE O1
+QUESTION: "Are there material misstatements in the financial statements?"
+YES: O2
+NO: O4
+
+NODE O2
+QUESTION: "Are the misstatements pervasive?"
+YES: OUTCOME_ADVERSE
+NO: OUTCOME_QUALIFIED
+
+NODE O4
+QUESTION: "Is there a material scope limitation?"
+YES: O5
+NO: O7
+
+NODE O5
+QUESTION: "Is the effect of the limitation pervasive?"
+YES: OUTCOME_DISCLAIMER
+NO: OUTCOME_QUALIFIED
+
+NODE O7
+QUESTION: "Is there a material uncertainty related to going concern that is adequately disclosed?"
+YES: OUTCOME_UNMODIFIED_WITH_EOM
+NO: O8
+
+NODE O8
+QUESTION: "Is there a material going concern uncertainty that is NOT adequately disclosed?"
+YES: OUTCOME_ADVERSE_OR_DISCLAIMER
+NO: OUTCOME_UNMODIFIED
+
+OUTCOME_UNMODIFIED:
+  opinion_type: "Unmodified"
+
+OUTCOME_UNMODIFIED_WITH_EOM:
+  opinion_type: "Unmodified"
+  eom_required: true
+
+OUTCOME_QUALIFIED:
+  opinion_type: "Qualified"
+
+OUTCOME_ADVERSE:
+  opinion_type: "Adverse"
+
+OUTCOME_DISCLAIMER:
+  opinion_type: "Disclaimer"
+
+OUTCOME_ADVERSE_OR_DISCLAIMER:
+  note: "Partner judgement required whether Adverse or Disclaimer based on circumstances."

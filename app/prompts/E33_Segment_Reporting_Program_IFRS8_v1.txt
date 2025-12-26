@@ -1,0 +1,296 @@
+ID: E33_SEGMENT_REPORTING_PROGRAM_V1
+TITLE: Segment Reporting Audit Program (IFRS 8)
+LANG: EN
+TYPE: TEMPLATE
+STANDARDS: IFRS8, IAS1, ISA500, ISA330
+VERSION: 1.0
+
+# PURPOSE
+#   Provide a Big4-level audit program for segment reporting under IFRS 8,
+#   covering identification of operating segments, CODM analysis, aggregation,
+#   disclosed measures, reconciliations, and external disclosures.
+
+# PLACEHOLDERS
+#   {{client_name}}
+#   {{period_end}}
+#   {{segment_structure}}
+#   {{codm_identification}}
+#   {{risk_assessment}}
+#   {{operating_segments}}
+#   {{aggregation_testing}}
+#   {{segment_measures}}
+#   {{kpi_testing}}
+#   {{reconciliations}}
+#   {{entity_wide_disclosures}}
+#   {{major_customers}}
+#   {{exceptions_summary}}
+#   {{conclusion}}
+#   {{appendices}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[HEADER]
+SEGMENT REPORTING — IFRS 8  
+Client: {{client_name}}  
+Period Ended: {{period_end}}
+
+IFRS 8 requires reporting based on internal management information used by the CODM.
+Accuracy and consistency with internal reporting is critical.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[1. SEGMENT STRUCTURE]
+
+{{segment_structure}}
+
+Typical segmentation:
+- Business lines (retail, wholesale, manufacturing, financial services)  
+- Geographical regions  
+- Product groups  
+- Customer classes  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2. IDENTIFICATION OF CODM (KEY IFRS 8 REQUIREMENT)**]
+
+{{codm_identification}}
+
+Tests:
+- Identify the individual or group making key resource allocation decisions  
+- Review Board minutes  
+- Evaluate management reporting packages sent to CODM  
+- Verify frequency of review  
+
+Schema:
+
+CODM_SCHEMA:
+  id: "<CODMxx>"
+  role: "<CEO|COO|Board|Management Committee>"
+  reports_received: "<text>"
+  frequency: "<monthly|quarterly>"
+  evidence_ref: "<WP ref>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[3. RISK ASSESSMENT — IFRS 8]
+
+{{risk_assessment}}
+
+Key risks:
+- Incorrect identification of segments  
+- Manipulation of internal reporting to hide losses  
+- Incorrect aggregation  
+- Inconsistent KPI definitions  
+- Incorrect reconciliation to FS  
+- Missing entity-wide disclosures  
+- Missing significant customers disclosure  
+
+Fraud risks:
+- Reassigning divisions to manipulate profitability presentation  
+- Moving costs between segments  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[4. MACHINE-READY SEGMENT SCHEMA]
+
+SEGMENT_SCHEMA:
+  id: "<SEGxx>"
+  segment_name: "<text>"
+  revenue: "<numeric>"
+  profit_measure: "<numeric>"
+  assets_reported: "<numeric>"
+  liabilities_reported: "<numeric>"
+  kpi_values: "<list>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[5. IDENTIFICATION OF OPERATING SEGMENTS**
+
+{{operating_segments}}
+
+Tests:
+- Identify components reviewed by CODM  
+- Determine which segments engage in business activities  
+- Determine segments for which discrete financial information exists  
+- Identify reportable segments (>10% tests)  
+
+Schema:
+
+OPERATING_SEGMENT_SCHEMA:
+  id: "<OPSEGxx>"
+  segment_name: "<string>"
+  business_activity: "<text>"
+  discrete_info: "<true|false>"
+  codm_reviewed: "<true|false>"
+  reportable: "<true|false>"
+  evidence_ref: "<WP ref>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[6. AGGREGATION TESTING (IFRS 8.12–14)**]
+
+{{aggregation_testing}}
+
+Aggregation allowed only if:
+- segments have similar economic characteristics  
+- similar nature of products/services  
+- similar production processes  
+- similar customers  
+- similar distribution  
+
+Schema:
+
+AGGREGATION_SCHEMA:
+  id: "<AGGxx>"
+  segments_aggregated: "<list>"
+  basis_for_aggregation: "<text>"
+  justification_ok: "<true|false>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[7. SEGMENT MEASURES (REVENUE, PROFIT, ASSETS)**]
+
+{{segment_measures}}
+
+Auditor must test:
+- definitions of segment profit/loss  
+- consistency with internal reporting  
+- adjustments from IFRS measures  
+- inclusion/exclusion of items  
+
+Schema:
+
+SEGMENT_MEASURES_SCHEMA:
+  id: "<MEASxx>"
+  segment_id: "<SEGxx>"
+  measure_type: "<profit|revenue|assets|liabilities>"
+  amount: "<numeric>"
+  basis: "<text>"
+  reconciles_to_IFRS: "<true|false>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[8. KPI TESTING (MEASURES PROVIDED TO CODM)**]
+
+{{kpi_testing}}
+
+Examples:
+- EBITDA  
+- ROIC  
+- Contribution margin  
+- Customer churn  
+- Backlog  
+
+Schema:
+
+KPI_SCHEMA:
+  id: "<KPIxx>"
+  segment_id: "<SEGxx>"
+  kpi_name: "<string>"
+  kpi_value: "<numeric>"
+  calculation_basis: "<text>"
+  consistent_with_internal_reports: "<true|false>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[9. RECONCILIATIONS TO FS (IFRS 8.28)**]
+
+{{reconciliations}}
+
+Auditor must test:
+- Revenue reconciliation (segment → total revenue)  
+- Profit/loss reconciliation  
+- Total assets reconciliation  
+- Total liabilities reconciliation  
+
+Schema:
+
+RECON_SCHEMA:
+  id: "<RECONxx>"
+  type: "<revenue|profit|assets|liabilities>"
+  total_per_segments: "<numeric>"
+  total_per_FS: "<numeric>"
+  reconciling_items: "<text>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[10. ENTITY-WIDE DISCLOSURES (IFRS 8.31–34)**]
+
+{{entity_wide_disclosures}}
+
+Must test:
+- Revenues by products/services  
+- Revenues by geography  
+- Non-current assets by geography  
+- Information about major customers  
+
+Schema:
+
+ENTITY_WIDE_SCHEMA:
+  id: "<EWxx>"
+  disclosure_type: "<products|geography|non_current_assets>"
+  details: "<text>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[11. MAJOR CUSTOMERS DISCLOSURE (IF ≥ 10% REVENUE)**]
+
+{{major_customers}}
+
+Tests:
+- Identify all customers >10% of total revenue  
+- Confirm segment to which revenue belongs  
+- Confirm disclosure provided (name NOT required)  
+
+Schema:
+
+CUSTOMER_SCHEMA:
+  id: "<CUSxx>"
+  customer_revenue: "<numeric>"
+  percentage_of_total: "<numeric>"
+  segment_name: "<string>"
+  disclosure_required: "<true|false>"
+  disclosed: "<true|false>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[12. EXCEPTIONS SUMMARY]
+
+{{exceptions_summary}}
+
+Exception schema:
+
+EXCEPTION_SCHEMA:
+  id: "<string>"
+  segment_id: "<SEGxx>"
+  area: "<identification|aggregation|measure|KPI|reconciliation|entitywide>"
+  description: "<text>"
+  severity: "<Low|Medium|High>"
+  impact_on_FS: "<text>"
+  linked_misstatement: "<MISID or null>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[13. OVERALL CONCLUSION]
+
+{{conclusion}}
+
+Possible conclusions:
+1. IFRS 8 disclosures complete and accurate  
+2. Segments identified correctly  
+3. Measures consistent with CODM reporting  
+4. Reconciliations accurate  
+5. Exceptions immaterial  
+6. Material misstatement exists  
+7. Insufficient evidence → scope limitation  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[14. APPENDICES]
+
+{{appendices}}
+
+Typical:
+- Internal management reports  
+- CODM packages  
+- Segment schedules  
+- KPI calculation files  
+- Revenue by geography  
+- Reconciliations workbook  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[END OF DOCUMENT]

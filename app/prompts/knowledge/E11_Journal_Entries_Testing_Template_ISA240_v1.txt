@@ -1,0 +1,198 @@
+ID: E11_JETE_JOURNAL_ENTRY_TESTING_V1
+TITLE: Journal Entries Testing Template (Management Override Procedures)
+LANG: EN
+TYPE: TEMPLATE
+STANDARDS: ISA240, ISA330, ISA315
+VERSION: 1.0
+
+# PURPOSE
+#   Provide a structured template for planning, performing, and documenting
+#   journal entry testing (JET), a mandatory procedure under ISA 240
+#   to address the risk of management override of controls.
+
+# PLACEHOLDERS:
+#   {{client_name}}
+#   {{period_end}}
+#   {{risk_assessment_summary}}
+#   {{jete_strategy}}
+#   {{journal_population_summary}}
+#   {{it_dependencies}}
+#   {{selection_criteria}}
+#   {{selected_journals_table}}
+#   {{exceptions_summary}}
+#   {{conclusion}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[HEADER]
+JOURNAL ENTRIES TESTING (JET)
+Client: {{client_name}}
+Period Ended: {{period_end}}
+
+This document outlines the required audit procedures related to management override of controls 
+as required by ISA 240. These procedures apply to all audits, regardless of assessed risk.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[1. OVERVIEW (ISA 240 REQUIREMENTS)]
+
+Mandatory components under ISA 240:
+- Identify and test journal entries and other adjustments made in the financial reporting process.
+- Select journal entries based on risk factors (manual, unusual, end-of-period, user override).
+- Review accounting estimates for possible management bias.
+- Review unusual or significant transactions outside the normal course of business.
+
+This template focuses on the Journal Entries Testing component.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2. RISK ASSESSMENT SUMMARY]
+
+Summary of risk related to management override:
+{{risk_assessment_summary}}
+
+# Example elements to include:
+# - Fraud risk inherent level: High (ISA 240 mandatory)
+# - Areas most susceptible: Revenue, Provisions, ECL, PPE revaluation, Inventory write-downs
+# - System landscape (SAP / 1C / Oracle / In-house ERP)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[3. JETE STRATEGY & SCOPE]
+
+JETE_STRATEGY:
+{{jete_strategy}}
+
+Topics to cover:
+- Whether the entity uses manual or automated journals
+- Who can post journals (roles, segregation)
+- Whether "super-user" access exists
+- Use of templates or recurring entries
+- Controls over journal approvals
+- Whether system logs and audit trails exist
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[4. JOURNAL POPULATION SUMMARY]
+
+Summary of journals extracted:
+{{journal_population_summary}}
+
+# Machine schema:
+JE_POPULATION_SCHEMA:
+  total_entries: "<int>"
+  period: "<date range>"
+  system: "<ERP name>"
+  posting_levels: ["HQ", "Branches", "Consolidation"]
+  fields_extracted: ["JE number", "date", "posting date", "amount", "prepared_by", "approved_by", "description", "account", "cost center"]
+  completeness_checks:
+    - "<log review>"
+    - "<record count reconciliation>"
+    - "<control totals>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[5. IT DEPENDENCIES]
+
+Describe data extraction, ITGC reliance, completeness and accuracy procedures:
+{{it_dependencies}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[6. SELECTION CRITERIA (ISA 240 MANDATORY LOGIC)]
+
+SELECTION_CRITERIA:
+{{selection_criteria}}
+
+# Recommended criteria set (Big4 standard):
+
+SELECTION_SCHEMA:
+  high_risk_criteria:
+    - "Manual journal entries posted at period-end"
+    - "Entries posted by senior management or unusual users"
+    - "Unusual or rarely used accounts"
+    - "Entries with round amounts or duplicates"
+    - "Entries reversing shortly after period-end"
+    - "Entries affecting revenue or key estimates"
+    - "Entries bypassing normal approval workflows"
+  moderate_risk_criteria:
+    - "Entries outside normal work hours"
+    - "Entries to suspense or clearing accounts"
+    - "Frequent adjustments to provisions or reserves"
+  automated_selection_logic:
+    - query: "Select JE where user IN (admin, director, CFO)"
+    - query: "Select JE where account LIKE '999%'"
+    - query: "Select JE with debit/credit > threshold"
+    - query: "Select JE posted between last 3 days of the period"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[7. SELECTED JOURNALS — TESTING TABLE]
+
+{{selected_journals_table}}
+
+# Recommended human-readable table:
+
+# | Ref | JE ID | Date | User | Description | Accounts Affected | Amount | Reason for Selection | Procedures Performed | Exceptions |
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[8. MACHINE-READABLE TESTING SCHEMA]
+
+JETEST_SCHEMA:
+  ref: "<string>"
+  je_id: "<string>"
+  posting_date: "<date>"
+  entry_date: "<date>"
+  user: "<string>"
+  accounts: ["<acct1>", "<acct2>"]
+  amount: "<numeric>"
+  selection_reason: "<criteria>"
+  procedures_performed:
+    - "Inspect source documents"
+    - "Evaluate business rationale"
+    - "Trace to approval logs"
+    - "Compare to policy"
+  evidence_reference: "<WP reference>"
+  exceptions_found: "<text|null>"
+  fraud_indicators:
+    - "<override>"
+    - "<bias>"
+    - "<complex/unusual>"
+  conclusion: "<supported/not_supported>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[9. EXCEPTIONS SUMMARY & FRAUD INDICATORS]
+
+{{exceptions_summary}}
+
+Template:
+- List of exceptions with JE IDs
+- Fraud indicators identified (ISA 240 red flags)
+- Impact on financial statements
+- Link to misstatements in SUD (E8)
+
+EXCEPTIONS_SCHEMA:
+  id: "<string>"
+  je_id: "<string>"
+  description: "<text>"
+  amount: "<numeric>"
+  fraud_flag: "<true|false>"
+  impact: "<area and FS impact>"
+  linked_misstatement: "<MISID or null>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[10. CONCLUSION ON MANAGEMENT OVERRIDE RISK]
+
+Conclusion:
+{{conclusion}}
+
+Should include:
+- Whether override risk has been sufficiently addressed
+- Whether exceptions indicate broader fraud risk
+- Whether additional procedures are required
+- Impact on audit opinion
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[11. LINKAGE TO OTHER DOCUMENTS]
+
+Links:
+- SRM (E10) → identifies override as a fraud SR  
+- Testing Procedures DB (G2.9/G2.10) → stores JE tests  
+- SUD (E8) → aggregates exceptions into misstatements  
+- ACM (E7) → override conclusion enters fraud section  
+- APM (E9) → strategy drives JE selection  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[END OF DOCUMENT]

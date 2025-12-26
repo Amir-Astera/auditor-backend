@@ -1,0 +1,38 @@
+ID: B5_ESTIMATES_ISA540_LIBRARY_V1
+TITLE: Accounting Estimates Library
+LANG: EN
+TYPE: RISK_LIBRARY
+STANDARDS: ISA540
+VERSION: 1.0
+
+# STRUCTURE PER ESTIMATE
+#   - estimate_id
+#   - name
+#   - examples
+#   - inherent_risk_level
+#   - relevant_assertions
+#   - typical_procedures
+
+ESTIMATE:
+  estimate_id: EST01
+  name: "Expected credit loss (ECL) on trade receivables"
+  examples: ["IFRS 9 impairment of receivables"]
+  inherent_risk_level: "High"
+  relevant_assertions: ["valuation", "completeness"]
+  typical_procedures:
+    - "Understand model and assumptions."
+    - "Test data inputs (aging, customer groups)."
+    - "Perform sensitivity analysis on key assumptions."
+
+ESTIMATE:
+  estimate_id: EST02
+  name: "Fair value of investment property"
+  examples: ["IFRS 13 / IAS 40 fair value model"]
+  inherent_risk_level: "High"
+  relevant_assertions: ["valuation", "presentation"]
+  typical_procedures:
+    - "Evaluate qualifications and independence of valuers."
+    - "Reperform key valuation calculations."
+    - "Compare yields and prices to market data."
+
+# Add more estimates as needed for each industry.

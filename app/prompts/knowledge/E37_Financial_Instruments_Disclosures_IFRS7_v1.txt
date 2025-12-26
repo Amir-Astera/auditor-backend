@@ -1,0 +1,345 @@
+ID: E37_FINANCIAL_INSTRUMENTS_DISCLOSURES_V1
+TITLE: Financial Instruments Disclosures Audit Program (IFRS 7 Deep Audit)
+LANG: EN
+TYPE: TEMPLATE
+STANDARDS: IFRS7, IFRS9, IFRS13, ISA500, ISA540
+VERSION: 1.0
+
+# PURPOSE
+#   Provide a Big4-grade audit program for all IFRS 7 disclosures:
+#   - classification & measurement
+#   - credit risk & ECL disclosures
+#   - liquidity risk
+#   - market risk
+#   - fair value hierarchy
+#   - hedge accounting
+#   - derecognition
+#   - off-balance-sheet exposures
+
+# PLACEHOLDERS
+#   {{client_name}}
+#   {{period_end}}
+#   {{instrument_classes}}
+#   {{risk_assessment}}
+#   {{classification_measurement}}
+#   {{credit_risk}}
+#   {{ecl_disclosures}}
+#   {{liquidity_risk}}
+#   {{market_risk}}
+#   {{fair_value_hierarchy}}
+#   {{derecognition}}
+#   {{hedge_accounting}}
+#   {{collateral}}
+#   {{exceptions_summary}}
+#   {{conclusion}}
+#   {{appendices}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[HEADER]
+FINANCIAL INSTRUMENTS DISCLOSURES — IFRS 7 (DEEP AUDIT)  
+Client: {{client_name}}  
+Period Ended: {{period_end}}
+
+This program ensures completeness, accuracy, and consistency of IFRS 7 disclosures,
+integrated with IFRS 9 classification and measurement and IFRS 13 fair value requirements.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[1. FINANCIAL INSTRUMENT CLASSES]
+
+{{instrument_classes}}
+
+Include:
+- cash  
+- trade receivables  
+- loans receivable  
+- investments (debt, equity)  
+- derivatives  
+- borrowings  
+- lease liabilities (IFRS 16 link)  
+- guarantees  
+- commitments  
+- off-balance-sheet instruments  
+
+Schema:
+
+INSTRUMENT_CLASS_SCHEMA:
+  id: "<FICxx>"
+  class_name: "<string>"
+  measurement_category: "<amortized_cost|FVOCI|FVPL>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2. RISK ASSESSMENT — IFRS 7]
+
+{{risk_assessment}}
+
+Key risks:
+- Wrong classification of instruments  
+- Missing credit risk disclosures  
+- Missing liquidity risk maturity analysis  
+- Wrong ECL levels (Stage 1/2/3)  
+- Missing fair value hierarchy  
+- Missing sensitivity analysis  
+- Hedge disclosures incomplete  
+- Derecognition (factoring/securitization) incorrectly treated  
+
+Fraud risks:
+- Understating ECL  
+- Omitting derivative exposures  
+- Manipulating fair value level classification  
+- Hiding off-balance-sheet risks  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[3. CLASSIFICATION & MEASUREMENT DISCLOSURES (IFRS 9)**]
+
+{{classification_measurement}}
+
+Tests:
+- Verify classification: business model + SPPI  
+- Reconcile carrying amounts by class  
+- Reconcile fair value vs amortized cost disclosures  
+
+Schema:
+
+CLASSIFICATION_SCHEMA:
+  id: "<CLSxx>"
+  instrument_class: "<string>"
+  category: "<AC|FVOCI|FVPL>"
+  basis: "<SPPI|business_model>"
+  carrying_amount: "<numeric>"
+  fair_value: "<numeric>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[4. CREDIT RISK DISCLOSURES (CRITICAL)**]
+
+{{credit_risk}}
+
+Tests:
+- Maximum exposure to credit risk  
+- Collateral and credit enhancements  
+- Concentration of credit risk  
+- Credit risk management policies  
+
+Schema:
+
+CREDIT_RISK_SCHEMA:
+  id: "<CRxx>"
+  instrument_class: "<string>"
+  max_exposure: "<numeric>"
+  collateral: "<numeric>"
+  credit_enhancements: "<text>"
+  concentration_risk: "<text>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[5. EXPECTED CREDIT LOSS (ECL) DISCLOSURES — IFRS 9 REQUIRED]
+
+{{ecl_disclosures}}
+
+Disclosures must include:
+- ECL methodology  
+- Stage 1 / Stage 2 / Stage 3 allocation  
+- Movements in loss allowance  
+- Forward-looking information  
+- Sensitivity analysis  
+- Write-offs  
+
+Schema:
+
+ECL_SCHEMA:
+  id: "<ECLxx>"
+  stage: "<1|2|3>"
+  opening_loss_allowance: "<numeric>"
+  charge_for_period: "<numeric>"
+  write_offs: "<numeric>"
+  recoveries: "<numeric>"
+  closing_loss_allowance: "<numeric>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[6. LIQUIDITY RISK — MATURITY ANALYSIS]
+
+{{liquidity_risk}}
+
+Disclosures must include:
+- contractual maturities for financial liabilities  
+- undiscounted cash flows  
+- analysis by time band  
+
+Schema:
+
+LIQUIDITY_RISK_SCHEMA:
+  id: "<LRxx>"
+  liability_name: "<string>"
+  maturity_bands: "<list>"
+  undiscounted_cash_flows: "<numeric>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[7. MARKET RISK DISCLOSURES**
+
+{{market_risk}}
+
+Types of market risk:
+- interest rate risk  
+- FX risk  
+- commodity risk  
+- price risk  
+
+Tests:
+- sensitivity analysis  
+- exposure tables  
+
+Schema:
+
+MARKET_RISK_SCHEMA:
+  id: "<MRxx>"
+  risk_type: "<interest|FX|commodity|price>"
+  exposure_amount: "<numeric>"
+  sensitivity: "<numeric>"
+  basis: "<text>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[8. FAIR VALUE HIERARCHY — IFRS 13 REQUIREMENTS (CRITICAL)**]
+
+{{fair_value_hierarchy}}
+
+Levels:
+- Level 1 — quoted prices  
+- Level 2 — observable inputs  
+- Level 3 — unobservable inputs  
+
+Tests:
+- classification  
+- valuation techniques  
+- significant unobservable inputs  
+- sensitivity of Level 3  
+
+Schema:
+
+FAIR_VALUE_SCHEMA:
+  id: "<FVxx>"
+  instrument_name: "<string>"
+  level: "<1|2|3>"
+  valuation_technique: "<text>"
+  unobservable_inputs: "<text>"
+  fair_value: "<numeric>"
+  sensitivity: "<numeric>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[9. DERECOGNITION DISCLOSURES (SEVERE RISK)**]
+
+{{derecognition}}
+
+Cases:
+- factoring  
+- securitization  
+- transfers of financial assets  
+- risks and rewards retained?  
+- continuing involvement?  
+
+Schema:
+
+DERECOGNITION_SCHEMA:
+  id: "<DExx>"
+  transaction_type: "<factoring|securitization|transfer>"
+  derecognition_ok: "<true|false>"
+  continuing_involvement: "<true|false>"
+  exposure_amount: "<numeric>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[10. HEDGE ACCOUNTING DISCLOSURES — IFRS 9]
+
+{{hedge_accounting}}
+
+Types:
+- fair value hedge  
+- cash flow hedge  
+- hedge of net investment  
+
+Tests:
+- hedge designation documentation  
+- hedge effectiveness  
+- OCI movements  
+
+Schema:
+
+HEDGE_SCHEMA:
+  id: "<HEDxx>"
+  hedge_type: "<FVH|CFH|NIV>"
+  risk_being_hedged: "<text>"
+  hedged_item: "<text>"
+  hedging_instrument: "<text>"
+  effectiveness_result: "<text>"
+  OCI_movement: "<numeric>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[11. COLLATERAL & CREDIT ENHANCEMENTS]
+
+{{collateral}}
+
+Disclosures:
+- nature of collateral  
+- carrying amount of secured assets  
+- financial guarantees  
+- performance guarantees  
+
+Schema:
+
+COLLATERAL_SCHEMA:
+  id: "<COLxx>"
+  instrument_class: "<string>"
+  collateral_value: "<numeric>"
+  credit_enhancement_type: "<text>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[12. EXCEPTIONS SUMMARY]
+
+{{exceptions_summary}}
+
+EXCEPTION_SCHEMA:
+  id: "<string>"
+  area: "<classification|credit|ECL|liquidity|market|FV|derecognition|hedge|collateral>"
+  description: "<text>"
+  amount: "<numeric>"
+  severity: "<Low|Medium|High>"
+  impact_on_FS: "<text>"
+  linked_misstatement: "<MISID or null>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[13. OVERALL CONCLUSION]
+
+{{conclusion}}
+
+Possible outcomes:
+1. IFRS 7 disclosures complete and accurate  
+2. ECL disclosures robust  
+3. Fair value hierarchy correct  
+4. Risk disclosures complete  
+5. Exceptions immaterial  
+6. Material misstatement exists  
+7. Insufficient evidence  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[14. APPENDICES]
+
+{{appendices}}
+
+Typical:
+- Financial instrument register  
+- ECL model outputs  
+- Sensitivity analysis tables  
+- Fair value working papers  
+- Hedge documentation  
+- Maturity analysis reports  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[END OF DOCUMENT]

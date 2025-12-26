@@ -1,0 +1,222 @@
+11_TCWG_Communication_Pack_v1.txt
+Author: Igor Tilepin
+Trusted Source: TRI-S-AUDIT
+
+─────────────────────────────────────────────
+DOCUMENT: COMMUNICATIONS WITH THOSE CHARGED WITH GOVERNANCE (TCWG) — ISA 260/265/701/570 PACK (B4-LEVEL)
+
+Purpose
+-------
+This pack standardizes all required and value-adding communications with TCWG across the audit lifecycle. It defines:
+- WHAT must be communicated (required by ISA + best practice),
+- WHEN and HOW to communicate (calendar, formats),
+- WHO owns each item (client/audit),
+- QUALITY GATES and traceability to working papers and FS disclosures.
+
+Applicable Standards
+- ISA 260 (Revised): Communication with TCWG
+- ISA 265: Communicating Deficiencies in Internal Control
+- ISA 701: Communicating Key Audit Matters
+- ISA 570: Going Concern
+- ISA 240/250: Fraud; Laws & Regulations (NOCLAR)
+- ISA 540/330/315/520/530/560/580: Estimates; Responses; Risk; Analytics; Sampling; Subsequent Events; Written Representations
+Cross-refs: 02_StyleGuide, 03_ISA_RoutingPrompts, 04_Risk_Library_by_Cycle, 05_Materiality_Playbook, 06_Sampling_Methods_ISA530, 07_Legal_Matrix, 08_PBC_Master_List, 09_Audit_Templates, 10_Management_Rep_Full_ISA580, 12_KAM_Skeletons, 13_Forensic_RedFlags, 14_Glossary, 15_Model_IO_Guide
+
+─────────────────────────────────────────────
+PACK COMPONENTS (DELIVERABLE SET)
+---------------------------------
+1) TCWG Planning Communication (Deck/Memo) — ISA 260
+   - Scope & timing, group/locations, component materiality
+   - Overall materiality, performance materiality, CT (clearly trivial threshold)
+   - Significant risks & fraud risks; planned responses; use of specialists
+   - Independence threats & safeguards; team rotation
+   - Reporting approach (KAM candidates, modified opinion triggers)
+   - PBC calendar, dependencies, logistics
+
+2) Interim Update (1–2 pages or short deck)
+   - Status vs plan; preliminary findings; changes to risk assessment/materiality
+   - Emerging matters (legal, regulatory, going concern indicators)
+   - Issues requiring TCWG decisions
+
+3) Year-End Results Communication (Deck + Letter) — ISA 260
+   - Significant findings; qualitative aspects of accounting practices
+   - Corrected & uncorrected misstatements (SUM)
+   - Judgments & estimates (ISA 540), bias indicators
+   - Related parties; NOCLAR; fraud matters; deficiencies overview
+   - Going concern evaluation; subsequent events
+   - Draft auditor’s report (incl. KAMs) and reporting logistics
+
+4) Internal Control Deficiencies Letter — ISA 265
+   - Significant deficiencies (definition, per-process detail, effects, root cause)
+   - Other deficiencies (opportunities to strengthen)
+   - Management responses & action plans
+
+5) Independence Confirmation — Annual Written Statement
+   - Threats (self-review, self-interest, familiarity, advocacy, intimidation)
+   - Safeguards applied; conclusion of independence
+
+6) Summary of Unadjusted Misstatements (SUM) — Appendix to 260 letter
+   - Quantified and qualitative assessment; rollover/iron-curtain analysis
+   - Recommendation to adjust; effect on opinion if not adjusted
+
+7) KAM Pre-Read — ISA 701
+   - Proposed KAM titles; “why KAM”; “how addressed”; FS note references
+   - Link to 12_KAM_Skeletons and underlying evidence
+
+8) Going Concern Communication — ISA 570
+   - Summary of procedures & assumptions; sensitivity results; covenant headroom
+   - Material uncertainty vs Emphasis of Matter decision tree
+
+9) Subsequent Events & Legal Bring-Down — ISA 560/501
+   - Through-date, bring-down of legal counsel and management reps
+   - Confirmations status
+
+10) TCWG Action Tracker & Decisions Log
+   - Open items, decisions taken, deadlines, owners
+
+─────────────────────────────────────────────
+COMMUNICATIONS CALENDAR (PHASE-BASED)
+-------------------------------------
+Planning (PLN) — by [D-30 to D-10]
+- Deliver 1) Planning Deck; 5) Independence Statement; proposed materiality & risks
+Interim (INT) — as applicable
+- Deliver 2) Interim Update; emerging KAMs
+Year-End (YE) — fieldwork end ±1–3 days
+- Deliver 3) Year-End Results Deck + 6) SUM draft; KAM pre-read
+Close (CL) — pre-report issue
+- Deliver 4) ISA 265 Letter; 8) Going Concern memo; 9) Bring-down status
+Report (RP) — before signing
+- Final 3) 260 Letter; final KAMs; logistics (signing, distribution)
+
+Channels & Attendance
+- Formal meetings (in person/VC); Chair of AC, CFO, CEO (as invited)
+- Pre-reads sent ≥48 hours in advance; minutes prepared within 48 hours post-meeting
+
+─────────────────────────────────────────────
+QUALITY GATES (B4-LEVEL)
+------------------------
+- Versioning: YYYYMMDD_CLIENT_TCWG_[DocType]_vNN (PDF for finals; PPTX/DOCX working)
+- Cross-referencing: Each conclusion ties to WP refs, evidence IDs, and FS notes
+- Materiality: Show OM, PM, CT; explain rationale and changes
+- Independence: Explicit threats assessment + safeguards
+- Actionability: For each finding — effect, root cause, required action, owner, due date
+- Plain-English, entity-specific; avoid boilerplate; disclose no original info not in FS
+
+─────────────────────────────────────────────
+TCWG COMMUNICATIONS REGISTER — TABLE TEMPLATE
+---------------------------------------------
+| ID | Date | Phase | Channel | Attendees | Topics (ISA refs) | Pre-reads | Decisions | Actions (Owner, Due) | Follow-up Date | WP Ref |
+Example:
+| TC-07 | 2026-03-12 | YE | VC | AC Chair, CFO, Audit Partner | SUM; KAMs (701); GC (570) | SUM_v03; KAM_PreRead_v02 | Approve KAM titles | CFO: adjust ECL overlay by 0.4m (3/18) | 2026-03-19 | G1.3.2 |
+
+─────────────────────────────────────────────
+TEMPLATES — OUTLINES & BOILERPLATE
+----------------------------------
+
+A) Planning Communication (ISA 260) — Deck Outline
+1. Engagement Overview & Team (independence, rotation)
+2. Scope & Timetable (group, components, reliance strategy)
+3. Materiality: OM/PM/CT, benchmarks, rationale
+4. Significant Risks & Fraud Risks; responses (link: 04_Risk_Library)
+5. Use of Specialists (valuation, actuarial, IT)
+6. Data & PBC Plan (link: 08_PBC_Master_List)
+7. Reporting Approach (KAM candidates; modifications triggers)
+8. Legal & Subsequent Events plan (link: 07_Legal_Matrix)
+9. Communications cadence; needed decisions
+
+B) Year-End Results Letter (ISA 260) — Sections
+- Executive Summary (overall conclusion; status vs plan)
+- Significant Findings (by area; effect on FS)
+- Qualitative Aspects of Accounting Practices (policies, estimates, bias)
+- Corrected & Uncorrected Misstatements (attach SUM)
+- Fraud & NOCLAR Considerations (ISA 240/250)
+- Related Parties & Unusual Transactions (ISA 550)
+- Going Concern & Subsequent Events (ISA 570/560)
+- Independence Confirmation (updated)
+- KAMs to be communicated in the report (ISA 701)
+- Other Reporting (Emphasis/Other Matter; modifications if any)
+- Appendices: SUM; management letter points index; meeting minutes
+
+C) ISA 265 — Control Deficiencies Letter (Structure)
+- Purpose & Scope (definition of significant deficiency)
+- Summary of Significant Deficiencies (table: process, condition, criterion, cause, consequence, recommendation)
+- Other Deficiencies (improvement opportunities)
+- Management Responses & Target Dates
+- Auditor’s Responsibilities Limitation paragraph (ISA wording)
+Note: Map to 03_ISA_RoutingPrompts for drafting tone; do not use “material weakness” terminology unless jurisdiction requires; use “significant deficiency” per ISA.
+
+D) Summary of Unadjusted Misstatements (SUM) — Table
+| # | FS Caption | Description | ΔPBT | ΔEquity | ΔEPS | CT? | Qualitative factors | Management decision | Auditor view | WP Ref |
+De-minimis (CT) threshold: [insert per 05_Materiality_Playbook]. Provide aggregate effect and rollover/iron-curtain analysis.
+
+E) Independence Confirmation — Paragraph (Short Form)
+“We confirm that we are independent of [Entity] in accordance with relevant ethical requirements. We have assessed threats (self-interest, self-review, familiarity, advocacy, intimidation) and applied safeguards as described in Appendix A. We are not aware of any relationships or services that, in our professional judgment, bear on our independence.”
+
+F) Going Concern Communication — Outline (ISA 570)
+- Management’s assessment period and key assumptions
+- Procedures performed (forecast testing, sensitivities, covenant headroom)
+- Indicators observed; mitigating plans; post-balance developments
+- Conclusion: No MU; MU with adequate disclosure; Inadequate disclosure (modification)
+- Reporting implications (EoM vs MU paragraph; basis for modification)
+
+G) KAM Pre-Read — One-Pager per Candidate (link 12_KAM_Skeletons)
+- Title; Why KAM; How addressed; FS Note refs; Residual matters for TCWG decision
+
+─────────────────────────────────────────────
+TRIGGERS & ESCALATION LOGIC
+---------------------------
+- Fraud allegations / suspected NOCLAR → immediate TCWG notification route (ISA 240/250) per legal advice
+- Scope limitation (e.g., absence of legal letters) → early alert to AC; consider modification (ISA 705)
+- Significant deficiency detected → written communication on a timely basis, not just at year-end (ISA 265)
+- Emerging going concern indicators → expedited meeting; agree disclosures and updates cadence
+- Large unadjusted misstatement near OM → escalate with quantified effects and qualitative reasons
+
+─────────────────────────────────────────────
+DECISION TREES (CONDENSED)
+--------------------------
+A) KAM or Not? (ISA 701)
+Matter of most significance communicated to TCWG? → Yes → Public interest/value to users? → Yes → Draft KAM using skeleton → Validate with partner/legal.
+
+B) Deficiency Classification (ISA 265)
+Control deficiency → Does it merit attention by TCWG due to likelihood/magnitude? → Yes → Significant deficiency; otherwise record as Other deficiency (still communicate if helpful).
+
+C) Going Concern Reporting (ISA 570)
+Material uncertainty? → Adequate disclosure → MU paragraph; Inadequate → Modified opinion; No MU but significant judgment → Consider EoM.
+
+─────────────────────────────────────────────
+QUICK INSERT PHRASES (Tailor to Client)
+---------------------------------------
+- “We reassessed materiality to reflect updated performance and risk; PM is set at X% of OM to address aggregation risk.”
+- “This matter required significant auditor attention due to complexity/estimation uncertainty and potential material impact.”
+- “We recommend adjusting the uncorrected misstatements totaling [amount]; if not adjusted, the aggregate effect on [metric] would be [amount].”
+- “We identified a significant deficiency in [process]; absent remediation, the risk of [misstatement/effect] remains elevated.”
+- “Our independence assessment identified [threat]; safeguards applied include [actions]. We remain independent.”
+
+─────────────────────────────────────────────
+RUSSIAN SUMMARY (для внутреннего пользования)
+---------------------------------------------
+Пакет TCWG — это стандартизированный набор коммуникаций с Лицами, отвечающими за корпоративное управление:
+- Планирование (материальность, риски, независимость, план работ),
+- Промежуточные обновления,
+- Итоговые результаты (значимые выводы, корректировки/некорректировки, оценки, связанные стороны, NOCLAR, непрерывность, KAM),
+- Письмо о недостатках внутреннего контроля (ISA 265),
+- Подтверждение независимости,
+- Предварительные KAM и логика отчётности (ISA 701),
+- Лог последующих событий и юридическое «bring-down».
+
+Каждый документ — с чёткими критериями качества и связями с рабочими документами и примечаниями к отчетности.
+
+─────────────────────────────────────────────
+USAGE NOTES FOR THE MODEL (internal)
+------------------------------------
+- When asked to “prepare TCWG pack for phase X,” generate: agenda, pre-read list, deck outline, and update the Register.
+- Auto-link risks to 04_Risk_Library; materiality to 05_Materiality; legal to 07_Legal_Matrix; misstatements to SUM table; KAMs to 12_KAM_Skeletons.
+- Enforce quality gates (versioning, cross-refs, actionability). Avoid boilerplate.
+
+─────────────────────────────────────────────
+CONFIDENTIALITY NOTICE
+----------------------
+This pack is for governance communications only. Do not include original information not publicly disclosed by management. Coordinate sensitive items (fraud/NOCLAR) with legal counsel.
+
+─────────────────────────────────────────────
+END OF DOCUMENT

@@ -1,0 +1,319 @@
+ID: E34_EQUITY_CAPITAL_PROGRAM_V1
+TITLE: Equity & Capital Audit Program (IAS 1 + IAS 32 + IFRS 2)
+LANG: EN
+TYPE: TEMPLATE
+STANDARDS: IAS1, IAS32, IFRS2, IFRS9 (classification), ISA500, ISA540
+VERSION: 1.0
+
+# PURPOSE
+#   Provide a Big4-level audit program for Equity, Capital, Reserves, 
+#   Financial Instruments classified as Equity, and Share-Based Payments.
+
+# PLACEHOLDERS
+#   {{client_name}}
+#   {{period_end}}
+#   {{equity_structure}}
+#   {{risk_assessment}}
+#   {{share_capital_testing}}
+#   {{share_premium_testing}}
+#   {{treasury_shares}}
+#   {{dividends}}
+#   {{OCI_components}}
+#   {{equity_vs_liability}}
+#   {{share_based_payments}}
+#   {{convertible_instruments}}
+#   {{exceptions_summary}}
+#   {{conclusion}}
+#   {{appendices}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[HEADER]
+EQUITY & CAPITAL — IAS 1 • IAS 32 • IFRS 2  
+Client: {{client_name}}  
+Period Ended: {{period_end}}
+
+This program covers:
+- share capital movements  
+- reserves  
+- equity vs liability classification  
+- treasury shares  
+- share-based payments  
+- distributable profits  
+- convertible instruments  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[1. EQUITY STRUCTURE]
+
+{{equity_structure}}
+
+Typical components:
+- Share capital / statutory capital  
+- Share premium  
+- Retained earnings  
+- Other reserves:  
+  * revaluation reserves  
+  * FVOCI reserve  
+  * FX translation reserve  
+  * hedging reserves  
+- Treasury shares  
+- Non-controlling interests  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[2. RISK ASSESSMENT — IAS 32 & IFRS 2]
+
+{{risk_assessment}}
+
+Key risks:
+- Incorrect equity vs liability classification  
+- Missing disclosure of share classes  
+- Incorrect treasury share accounting  
+- Incorrect share-based payments valuation  
+- Missing approvals for dividends  
+- Incorrect OCI movements  
+- Incorrect classification of instruments with put options  
+
+Fraud risks:
+- Manipulating distributable reserves  
+- Incorrectly presenting liabilities as equity  
+- Using complex shareholder structures for concealment  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[3. MACHINE-READY EQUITY SCHEMA]
+
+EQUITY_SCHEMA:
+  id: "<EQxx>"
+  component: "<share_capital|share_premium|treasury|retained|oci|nci|other>"
+  description: "<text>"
+  opening_balance: "<numeric>"
+  movements: "<numeric>"
+  closing_balance: "<numeric>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[4. SHARE CAPITAL TESTING (ISSUANCE, REDEMPTION)**]
+
+{{share_capital_testing}}
+
+Procedures:
+- Inspect charter/statute  
+- Verify share register  
+- Test additions: cash received, valuation, approvals  
+- Test reductions: buyback rules, legal compliance  
+- Verify nominal value and share classes  
+
+Schema:
+
+SHARE_CAPITAL_SCHEMA:
+  id: "<SCxx>"
+  type: "<issue|buyback|conversion>"
+  shares_issued: "<numeric>"
+  issue_price: "<numeric>"
+  cash_received: "<numeric>"
+  approval_ref: "<text>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[5. SHARE PREMIUM TESTING]
+
+{{share_premium_testing}}
+
+Tests:
+- Recalculate allocation between nominal and premium  
+- Trace receipts to bank (E20 linkage)  
+- Verify legal restrictions on use  
+
+Schema:
+
+SHARE_PREMIUM_SCHEMA:
+  id: "<SPxx>"
+  nominal_value: "<numeric>"
+  premium_value: "<numeric>"
+  cash_received: "<numeric>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[6. TREASURY SHARES TESTING]
+
+{{treasury_shares}}
+
+Tests:
+- Verify acquisition of own shares  
+- Reconcile treasury share reserve  
+- Verify prohibition on recognizing gains/losses in P&L  
+- Check resale accounting  
+
+Schema:
+
+TREASURY_SCHEMA:
+  id: "<TSxx>"
+  shares_acquired: "<numeric>"
+  acquisition_cost: "<numeric>"
+  resales: "<numeric>"
+  reserve_balance: "<numeric>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[7. DIVIDENDS TESTING**
+
+{{dividends}}
+
+Tests:
+- Verify approvals  
+- Recalculate dividend per share  
+- Test distribution vs retained earnings legality  
+- Test tax withholding (E26 linkage)  
+- Trace payment to bank  
+
+Schema:
+
+DIVIDENDS_SCHEMA:
+  id: "<DIVxx>"
+  dividend_date: "<date>"
+  amount_total: "<numeric>"
+  amount_per_share: "<numeric>"
+  approval_ref: "<text>"
+  paid: "<true|false>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[8. OTHER COMPREHENSIVE INCOME (OCI) COMPONENT TESTING]
+
+{{OCI_components}}
+
+OCI categories:
+- FVOCI financial instruments (IFRS 9)  
+- Cash flow hedges (IFRS 9)  
+- Revaluation reserve (IAS 16 / IAS 38)  
+- FX translation reserve (IAS 21)  
+
+Schema:
+
+OCI_SCHEMA:
+  id: "<OCIxx>"
+  component: "<FVOCI|revaluation|hedging|translation>"
+  opening_balance: "<numeric>"
+  movement: "<numeric>"
+  closing_balance: "<numeric>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[9. EQUITY VS LIABILITY CLASSIFICATION (IAS 32)**]
+
+{{equity_vs_liability}}
+
+Tests:
+- Inspect contractual terms  
+- Does issuer have *unconditional right* to avoid delivering cash?  
+- Derivative components?  
+- Puttable instruments?  
+- Settlement options?  
+
+Schema:
+
+CLASSIFICATION_SCHEMA:
+  id: "<CLxx>"
+  instrument_name: "<text>"
+  liability_or_equity: "<equity|liability|compound>"
+  basis: "<text>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[10. CONVERTIBLE INSTRUMENTS (IAS 32 + IFRS 9)**]
+
+{{convertible_instruments}}
+
+Tests:
+- Identify debt host and equity derivative  
+- Separate liability and equity components  
+- Recalculate effective interest rate  
+- Test embedded derivatives  
+
+Schema:
+
+CONVERTIBLE_SCHEMA:
+  id: "<CONVxx>"
+  instrument_name: "<text>"
+  liability_component: "<numeric>"
+  equity_component: "<numeric>"
+  interest_expense: "<numeric>"
+  evidence_ref: "<WP ref>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[11. SHARE-BASED PAYMENTS (IFRS 2)**]
+
+{{share_based_payments}}
+
+Types:
+- Equity-settled  
+- Cash-settled  
+- Phantom shares  
+- Options  
+- RSU / PSU  
+
+Tests:
+- Identify grants  
+- Review vesting conditions  
+- Recalculate fair value at grant date  
+- Test expected volatility, risk-free rate, expected life  
+- Test share-based payment expense  
+
+Schema:
+
+SBP_SCHEMA:
+  id: "<SBPxx>"
+  grant_name: "<string>"
+  sbp_type: "<equity|cash>"
+  fair_value_per_unit: "<numeric>"
+  number_of_units: "<numeric>"
+  expense_recorded: "<numeric>"
+  vesting_conditions: "<text>"
+  exception_flag: "<true|false>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[12. EXCEPTIONS SUMMARY]
+
+{{exceptions_summary}}
+
+EXCEPTION_SCHEMA:
+  id: "<string>"
+  component: "<capital|premium|treasury|dividends|OCI|classification|convertible|SBP>"
+  description: "<text>"
+  amount: "<numeric>"
+  severity: "<Low|Medium|High>"
+  impact_on_FS: "<text>"
+  linked_misstatement: "<MISID or null>"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[13. OVERALL CONCLUSION]
+
+{{conclusion}}
+
+Possible outcomes:
+1. Equity structure compliant with IFRS  
+2. OCI correct  
+3. Classification correct  
+4. Share-based payments correct  
+5. Exceptions immaterial  
+6. Material misstatement  
+7. Insufficient evidence → scope limitation  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[14. APPENDICES]
+
+{{appendices}}
+
+Typical:
+- Shareholder register  
+- Capital movement schedule  
+- OCI rollforward  
+- Grant agreements  
+- Valuation reports  
+- Convertible instrument contracts  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[END OF DOCUMENT]
