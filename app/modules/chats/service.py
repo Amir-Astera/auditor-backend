@@ -165,6 +165,10 @@ class ChatService:
             )
         except Exception as e:
             logger.error(f"RAG query failed: {e}")
+            try:
+                self.db.rollback()
+            except Exception:
+                pass
             rag_result = {
                 "answer": "Извините, произошла ошибка при поиске информации.",
                 "context": [],
@@ -180,9 +184,16 @@ class ChatService:
             role="assistant",
             content=rag_result["answer"],
         )
-        self.db.add(assistant_msg)
-        self.db.commit()
-        self.db.refresh(assistant_msg)
+        try:
+            self.db.add(assistant_msg)
+            self.db.commit()
+            self.db.refresh(assistant_msg)
+        except Exception:
+            try:
+                self.db.rollback()
+            except Exception:
+                pass
+            raise
         
         # 5. Index message pair to chat memory
         if self.memory_service:

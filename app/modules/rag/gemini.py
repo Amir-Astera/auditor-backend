@@ -15,13 +15,60 @@ References:
 
 from __future__ import annotations
 
+import os
+import threading
+from collections import deque
 from dataclasses import dataclass
+import re
+import time
 from typing import Iterable, List, Optional, Sequence, Union
 
 from app.core.config import settings
 from app.core.logging import get_logger
 
 logger = get_logger(__name__)
+
+class _GeminiRpmLimiter:
+    def __init__(self, rpm: int):
+        self._rpm = max(0, int(rpm))
+        self._lock = threading.Lock()
+        self._calls: deque[float] = deque()
+
+    def acquire(self) -> None:
+        if self._rpm <= 0:
+            return
+
+        window_s = 60.0
+        min_interval_s = window_s / float(self._rpm)
+
+        while True:
+            sleep_s = 0.0
+            now = time.monotonic()
+            with self._lock:
+                # Drop timestamps outside the window
+                while self._calls and (now - self._calls[0]) > window_s:
+                    self._calls.popleft()
+
+                # Enforce min spacing between calls (prevents bursts)
+                if self._calls:
+                    elapsed = now - self._calls[-1]
+                    if elapsed < min_interval_s:
+                        sleep_s = min_interval_s - elapsed
+                if sleep_s == 0.0:
+                    self._calls.append(now)
+                    return
+
+            time.sleep(sleep_s)
+
+
+_GEMINI_RPM_LIMIT = int(os.getenv("GEMINI_RPM_LIMIT", "5") or "5")
+_gemini_rpm_limiter = _GeminiRpmLimiter(_GEMINI_RPM_LIMIT)
+
+@dataclass
+class GeminiModels:
+    """Configuration for Gemini model names."""
+    llm: str
+    embedding: str
 
 try:
     # Official SDK per docs: from google import genai; client = genai.Client()
@@ -33,25 +80,9 @@ except Exception as e:  # pragma: no cover
 
 from app.core.config import settings
 
-<<<<<<< HEAD
-
 GEMINI_API_KEY = settings.GEMINI_API_KEY or "" 
 MODEL_NAME = settings.GEMINI_MODEL or 'gemini-2.0-flash' 
 # FILE_API_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/files"
-=======
-@dataclass(frozen=True)
-class GeminiModels:
-    """
-    Centralized model names.
-
-    - llm: Used for answer generation
-    - embedding: Used for vector embeddings
-    """
-
-    llm: str
-    embedding: str
->>>>>>> eee24b948ef0dadb5be3420166520a4166b90c9e
-
 
 class GeminiAPI:
     """
@@ -129,69 +160,103 @@ class GeminiAPI:
             # We pass it explicitly if supported by the SDK.
             pass
 
-        try:
-            # Try to pass system_instruction if supported
+        def _parse_retry_seconds(msg: str) -> float | None:
+            if not msg:
+                return None
+            m = re.search(r"retryDelay\"\s*:\s*\"(\d+(?:\.\d+)?)s\"", msg)
+            if m:
+                return float(m.group(1))
+            m = re.search(r"retry in\s*~?(\d+(?:\.\d+)?)s", msg, flags=re.IGNORECASE)
+            if m:
+                return float(m.group(1))
+            m = re.search(r"retry after\s*(\d+(?:\.\d+)?)s", msg, flags=re.IGNORECASE)
+            if m:
+                return float(m.group(1))
+            return None
+
+        last_exc: Exception | None = None
+        for attempt in range(1, 6):
             try:
-                if system_instruction:
+                _gemini_rpm_limiter.acquire()
+                # Try to pass system_instruction if supported
+                try:
+                    if system_instruction:
+                        response = self._client.models.generate_content(
+                            model=model_name,
+                            contents=contents,
+                            system_instruction=system_instruction,
+                            config={
+                                "temperature": temperature,
+                                "max_output_tokens": max_output_tokens,
+                            },
+                        )
+                    else:
+                        response = self._client.models.generate_content(
+                            model=model_name,
+                            contents=contents,
+                            config={
+                                "temperature": temperature,
+                                "max_output_tokens": max_output_tokens,
+                            },
+                        )
+                except (TypeError, AttributeError):
+                    # Fallback: try without config parameter
                     response = self._client.models.generate_content(
                         model=model_name,
                         contents=contents,
-                        system_instruction=system_instruction,
-                        config={
-                            "temperature": temperature,
-                            "max_output_tokens": max_output_tokens,
+                    )
+
+                # Extract text from response - try multiple formats
+                text = None
+                if hasattr(response, "text"):
+                    text = response.text
+                elif hasattr(response, "candidates") and response.candidates:
+                    # Some SDK versions return candidates[0].content.parts[0].text
+                    candidate = response.candidates[0]
+                    if hasattr(candidate, "content") and hasattr(candidate.content, "parts"):
+                        if candidate.content.parts:
+                            text = getattr(candidate.content.parts[0], "text", None)
+
+                if not text:
+                    logger.warning(
+                        "Empty response from Gemini generate_content",
+                        extra={
+                            "model": model_name,
+                            "response_type": type(response).__name__,
+                            "response_attrs": dir(response) if hasattr(response, "__dict__") else None,
                         },
                     )
-                else:
-                    response = self._client.models.generate_content(
-                        model=model_name,
-                        contents=contents,
-                        config={
-                            "temperature": temperature,
-                            "max_output_tokens": max_output_tokens,
+                    raise ValueError("Empty response.text from Gemini generate_content")
+                return text
+            except Exception as e:
+                last_exc = e
+                msg = str(e)
+                is_rate = ("429" in msg) or ("RESOURCE_EXHAUSTED" in msg) or ("rate" in msg.lower())
+                if attempt >= 5 or not is_rate:
+                    logger.error(
+                        "Gemini generate_text failed",
+                        extra={
+                            "model": model_name,
+                            "prompt_len": len(prompt),
+                            "error": str(e),
+                            "error_type": type(e).__name__,
                         },
                     )
-            except (TypeError, AttributeError):
-                # Fallback: try without config parameter
-                response = self._client.models.generate_content(
-                    model=model_name,
-                    contents=contents,
-                )
-            
-            # Extract text from response - try multiple formats
-            text = None
-            if hasattr(response, "text"):
-                text = response.text
-            elif hasattr(response, "candidates") and response.candidates:
-                # Some SDK versions return candidates[0].content.parts[0].text
-                candidate = response.candidates[0]
-                if hasattr(candidate, "content") and hasattr(candidate.content, "parts"):
-                    if candidate.content.parts:
-                        text = getattr(candidate.content.parts[0], "text", None)
-            
-            if not text:
-                # Fallback: try to stringify response for debugging
+                    raise
+
+                retry_s = _parse_retry_seconds(msg)
+                if retry_s is None:
+                    retry_s = min(60.0, 2.0**attempt)
+                retry_s = max(1.0, float(retry_s))
+
                 logger.warning(
-                    "Empty response from Gemini generate_content",
-                    extra={
-                        "model": model_name,
-                        "response_type": type(response).__name__,
-                        "response_attrs": dir(response) if hasattr(response, "__dict__") else None,
-                    },
+                    "Gemini rate-limited; retrying",
+                    extra={"attempt": attempt, "sleep_s": retry_s, "model": model_name},
                 )
-                raise ValueError("Empty response.text from Gemini generate_content")
-            return text
-        except Exception as e:
-            logger.error(
-                "Gemini generate_text failed",
-                extra={
-                    "model": model_name,
-                    "prompt_len": len(prompt),
-                    "error": str(e),
-                    "error_type": type(e).__name__,
-                },
-            )
-            raise
+                time.sleep(retry_s)
+
+        assert last_exc is not None
+        raise last_exc
 
     # Backwards-compatible alias (some parts of the project used this name)
     def generate_content(self, prompt: str) -> str:
@@ -249,6 +314,7 @@ class GeminiAPI:
     ) -> List[float]:
         model_name = model or self.models.embedding
         try:
+            _gemini_rpm_limiter.acquire()
             # Official REST is models.embedContent; SDK exposes equivalent under client.models.
             # Try different formats for contents parameter
             try:

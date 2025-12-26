@@ -7,8 +7,9 @@ from app.core.config import settings
 from app.core.db import get_db
 from app.core.logging import get_logger
 from app.modules.auth.router import get_current_user
+from app.modules.auth.models import User
 from app.modules.files.qdrant_client import QdrantVectorStore
-from app.modules.prompts.service import PromptService
+from app.modules.prompts.service import PromptsService
 from app.modules.rag.gemini import GeminiAPI
 from app.modules.rag.schemas import (
     RAGDeleteResponse,
@@ -34,19 +35,38 @@ def _get_rag_service(db: Session = Depends(get_db)) -> RAGService:
     
     gemini_api = GeminiAPI()
     
-    # Инициализация QdrantVectorStore
-    qdrant_store = None
+    qdrant_store_admin = None
+    qdrant_store_client = None
     try:
-        qdrant_store = QdrantVectorStore(
+        admin_collection = settings.QDRANT_COLLECTION_ADMIN or settings.QDRANT_COLLECTION_NAME
+        client_collection = settings.QDRANT_COLLECTION_CLIENT or settings.QDRANT_COLLECTION_NAME
+
+        qdrant_store_admin = QdrantVectorStore(
             url=settings.QDRANT_URL,
-            collection_name=settings.QDRANT_COLLECTION_NAME,
+            collection_name=admin_collection,
             vector_size=settings.QDRANT_VECTOR_SIZE,
         )
-        logger.info("QdrantVectorStore initialized successfully")
+        qdrant_store_client = QdrantVectorStore(
+            url=settings.QDRANT_URL,
+            collection_name=client_collection,
+            vector_size=settings.QDRANT_VECTOR_SIZE,
+        )
+        logger.info(
+            "QdrantVectorStore initialized successfully",
+            extra={
+                "admin_collection": admin_collection,
+                "client_collection": client_collection,
+            },
+        )
     except Exception as e:
         logger.error(f"Failed to initialize QdrantVectorStore: {e}")
-    
-    return RAGService(db=db, gemini_api=gemini_api, qdrant_store=qdrant_store)
+
+    return RAGService(
+        db=db,
+        gemini_api=gemini_api,
+        qdrant_store_admin=qdrant_store_admin,
+        qdrant_store_client=qdrant_store_client,
+    )
 
 
 @router.post(
@@ -122,7 +142,7 @@ async def rag_evidence(
                 detail="Forbidden: employees cannot query admin laws",
             )
 
-        result = service.evidence(
+        result = await service.evidence(
             question=request.question,
             mode=request.mode,
             top_k=request.top_k,

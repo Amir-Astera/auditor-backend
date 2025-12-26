@@ -90,8 +90,6 @@ class FileChunk(Base):
 
     chunk_index: Mapped[int] = mapped_column(Integer, nullable=False)
     text: Mapped[str] = mapped_column(Text, nullable=False)
-
-    tenant_id: Mapped[str | None] = mapped_column(String, nullable=True)
     customer_id: Mapped[str | None] = mapped_column(String, nullable=True)
     owner_id: Mapped[str | None] = mapped_column(String, nullable=True)
     scope: Mapped[str | None] = mapped_column(String, nullable=True)

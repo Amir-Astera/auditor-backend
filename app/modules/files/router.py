@@ -42,20 +42,7 @@ def _get_file_service(db: Session = Depends(get_db)) -> FileService:
         )
     )
 
-    vector_store = QdrantVectorStore(
-        url=settings.QDRANT_URL,
-        collection_name=settings.QDRANT_COLLECTION_NAME,
-        vector_size=settings.QDRANT_VECTOR_SIZE,
-    )
-
-    embedding_provider = EmbeddingProvider(vector_size=vector_store.vector_size)
-
-    return FileService(
-        db=db,
-        storage=storage,
-        vector_store=vector_store,
-        embedding_provider=embedding_provider,
-    )
+    return FileService(db=db, storage=storage)
 
 
 @router.post("/admin", status_code=201)
@@ -66,13 +53,31 @@ async def upload_admin_file(
 ):
     service = _get_file_service(db)
 
-    stored_file = service.upload_admin_file(user, file)
+    try:
+        stored_file = service.upload_admin_file(user, file)
+    except Exception as e:
+        logger.exception(
+            "Admin file upload failed",
+            extra={"user_id": str(getattr(user, "id", "")), "filename": getattr(file, "filename", "")},
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to upload admin file: {e}",
+        )
 
     # Ставим задачу в Arq асинхронно
-
-    redis = await get_arq_redis()
-
-    await redis.enqueue_job("index_file_task", str(stored_file.id))
+    try:
+        redis = await get_arq_redis()
+        await redis.enqueue_job("index_file_task", str(stored_file.id))
+    except Exception as e:
+        logger.exception(
+            "Failed to enqueue index_file_task for admin upload",
+            extra={"stored_file_id": str(getattr(stored_file, "id", ""))},
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to enqueue indexing job: {e}",
+        )
 
     logger.info(
         "Index file task enqueued",
@@ -94,10 +99,38 @@ async def upload_customer_file(
     user: User = Depends(get_current_employee),
     service: FileService = Depends(_get_file_service),
 ):
-    stored_file = service.upload_customer_file(user=user, customer_id=customer_id, file=file)
+    try:
+        stored_file = service.upload_customer_file(
+            user=user,
+            customer_id=customer_id,
+            file=file,
+        )
+    except Exception as e:
+        logger.exception(
+            "Customer file upload failed",
+            extra={
+                "user_id": str(getattr(user, "id", "")),
+                "customer_id": customer_id,
+                "filename": getattr(file, "filename", ""),
+            },
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to upload customer file: {e}",
+        )
 
-    redis = await get_arq_redis()
-    await redis.enqueue_job("index_file_task", str(stored_file.id))
+    try:
+        redis = await get_arq_redis()
+        await redis.enqueue_job("index_file_task", str(stored_file.id))
+    except Exception as e:
+        logger.exception(
+            "Failed to enqueue index_file_task for customer upload",
+            extra={"stored_file_id": str(getattr(stored_file, "id", "")), "customer_id": customer_id},
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to enqueue indexing job: {e}",
+        )
 
     logger.info(
         "Index file task enqueued",

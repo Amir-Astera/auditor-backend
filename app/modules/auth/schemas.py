@@ -2,7 +2,7 @@
 
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr, Field, validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 MAX_PASSWORD_BYTES = 72
 

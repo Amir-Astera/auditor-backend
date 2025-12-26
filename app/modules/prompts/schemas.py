@@ -4,34 +4,32 @@ Pydantic схемы для работы с промптами через API.
 """
 
 from datetime import datetime
-from typing import Optional
+from typing import Any, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.modules.prompts.models import PromptStatus, PromptType
+from app.modules.prompts.models import PromptCategory, PromptStatus
 
 
 class PromptCreate(BaseModel):
     """Схема для создания нового промпта."""
 
     name: str = Field(..., description="Название промпта", max_length=255)
-    type: PromptType = Field(..., description="Тип промпта")
+    display_name: str = Field(..., description="Отображаемое имя", max_length=255)
+    category: PromptCategory = Field(..., description="Категория промпта")
     content: str = Field(..., description="Содержимое промпта")
     status: PromptStatus = Field(
         default=PromptStatus.DRAFT,
         description="Статус промпта",
     )
-    version: str = Field(default="v1.0", description="Версия промпта")
+    language: str = Field(default="EN", description="Язык промпта")
+    priority: int = Field(default=0, description="Приоритет")
+    version: str = Field(default="1.0", description="Версия промпта")
     description: Optional[str] = Field(None, description="Описание промпта")
-    metadata_: Optional[str] = Field(
-        None,
-        description="JSON метаданные (language, author, tags)",
-        alias="metadata",
-    )
-    is_default: bool = Field(
-        default=False,
-        description="Является ли промпт дефолтным для своего типа",
+    variables: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="JSON переменные шаблона",
     )
 
 
@@ -39,13 +37,16 @@ class PromptUpdate(BaseModel):
     """Схема для обновления промпта."""
 
     name: Optional[str] = Field(None, max_length=255)
-    type: Optional[PromptType] = None
+    display_name: Optional[str] = Field(None, max_length=255)
+    category: Optional[PromptCategory] = None
     content: Optional[str] = None
     status: Optional[PromptStatus] = None
     version: Optional[str] = None
     description: Optional[str] = None
-    metadata_: Optional[str] = Field(None, alias="metadata")
-    is_default: Optional[bool] = None
+    variables: Optional[dict[str, Any]] = None
+    language: Optional[str] = None
+    priority: Optional[int] = None
+    change_summary: Optional[str] = None
 
 
 class PromptBase(BaseModel):
@@ -53,19 +54,18 @@ class PromptBase(BaseModel):
 
     id: UUID
     name: str
-    type: PromptType
+    display_name: str
+    category: PromptCategory
     content: str
     status: PromptStatus
     version: str
     description: Optional[str]
-    metadata: Optional[str] = Field(
-        None,
-        validation_alias="metadata_",
-        serialization_alias="metadata",
-    )
-    is_default: bool
-    created_by_id: Optional[UUID]
-    updated_by_id: Optional[UUID]
+    variables: Optional[str]
+    author_id: UUID
+    language: str
+    priority: int
+    usage_count: int
+    last_used_at: Optional[datetime]
     created_at: datetime
     updated_at: datetime
 
@@ -77,10 +77,12 @@ class PromptListItem(BaseModel):
 
     id: UUID
     name: str
-    type: PromptType
+    display_name: str
+    category: PromptCategory
     status: PromptStatus
     version: str
-    is_default: bool
+    language: str
+    priority: int
     created_at: datetime
     updated_at: datetime
 
@@ -97,13 +99,22 @@ class PromptListResponse(BaseModel):
 class PromptContentResponse(BaseModel):
     """Ответ с содержимым промпта (для использования в RAG)."""
 
-    type: PromptType
+    category: PromptCategory
     content: str
     version: str
-    metadata: Optional[str] = Field(
-        None,
-        validation_alias="metadata_",
-        serialization_alias="metadata",
-    )
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
+
+
+class PromptVersionBase(BaseModel):
+    """Схема версии промпта."""
+
+    id: UUID
+    prompt_id: UUID
+    version: str
+    content: str
+    change_summary: Optional[str]
+    created_by_id: UUID
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)

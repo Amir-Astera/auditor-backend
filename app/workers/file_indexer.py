@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import asyncio
 import uuid
+from datetime import datetime
 from typing import Any
 
 from arq.connections import RedisSettings
+from arq import create_pool, ArqRedis
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
@@ -50,8 +52,14 @@ async def startup(ctx: dict[str, Any]) -> None:
     ctx["gemini"] = GeminiAPI()
 
     # Qdrant vector stores (admin vs client)
-    admin_collection = settings.QDRANT_COLLECTION_ADMIN or settings.QDRANT_COLLECTION_NAME
-    client_collection = settings.QDRANT_COLLECTION_CLIENT or settings.QDRANT_COLLECTION_NAME
+    admin_collection = (
+        getattr(settings, "QDRANT_COLLECTION_ADMIN", None)
+        or settings.QDRANT_COLLECTION_NAME
+    )
+    client_collection = (
+        getattr(settings, "QDRANT_COLLECTION_CLIENT", None)
+        or settings.QDRANT_COLLECTION_NAME
+    )
 
     ctx["qdrant_admin"] = QdrantVectorStore(
         url=settings.QDRANT_URL,
@@ -102,14 +110,18 @@ async def index_file_task(ctx: dict[str, Any], file_id: str) -> None:
     db: Session = SessionLocal()  # новая сессия для воркера
     try:
         storage = FileStorage(cfg=ctx["storage_cfg"])
-        vector_store: QdrantVectorStore = ctx["qdrant"]
-        embedding_provider = EmbeddingProvider(vector_store.vector_size)
+        gemini_api: GeminiAPI = ctx["gemini"]
+        qdrant_admin: QdrantVectorStore = ctx["qdrant_admin"]
+        qdrant_client: QdrantVectorStore = ctx["qdrant_client"]
+        lightrag_service = ctx.get("lightrag")
 
-        service = FileService(
+        service = HybridFileService(
             db=db,
             storage=storage,
-            vector_store=vector_store,
-            embedding_provider=embedding_provider,
+            vector_store_admin=qdrant_admin,
+            vector_store_client=qdrant_client,
+            lightrag_service=lightrag_service,
+            gemini_api=gemini_api,
         )
 
         # Обновляем статус файла -> RUNNING
@@ -122,14 +134,12 @@ async def index_file_task(ctx: dict[str, Any], file_id: str) -> None:
         stored_file.index_error = None
         db.commit()
 
-        # Синхронная индексация внутри воркера (можно асинхронизировать позже)
+        # Индексация файла
         service.index_file(file_uuid)
 
-        # index_file сам проставляет is_indexed/index_error, здесь можно добить статус/время
+        # Обновляем статус после индексации
         stored_file = db.get(StoredFile, file_uuid)
         if stored_file and stored_file.is_indexed and not stored_file.index_error:
-            from datetime import datetime
-
             stored_file.index_status = FileIndexStatus.DONE
             stored_file.indexed_at = datetime.utcnow()
             db.commit()
@@ -159,8 +169,6 @@ async def index_file_task(ctx: dict[str, Any], file_id: str) -> None:
                     lightrag = create_lightrag_service(
                         working_dir="./lightrag_cache",
                         workspace=workspace,
-                        gemini_api=GeminiAPI(),
-                        embedding_service=get_embedding_service(),
                     )
 
                     await lightrag.ainsert(

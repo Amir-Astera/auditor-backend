@@ -1,0 +1,62 @@
+{
+  "local:keywords:d295b77200b44dc2c0f90bb4c920e42d": {
+    "return": "{\"high_level_keywords\": [\"Contracts\", \"Contractual roles\", \"Legal agreements\"], \"low_level_keywords\": [\"Principals\", \"Signatories\", \"Authorized representatives\", \"Parties to a contract\"]}",
+    "cache_type": "keywords",
+    "chunk_id": null,
+    "original_prompt": "Какие есть руководители в договорах?",
+    "queryparam": {
+      "mode": "local",
+      "response_type": "Multiple Paragraphs",
+      "top_k": 6,
+      "chunk_top_k": 20,
+      "max_entity_tokens": 6000,
+      "max_relation_tokens": 8000,
+      "max_total_tokens": 30000,
+      "user_prompt": "",
+      "enable_rerank": true
+    },
+    "create_time": 1766788996,
+    "update_time": 1766788996,
+    "_id": "local:keywords:d295b77200b44dc2c0f90bb4c920e42d"
+  },
+  "hybrid:keywords:f86f27d1a53edfd6f74e44d8e5e69307": {
+    "return": "{\"high_level_keywords\": [\"Tasks\", \"Responsibilities\", \"Objectives\"], \"low_level_keywords\": [\"OZ TZ\", \"Main tasks\"]}",
+    "cache_type": "keywords",
+    "chunk_id": null,
+    "original_prompt": "В OZ ТЗ какие есть основные задачи?",
+    "queryparam": {
+      "mode": "hybrid",
+      "response_type": "Multiple Paragraphs",
+      "top_k": 5,
+      "chunk_top_k": 20,
+      "max_entity_tokens": 6000,
+      "max_relation_tokens": 8000,
+      "max_total_tokens": 30000,
+      "user_prompt": "",
+      "enable_rerank": true
+    },
+    "create_time": 1766789495,
+    "update_time": 1766789495,
+    "_id": "hybrid:keywords:f86f27d1a53edfd6f74e44d8e5e69307"
+  },
+  "hybrid:keywords:39dc0fee56842571b47da3b10059f32a": {
+    "return": "{\"high_level_keywords\": [\"Main tasks\", \"Key objectives\", \"Document content\", \"Core functions\"], \"low_level_keywords\": [\"OSON_TZ_FULL.docx\", \"Tasks\", \"File\", \"Document analysis\"]}",
+    "cache_type": "keywords",
+    "chunk_id": null,
+    "original_prompt": "В OSON_TZ_FULL.docx какие есть основные задачи?",
+    "queryparam": {
+      "mode": "hybrid",
+      "response_type": "Multiple Paragraphs",
+      "top_k": 5,
+      "chunk_top_k": 20,
+      "max_entity_tokens": 6000,
+      "max_relation_tokens": 8000,
+      "max_total_tokens": 30000,
+      "user_prompt": "",
+      "enable_rerank": true
+    },
+    "create_time": 1766789620,
+    "update_time": 1766789620,
+    "_id": "hybrid:keywords:39dc0fee56842571b47da3b10059f32a"
+  }
+}

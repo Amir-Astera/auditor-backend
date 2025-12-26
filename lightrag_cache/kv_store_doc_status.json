@@ -1,0 +1,31 @@
+{
+  "doc-8a5d994951af68507a3d3ccc057a0f38": {
+    "status": "processed",
+    "chunks_count": 3,
+    "chunks_list": [
+      "chunk-f3697a2aec0d5a9b91aa79e994df85a8",
+      "chunk-9d092c51a6a29e9221a85cd86932b464",
+      "chunk-8c2bd49ef8400ee6c5dc080813b1c132"
+    ],
+    "content_summary": "OSON Document Intelligence\nТехническое задание для разработки\nMVP + Roadmap + Система подтверждений\nOSON SOFT\nДекабрь 2025\nСОДЕРЖАНИЕ\nЧАСТЬ 1: MVP v1.0\n1. Введение\n2. Модульная архитектура (CORE + PLUGINS)\n3. Дополнения в админку\n4. Компоненты систем...",
+    "content_length": 7508,
+    "created_at": "2025-12-26T22:38:56.271910+00:00",
+    "updated_at": "2025-12-26T22:39:25.444982+00:00",
+    "file_path": "OSON_TZ_FULL.docx",
+    "track_id": "insert_20251227_033856_d5393b1b",
+    "metadata": {
+      "processing_start_time": 1766788736,
+      "processing_end_time": 1766788765
+    }
+  },
+  "doc-f8ab33a38a7e693e0789cdf3cb46b768": {
+    "status": "pending",
+    "content_summary": "OM={om_pct*100}% от {benchmark}, PM={PM_FACTORS[risk_level]*100}% от OM ({risk_level} risk)'\n}\nC2. Формула расчёта выборки (ISA 530)\n# functions/sampling.py\ndef calculate_sample_size(\npopulation_size: int,\npopulation_value: float,\npm: float,\nrisk_lev...",
+    "content_length": 7508,
+    "created_at": "2025-12-26T22:39:25.554188+00:00",
+    "updated_at": "2025-12-26T22:39:25.554188+00:00",
+    "file_path": "OSON_TZ_FULL.docx",
+    "track_id": "insert_20251227_033925_0fe4db4c",
+    "chunks_list": []
+  }
+}

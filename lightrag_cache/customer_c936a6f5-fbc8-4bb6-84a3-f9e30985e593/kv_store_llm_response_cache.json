@@ -1,0 +1,22 @@
+{
+  "local:keywords:d295b77200b44dc2c0f90bb4c920e42d": {
+    "return": "{\"high_level_keywords\": [\"Contracts\", \"Leadership roles\", \"Contractual agreements\"], \"low_level_keywords\": [\"Executives\", \"Signatories\", \"Legal representatives\", \"Contract parties\"]}",
+    "cache_type": "keywords",
+    "chunk_id": null,
+    "original_prompt": "Какие есть руководители в договорах?",
+    "queryparam": {
+      "mode": "local",
+      "response_type": "Multiple Paragraphs",
+      "top_k": 12,
+      "chunk_top_k": 20,
+      "max_entity_tokens": 6000,
+      "max_relation_tokens": 8000,
+      "max_total_tokens": 30000,
+      "user_prompt": "",
+      "enable_rerank": true
+    },
+    "create_time": 1766789006,
+    "update_time": 1766789006,
+    "_id": "local:keywords:d295b77200b44dc2c0f90bb4c920e42d"
+  }
+}

@@ -10,15 +10,15 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.append(str(PROJECT_ROOT))
 
-from app.core.db import Base, engine
+from app.core.db import Base, engine, _import_models
 from app.core.logging import configure_logging, get_logger
 from app.modules.auth.router import router as auth_router
 from app.modules.files.router import router as files_router
-from app.modules.prompts import models as _prompts_models
 
 configure_logging()
 logger = get_logger(__name__)
 
+_import_models()
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
@@ -31,7 +31,6 @@ from app.modules.chats.router import router as chats_router
 from app.modules.customers.router import router as customers_router
 from app.modules.prompts.router import router as prompts_router
 from app.modules.rag.router import router as rag_router
-from app.modules.prompts.router import router as prompts_router
 
 app.include_router(auth_router)
 app.include_router(files_router)

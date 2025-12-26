@@ -232,15 +232,13 @@ class EnhancedRAGPipeline:
             svc = create_lightrag_service(
                 working_dir="./lightrag_cache",
                 workspace=workspace,
-                gemini_api=self.gemini_api,
-                embedding_service=self.embedding_service,
             )
+            self._lightrag_cache[workspace] = svc
+            return svc
         except Exception as e:
-            logger.warning(f"LightRAG workspace init failed (workspace={workspace}): {e}")
-            svc = None
-
-        self._lightrag_cache[workspace] = svc
-        return svc
+            logger.warning("LightRAG init failed for workspace=%s: %s", workspace, e)
+            self._lightrag_cache[workspace] = None
+            return None
 
     async def _second_signal_lightrag(
         self,
@@ -959,12 +957,12 @@ Provide a professional auditor response following these guidelines:
     async def _generate_response(self, prompt: str, temperature: float) -> Dict[str, Any]:
         """Generate response using Gemini."""
         try:
-            response = await asyncio.to_thread(self.gemini_api.generate_content, prompt)
-            if response and 'candidates' in response:
-                text = response['candidates'][0]['content']['parts'][0]['text']
-                return {"text": text, "success": True}
-            else:
-                raise ValueError("Invalid response format")
+            text = await asyncio.to_thread(
+                self.gemini_api.generate_text,
+                prompt,
+                temperature=temperature,
+            )
+            return {"text": text, "success": True}
                 
         except Exception as e:
             logger.error(f"Generation failed: {e}")
@@ -997,53 +995,54 @@ Response: {response_text[:1000]}...
 
 Available Evidence Citations: {[ev['citation'] for ev in evidence_pack['evidence']]}
 
-Analyze:
-1. Does every factual statement have evidence support?
-2. Are all citations valid and present in evidence?
-3. Is the response free of hallucinated information?
+    Analyze:
+    1. Does every factual statement have evidence support?
+    2. Are all citations valid and present in evidence?
+    3. Is the response free of hallucinated information?
 
-Return a JSON object:
-{{
-    "grounded": true/false,
-    "score": 0.0-1.0,
-    "issues": ["list of grounding issues if any"],
-    "suggestions": ["improvement suggestions if needed"]
-}}
-"""
-        
+    Return a JSON object:
+    {{
+        "grounded": true/false,
+        "score": 0.0-1.0,
+        "issues": ["list of grounding issues if any"],
+        "suggestions": ["improvement suggestions if needed"]
+    }}
+    """
+
         try:
-            check_response = await asyncio.to_thread(self.gemini_api.generate_content, grounding_prompt)
-            if check_response and 'candidates' in check_response:
-                result_text = check_response['candidates'][0]['content']['parts'][0]['text']
-                
-                # Try to parse JSON
-                try:
-                    import json
-                    grounding_result = json.loads(result_text)
-                    grounding_result["text"] = response_text
-                    return grounding_result
-                except json.JSONDecodeError:
-                    # Fallback if JSON parsing fails
-                    return {
-                        "text": response_text,
-                        "grounded": True,
-                        "score": 0.8,
-                        "issues": [],
-                        "suggestions": []
-                    }
-        
+            result_text = await asyncio.to_thread(
+                self.gemini_api.generate_text,
+                grounding_prompt,
+                temperature=0.0,
+            )
+
+            # Try to parse JSON
+            try:
+                import json
+
+                grounding_result = json.loads(result_text)
+                grounding_result["text"] = response_text
+                return grounding_result
+            except json.JSONDecodeError:
+                # Fallback if JSON parsing fails
+                return {
+                    "text": response_text,
+                    "grounded": True,
+                    "score": 0.8,
+                    "issues": [],
+                    "suggestions": [],
+                }
+
         except Exception as e:
             logger.error(f"Grounding check failed: {e}")
-        
-        # Fallback
-        return {
-            "text": response_text,
-            "grounded": True,
-            "score": 0.7,
-            "issues": ["Grounding check failed"],
-            "suggestions": []
-        }
-    
+            return {
+                "text": response_text,
+                "grounded": True,
+                "score": 0.7,
+                "issues": ["Grounding check failed"],
+                "suggestions": [],
+            }
+
     def _estimate_tokens(self, summary: str, turns: List[Dict], memories: List[Dict]) -> int:
         """Rough token estimation."""
         total_text = summary + " " + " ".join([t.get("content", "") for t in turns]) + " " + " ".join([m.get("text", "") for m in memories])

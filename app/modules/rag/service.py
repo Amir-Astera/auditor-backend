@@ -1,4 +1,4 @@
-"""RAG service with enhanced pipeline and dynamic prompts integration."""
+"""RAG service with EnhancedRAGPipeline integration."""
 import asyncio
 import logging
 from typing import Optional, Dict, Any, List
@@ -12,14 +12,6 @@ from app.modules.files.qdrant_client import QdrantVectorStore
 from app.modules.files.models import FileScope, FileChunk, StoredFile
 from app.modules.embeddings.service import get_embedding_service
 from app.core.config import settings
-from app.modules.files.qdrant_client import QdrantVectorStore
-from app.modules.rag.gemini import GeminiAPI
-from app.modules.rag.hybrid_service import (
-    HybridRAGQuery,
-    HybridRAGService,
-    PromptsProvider,
-)
-from app.modules.rag.lightrag_integration import create_lightrag_service
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +25,8 @@ class RAGService:
         gemini_api: Optional[GeminiAPI] = None,
         lightrag_working_dir: Optional[str] = None,
         qdrant_store: Optional[QdrantVectorStore] = None,
+        qdrant_store_admin: Optional[QdrantVectorStore] = None,
+        qdrant_store_client: Optional[QdrantVectorStore] = None,
         prompts_db: Optional[Any] = None,
         use_enhanced_pipeline: bool = True,
     ):
@@ -51,16 +45,24 @@ class RAGService:
         
         self.db = db
         self.gemini_api = gemini_api
-        self.qdrant_store = qdrant_store
+        # Backwards compatibility: if only one store provided, use it for both.
+        if qdrant_store_admin is None and qdrant_store_client is None:
+            qdrant_store_admin = qdrant_store
+            qdrant_store_client = qdrant_store
+
+        self.qdrant_store_admin = qdrant_store_admin
+        self.qdrant_store_client = qdrant_store_client
         self.use_enhanced_pipeline = use_enhanced_pipeline
         
         # Инициализация улучшенного пайплайна
         # NOTE: EnhancedRAGPipeline now requires DB session; prompts are optional.
-        if use_enhanced_pipeline and db and qdrant_store:
+        # Enhanced pipeline currently supports a single Qdrant store.
+        qdrant_for_pipeline = qdrant_store_client or qdrant_store_admin
+        if use_enhanced_pipeline and db and qdrant_for_pipeline:
             self.enhanced_pipeline = EnhancedRAGPipeline(
                 db=db,
                 gemini_api=gemini_api,
-                qdrant_store=qdrant_store,
+                qdrant_store=qdrant_for_pipeline,
             )
             logger.info("Enhanced RAG pipeline initialized")
         else:
@@ -144,6 +146,11 @@ class RAGService:
                 
             except Exception as e:
                 logger.error(f"Enhanced pipeline failed, falling back to basic: {e}")
+                if self.db is not None:
+                    try:
+                        self.db.rollback()
+                    except Exception:
+                        pass
                 # Продолжаем с базовым пайплайном
         
         # Базовый пайплайн (fallback)
@@ -173,7 +180,7 @@ class RAGService:
         # 1. Поиск документов в Qdrant с фильтрами
         context_docs = []
         
-        if self.qdrant_store:
+        if self.qdrant_store_admin or self.qdrant_store_client:
             context_docs = self._search_qdrant_documents(
                 question=question,
                 customer_id=customer_id,
@@ -228,133 +235,139 @@ class RAGService:
         limit: int = 5,
     ) -> List[Dict[str, Any]]:
         """Поиск документов в Qdrant с применением фильтров."""
-        if not self.qdrant_store:
+        if not self.qdrant_store_admin and not self.qdrant_store_client:
             return []
 
-        # Создаем эмбеддинг запроса (реальный)
         query_vector = get_embedding_service().embed_single(question)
 
-        # Подгоняем размерность под фактическую размерность коллекции Qdrant
-        target_size = getattr(self.qdrant_store, "vector_size", None)
+        target_store = self.qdrant_store_client or self.qdrant_store_admin
+        target_size = getattr(target_store, "vector_size", None) if target_store else None
         if isinstance(target_size, int) and target_size > 0:
             if len(query_vector) > target_size:
                 query_vector = query_vector[:target_size]
             elif len(query_vector) < target_size:
                 query_vector = query_vector + [0.0] * (target_size - len(query_vector))
-        
-        results = []
-        
-        # 1. Поиск по ADMIN_LAW документам
+
+        results: List[Dict[str, Any]] = []
+
         if include_admin_laws:
-            admin_filter = self.qdrant_store.build_filter(
-                scope=FileScope.ADMIN_LAW.value,
-                customer_id=None,  # Общие документы не привязаны к заказчику
-                owner_id=None,
-            )
-            
-            try:
-                admin_points = self.qdrant_store.search(
-                    query_vector=query_vector,
-                    limit=limit,
-                    filter_=admin_filter,
+            admin_store = self.qdrant_store_admin or self.qdrant_store_client
+            if admin_store is None:
+                logger.warning("Admin Qdrant store not available, skipping ADMIN_LAW search")
+            else:
+                admin_filter = admin_store.build_filter(
+                    scope=FileScope.ADMIN_LAW.value,
+                    customer_id=None,
+                    owner_id=None,
                 )
-                
-                for point in admin_points:
-                    payload = point.payload or {}
+                try:
+                    admin_points = admin_store.search(
+                        query_vector=query_vector,
+                        limit=limit,
+                        filter_=admin_filter,
+                    )
 
-                    chunk_text_value = None
-                    filename = None
-                    if self.db is not None:
-                        try:
-                            db_chunk = (
-                                self.db.query(FileChunk)
-                                .filter(
-                                    FileChunk.file_id == payload.get("file_id"),
-                                    FileChunk.chunk_index == payload.get("chunk_index"),
+                    for point in admin_points:
+                        payload = point.payload or {}
+
+                        chunk_text_value = None
+                        filename = None
+                        if self.db is not None:
+                            try:
+                                db_chunk = (
+                                    self.db.query(FileChunk)
+                                    .filter(
+                                        FileChunk.file_id == payload.get("file_id"),
+                                        FileChunk.chunk_index == payload.get("chunk_index"),
+                                    )
+                                    .first()
                                 )
-                                .first()
-                            )
-                            if db_chunk is not None:
-                                chunk_text_value = db_chunk.text
+                                if db_chunk is not None:
+                                    chunk_text_value = db_chunk.text
 
-                            db_file = self.db.query(StoredFile).get(payload.get("file_id"))
-                            if db_file is not None:
-                                filename = db_file.original_filename
-                        except Exception:
-                            chunk_text_value = None
-                            filename = None
+                                db_file = self.db.query(StoredFile).get(payload.get("file_id"))
+                                if db_file is not None:
+                                    filename = db_file.original_filename
+                            except Exception:
+                                chunk_text_value = None
+                                filename = None
 
-                    results.append({
-                        "source": "qdrant",
-                        "scope": "ADMIN_LAW",
-                        "score": point.score,
-                        "file_id": payload.get("file_id"),
-                        "chunk_index": payload.get("chunk_index"),
-                        "filename": filename,
-                        "customer_id": None,
-                        "owner_id": payload.get("owner_id"),
-                        "text": chunk_text_value or "",
-                        "citation": f"scope=ADMIN_LAW source={payload.get('file_id')} chunk={payload.get('chunk_index')}"
-                    })
-            except Exception as e:
-                logger.error(f"Error searching ADMIN_LAW documents: {e}")
-        
-        # 2. Поиск по CUSTOMER_DOC документам
+                        results.append(
+                            {
+                                "source": "qdrant",
+                                "scope": "ADMIN_LAW",
+                                "score": point.score,
+                                "file_id": payload.get("file_id"),
+                                "chunk_index": payload.get("chunk_index"),
+                                "filename": filename,
+                                "customer_id": None,
+                                "owner_id": payload.get("owner_id"),
+                                "text": chunk_text_value or "",
+                                "citation": f"scope=ADMIN_LAW source={payload.get('file_id')} chunk={payload.get('chunk_index')}",
+                            }
+                        )
+                except Exception as e:
+                    logger.error(f"Error searching ADMIN_LAW documents: {e}")
+
         if include_customer_docs and customer_id:
-            customer_filter = self.qdrant_store.build_filter(
-                scope=FileScope.CUSTOMER_DOC.value,
-                customer_id=customer_id,
-                owner_id=owner_id,
-            )
-            
-            try:
-                customer_points = self.qdrant_store.search(
-                    query_vector=query_vector,
-                    limit=limit,
-                    filter_=customer_filter,
+            customer_store = self.qdrant_store_client or self.qdrant_store_admin
+            if customer_store is None:
+                logger.warning("Customer Qdrant store not available, skipping CUSTOMER_DOC search")
+            else:
+                customer_filter = customer_store.build_filter(
+                    scope=FileScope.CUSTOMER_DOC.value,
+                    customer_id=customer_id,
+                    owner_id=owner_id,
                 )
-                
-                for point in customer_points:
-                    payload = point.payload or {}
+                try:
+                    customer_points = customer_store.search(
+                        query_vector=query_vector,
+                        limit=limit,
+                        filter_=customer_filter,
+                    )
 
-                    chunk_text_value = None
-                    filename = None
-                    if self.db is not None:
-                        try:
-                            db_chunk = (
-                                self.db.query(FileChunk)
-                                .filter(
-                                    FileChunk.file_id == payload.get("file_id"),
-                                    FileChunk.chunk_index == payload.get("chunk_index"),
+                    for point in customer_points:
+                        payload = point.payload or {}
+
+                        chunk_text_value = None
+                        filename = None
+                        if self.db is not None:
+                            try:
+                                db_chunk = (
+                                    self.db.query(FileChunk)
+                                    .filter(
+                                        FileChunk.file_id == payload.get("file_id"),
+                                        FileChunk.chunk_index == payload.get("chunk_index"),
+                                    )
+                                    .first()
                                 )
-                                .first()
-                            )
-                            if db_chunk is not None:
-                                chunk_text_value = db_chunk.text
+                                if db_chunk is not None:
+                                    chunk_text_value = db_chunk.text
 
-                            db_file = self.db.query(StoredFile).get(payload.get("file_id"))
-                            if db_file is not None:
-                                filename = db_file.original_filename
-                        except Exception:
-                            chunk_text_value = None
-                            filename = None
+                                db_file = self.db.query(StoredFile).get(payload.get("file_id"))
+                                if db_file is not None:
+                                    filename = db_file.original_filename
+                            except Exception:
+                                chunk_text_value = None
+                                filename = None
 
-                    results.append({
-                        "source": "qdrant",
-                        "scope": "CUSTOMER_DOC",
-                        "score": point.score,
-                        "file_id": payload.get("file_id"),
-                        "chunk_index": payload.get("chunk_index"),
-                        "filename": filename,
-                        "customer_id": customer_id,
-                        "owner_id": payload.get("owner_id"),
-                        "text": chunk_text_value or "",
-                        "citation": f"scope=CUSTOMER_DOC source={payload.get('file_id')} chunk={payload.get('chunk_index')}"
-                    })
-            except Exception as e:
-                logger.error(f"Error searching CUSTOMER_DOC documents: {e}")
-        
-        # Сортируем по релевантности и ограничиваем количество
+                        results.append(
+                            {
+                                "source": "qdrant",
+                                "scope": "CUSTOMER_DOC",
+                                "score": point.score,
+                                "file_id": payload.get("file_id"),
+                                "chunk_index": payload.get("chunk_index"),
+                                "filename": filename,
+                                "customer_id": customer_id,
+                                "owner_id": payload.get("owner_id"),
+                                "text": chunk_text_value or "",
+                                "citation": f"scope=CUSTOMER_DOC source={payload.get('file_id')} chunk={payload.get('chunk_index')}",
+                            }
+                        )
+                except Exception as e:
+                    logger.error(f"Error searching CUSTOMER_DOC documents: {e}")
+
         results.sort(key=lambda x: x["score"], reverse=True)
         return results[:limit]
     
@@ -397,10 +410,12 @@ class RAGService:
         full_prompt = f"{system_prompt}\n\n{context_text}\n\n### Вопрос:\n{question}\n\n### Ответ:"
         
         try:
-            response = await asyncio.to_thread(self.gemini_api.generate_content, full_prompt)
-            if response and 'candidates' in response:
-                return response['candidates'][0]['content']['parts'][0]['text']
-            raise ValueError("Unexpected response format from Gemini")
+            response_text = await asyncio.to_thread(
+                self.gemini_api.generate_text,
+                full_prompt,
+                temperature=temperature,
+            )
+            return response_text
         except Exception as e:
             logger.error(f"Error generating answer: {e}")
             return "Извините, произошла ошибка при генерации ответа. Попробуйте переформулировать вопрос."
@@ -412,133 +427,43 @@ class RAGService:
             sources.append(doc.get("citation", "Unknown source"))
         return sources
     
-    def insert_text(
-        self,
-        text: str,
-        metadata: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
-        """
-        Вставляет текст в граф знаний.
-        
-        Args:
-            text: Текст для вставки
-            metadata: Метаданные документа
-            
-        Returns:
-            Информация о созданном узле
-        """
-        if not self.lightrag:
-            raise RuntimeError("LIGHTRAG service not available")
-        
-        try:
-            node_id = self.lightrag.insert(text, metadata=metadata)
-            return {
-                "answer": answer,
-                "context": [],
-                "nodes": [],
-                "edges": [],
-                "mode": "direct",
-            }
-
-        hybrid = HybridRAGService(
-            db=self.db,
-            gemini=self.gemini_api,
-            prompts=prompts,  # PromptService or fallback shim
-            qdrant_admin=self.qdrant_admin,
-            qdrant_client=self.qdrant_client,
-            lightrag=self.lightrag,
-        )
-
-        result = hybrid.query(
-            HybridRAGQuery(
-                question=question,
-                customer_id=customer_id,
-                owner_id=owner_id,
-                include_admin_laws=include_admin_laws,
-                include_customer_docs=include_customer_docs,
-                top_k=top_k,
-                temperature=temperature,
-                mode=mode,
-            )
-        )
-
-        return {
-            "answer": result.answer,
-            "context": result.context,
-            "nodes": result.nodes,
-            "edges": result.edges,
-            "mode": result.mode,
-            "debug": result.debug,
-        }
-
-    def evidence(
+    async def evidence(
         self,
         question: str,
-        mode: str = "hybrid",
-        top_k: int = 8,
         customer_id: Optional[str] = None,
         include_admin_laws: bool = True,
         include_customer_docs: bool = True,
         owner_id: Optional[str] = None,
+        mode: str = "hybrid",
+        top_k: int = 8,
+        tenant_id: Optional[str] = None,
+        user_id: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
-        Retrieval-only (no generation). Intended for /rag/evidence endpoint.
-
-        Returns:
-        {
-          "context": [...],
-          "nodes": [...],
-          "edges": [...],
-          "mode": str
-        }
+        Retrieval-only (no generation). Returns evidence without LLM answer.
         """
-        if self.prompts is None:
-
-            class _FallbackPrompts:
-                def get_active_prompt_content(self, prompt_type):  # noqa: ANN001
-                    return ""
-
-            prompts = _FallbackPrompts()  # type: ignore[assignment]
-        else:
-            prompts = self.prompts
-
-        if self.qdrant_admin is None or self.qdrant_client is None:
+        if not self.qdrant_store_admin and not self.qdrant_store_client:
             logger.warning("Qdrant not configured; returning empty evidence set")
             return {"context": [], "nodes": [], "edges": [], "mode": mode}
 
-        hybrid = HybridRAGService(
-            db=self.db,
-            gemini=self.gemini_api,
-            prompts=prompts,  # PromptsProvider
-            qdrant_admin=self.qdrant_admin,
-            qdrant_client=self.qdrant_client,
-            lightrag=self.lightrag,
+        context_docs = self._search_qdrant_documents(
+            question=question,
+            customer_id=customer_id,
+            include_admin_laws=include_admin_laws,
+            include_customer_docs=include_customer_docs,
+            owner_id=owner_id,
+            limit=top_k,
         )
 
-        payload = hybrid.evidence_only(
-            HybridRAGQuery(
-                question=question,
-                customer_id=customer_id,
-                owner_id=owner_id,
-                include_admin_laws=include_admin_laws,
-                include_customer_docs=include_customer_docs,
-                top_k=top_k,
-                temperature=0.0,
-                mode=mode,
-            )
-        )
-
-        # Ensure stable shape
         return {
-            "context": payload.get("context", []),
-            "nodes": payload.get("nodes", []),
-            "edges": payload.get("edges", []),
-            "mode": payload.get("mode", mode),
-            "debug": payload.get("debug"),
+            "context": context_docs,
+            "nodes": [],
+            "edges": [],
+            "mode": mode,
         }
 
     # -------------------------
-    # Legacy LightRAG endpoints
+    # LightRAG endpoints
     # -------------------------
 
     def insert_text(
@@ -546,7 +471,6 @@ class RAGService:
     ) -> Dict[str, Any]:
         """
         Inserts text into LightRAG graph (if available).
-        Used by /rag/insert.
         """
         if not self.lightrag:
             raise RuntimeError("LightRAG service not available")

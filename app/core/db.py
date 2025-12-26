@@ -14,7 +14,14 @@ from app.core.config import settings
 class Base(DeclarativeBase):
     pass
 
-import app.models
+
+def _import_models():
+    """Import all models to register them with Base.metadata.
+    
+    This is called lazily to avoid circular imports.
+    """
+    import app.models  # noqa: F401
+
 
 def _create_engine():
     """Create a SQLAlchemy engine with UTF-8 enforced.
@@ -50,5 +57,11 @@ def get_db():
     db = SessionLocal()
     try:
         yield db
+    except Exception:
+        try:
+            db.rollback()
+        except Exception:
+            pass
+        raise
     finally:
         db.close()

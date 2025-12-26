@@ -1,0 +1,103 @@
+{
+  "OSON Document Intelligence": {
+    "chunk_ids": [
+      "chunk-f3697a2aec0d5a9b91aa79e994df85a8"
+    ],
+    "count": 1,
+    "create_time": 1766788763,
+    "update_time": 1766788763,
+    "_id": "OSON Document Intelligence"
+  },
+  "Technical Specification Document": {
+    "chunk_ids": [
+      "chunk-f3697a2aec0d5a9b91aa79e994df85a8"
+    ],
+    "count": 1,
+    "create_time": 1766788763,
+    "update_time": 1766788763,
+    "_id": "Technical Specification Document"
+  },
+  "Global Tech Index": {
+    "chunk_ids": [
+      "chunk-f3697a2aec0d5a9b91aa79e994df85a8",
+      "chunk-8c2bd49ef8400ee6c5dc080813b1c132"
+    ],
+    "count": 2,
+    "create_time": 1766788763,
+    "update_time": 1766788763,
+    "_id": "Global Tech Index"
+  },
+  "Gold Futures": {
+    "chunk_ids": [
+      "chunk-f3697a2aec0d5a9b91aa79e994df85a8",
+      "chunk-8c2bd49ef8400ee6c5dc080813b1c132"
+    ],
+    "count": 2,
+    "create_time": 1766788763,
+    "update_time": 1766788763,
+    "_id": "Gold Futures"
+  },
+  "System": {
+    "chunk_ids": [
+      "chunk-9d092c51a6a29e9221a85cd86932b464"
+    ],
+    "count": 1,
+    "create_time": 1766788763,
+    "update_time": 1766788763,
+    "_id": "System"
+  },
+  "Plugin": {
+    "chunk_ids": [
+      "chunk-9d092c51a6a29e9221a85cd86932b464"
+    ],
+    "count": 1,
+    "create_time": 1766788763,
+    "update_time": 1766788763,
+    "_id": "Plugin"
+  },
+  "Stock Markets": {
+    "chunk_ids": [
+      "chunk-9d092c51a6a29e9221a85cd86932b464"
+    ],
+    "count": 1,
+    "create_time": 1766788763,
+    "update_time": 1766788763,
+    "_id": "Stock Markets"
+  },
+  "Tech Giants": {
+    "chunk_ids": [
+      "chunk-9d092c51a6a29e9221a85cd86932b464"
+    ],
+    "count": 1,
+    "create_time": 1766788763,
+    "update_time": 1766788763,
+    "_id": "Tech Giants"
+  },
+  "Analysts": {
+    "chunk_ids": [
+      "chunk-9d092c51a6a29e9221a85cd86932b464"
+    ],
+    "count": 1,
+    "create_time": 1766788764,
+    "update_time": 1766788764,
+    "_id": "Analysts"
+  },
+  "OM Ranges": {
+    "chunk_ids": [
+      "chunk-8c2bd49ef8400ee6c5dc080813b1c132"
+    ],
+    "count": 1,
+    "create_time": 1766788764,
+    "update_time": 1766788764,
+    "_id": "OM Ranges"
+  },
+  "Equity Benchmark": {
+    "chunk_ids": [
+      "chunk-8c2bd49ef8400ee6c5dc080813b1c132"
+    ],
+    "count": 1,
+    "create_time": 1766788764,
+    "update_time": 1766788764,
+    "_id": "Equity Benchmark"
+  }
+}

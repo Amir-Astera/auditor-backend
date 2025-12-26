@@ -45,6 +45,8 @@ class Settings(BaseSettings):
     # Qdrant (Hybrid RAG)
     QDRANT_URL: str
     QDRANT_COLLECTION_NAME: str
+    QDRANT_COLLECTION_ADMIN: str | None = None
+    QDRANT_COLLECTION_CLIENT: str | None = None
     QDRANT_VECTOR_SIZE: int = 768  # Gemini embedding size
     QDRANT_CHAT_MEMORY_COLLECTION: str = "chat_memory"
 

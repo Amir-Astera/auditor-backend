@@ -1,0 +1,108 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd"><key id="d6" for="node" attr.name="truncate" attr.type="string"/>
+<key id="d5" for="node" attr.name="created_at" attr.type="long"/>
+<key id="d4" for="node" attr.name="file_path" attr.type="string"/>
+<key id="d3" for="node" attr.name="source_id" attr.type="string"/>
+<key id="d2" for="node" attr.name="description" attr.type="string"/>
+<key id="d1" for="node" attr.name="entity_type" attr.type="string"/>
+<key id="d0" for="node" attr.name="entity_id" attr.type="string"/>
+<graph edgedefault="undirected"><node id="OSON Document Intelligence">
+  <data key="d0">OSON Document Intelligence</data>
+  <data key="d1">concept</data>
+  <data key="d2">OSON Document Intelligence is an AI-platform with a modular architecture designed to automate professional processes using LLM, RAG, and specialized calculation functions.</data>
+  <data key="d3">chunk-f3697a2aec0d5a9b91aa79e994df85a8</data>
+  <data key="d4">OSON_TZ_FULL.docx</data>
+  <data key="d5">1766788763</data>
+  <data key="d6"></data>
+</node>
+<node id="Technical Specification Document">
+  <data key="d0">Technical Specification Document</data>
+  <data key="d1">content</data>
+  <data key="d2">This document contains the complete technical specification for the OSON Document Intelligence development team,</data>
+  <data key="d3">chunk-f3697a2aec0d5a9b91aa79e994df85a8</data>
+  <data key="d4">OSON_TZ_FULL.docx</data>
+  <data key="d5">1766788763</data>
+  <data key="d6"></data>
+</node>
+<node id="Global Tech Index">
+  <data key="d0">Global Tech Index</data>
+  <data key="d1">concept</data>
+  <data key="d2">The Global Tech Index tracks the performance of major technology stocks and experienced a 3.4% decline today.</data>
+  <data key="d3">chunk-f3697a2aec0d5a9b91aa79e994df85a8&lt;SEP&gt;chunk-8c2bd49ef8400ee6c5dc080813b1c132</data>
+  <data key="d4">OSON_TZ_FULL.docx</data>
+  <data key="d5">1766788763</data>
+  <data key="d6"></data>
+</node>
+<node id="Gold Futures">
+  <data key="d0">Gold Futures</data>
+  <data key="d1">concept</data>
+  <data key="d2">Gold futures are financial instruments that rose by 1.5%, indicating increased investor interest in safe-haven assets.&lt;SEP&gt;Gold futures rose by 1.5%, indicating increased investor interest in safe-haven assets.</data>
+  <data key="d3">chunk-f3697a2aec0d5a9b91aa79e994df85a8&lt;SEP&gt;chunk-8c2bd49ef8400ee6c5dc080813b1c132</data>
+  <data key="d4">OSON_TZ_FULL.docx</data>
+  <data key="d5">1766788763</data>
+  <data key="d6"></data>
+</node>
+<node id="System">
+  <data key="d0">System</data>
+  <data key="d1">organization</data>
+  <data key="d2">The System is a software platform that automatically performs several actions upon plugin activation, manages various administrative sections, and utilizes specific components for its functionality.</data>
+  <data key="d3">chunk-9d092c51a6a29e9221a85cd86932b464</data>
+  <data key="d4">OSON_TZ_FULL.docx</data>
+  <data key="d5">1766788763</data>
+  <data key="d6"></data>
+</node>
+<node id="Plugin">
+  <data key="d0">Plugin</data>
+  <data key="d1">concept</data>
+  <data key="d2">A Plugin is a modular component that extends the System's functionality, with its activation triggering a series of</data>
+  <data key="d3">chunk-9d092c51a6a29e9221a85cd86932b464</data>
+  <data key="d4">OSON_TZ_FULL.docx</data>
+  <data key="d5">1766788763</data>
+  <data key="d6"></data>
+</node>
+<node id="Stock Markets">
+  <data key="d0">Stock Markets</data>
+  <data key="d1">concept</data>
+  <data key="d2">The overall system where stocks are bought and sold, which faced a sharp downturn.</data>
+  <data key="d3">chunk-9d092c51a6a29e9221a85cd86932b464</data>
+  <data key="d4">OSON_TZ_FULL.docx</data>
+  <data key="d5">1766788763</data>
+  <data key="d6"></data>
+</node>
+<node id="Tech Giants">
+  <data key="d0">Tech Giants</data>
+  <data key="d1">organization</data>
+  <data key="d2">Large, influential technology companies that saw significant declines in their stock.</data>
+  <data key="d3">chunk-9d092c51a6a29e9221a85cd86932b464</data>
+  <data key="d4">OSON_TZ_FULL.docx</data>
+  <data key="d5">1766788763</data>
+  <data key="d6"></data>
+</node>
+<node id="Analysts">
+  <data key="d0">Analysts</data>
+  <data key="d1">person</data>
+  <data key="d2">Individuals who</data>
+  <data key="d3">chunk-9d092c51a6a29e9221a85cd86932b464</data>
+  <data key="d4">OSON_TZ_FULL.docx</data>
+  <data key="d5">1766788764</data>
+  <data key="d6"></data>
+</node>
+<node id="OM Ranges">
+  <data key="d0">OM Ranges</data>
+  <data key="d1">data</data>
+  <data key="d2">A dictionary that stores percentage ranges for calculating Operating Margin (OM) based on different Benchmark categories.</data>
+  <data key="d3">chunk-8c2bd49ef8400ee6c5dc080813b1c132</data>
+  <data key="d4">OSON_TZ_FULL.docx</data>
+  <data key="d5">1766788764</data>
+  <data key="d6"></data>
+</node>
+<node id="Equity Benchmark">
+  <data key="d0">Equity Benchmark</data>
+  <data key="d1">concept</data>
+  <data key="d2">A specific category within OM Ranges associated with a percentage range of 2% to 5%.</data>
+  <data key="d3">chunk-8c2bd49ef8400ee6c5dc080813b1c132</data>
+  <data key="d4">OSON_TZ_FULL.docx</data>
+  <data key="d5">1766788764</data>
+  <data key="d6"></data>
+</node>
+</graph></graphml>

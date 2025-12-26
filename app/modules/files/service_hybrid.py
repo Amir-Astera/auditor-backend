@@ -9,6 +9,7 @@ from __future__ import annotations
 import io
 import time
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from typing import Any, Dict, List
 
@@ -269,7 +270,6 @@ class HybridFileService:
                 "customer_id": stored_file.customer_id,
                 "owner_id": str(stored_file.owner_id),
                 "filename": stored_file.original_filename,
-                "tenant_id": None,
                 "source_type": stored_file.content_type,
             }
 
@@ -299,6 +299,11 @@ class HybridFileService:
 
                 except Exception as e:
                     logger.exception("Qdrant indexing failed", extra={"file_id": str(file_id)})
+
+                    try:
+                        self.db.rollback()
+                    except Exception:
+                        pass
 
                     metrics["qdrant_status"] = "failed"
                     metrics["qdrant_error"] = str(e)
@@ -331,6 +336,11 @@ class HybridFileService:
                      extra={"file_id": str(file_id)}
                      )
 
+                    try:
+                        self.db.rollback()
+                    except Exception:
+                        pass
+
                     metrics["lightrag_status"] = "failed"
                     metrics["lightrag_error"] = str(e)
             else:
@@ -343,8 +353,22 @@ class HybridFileService:
             # ═══════════════════════════════════════════
             # ФИНАЛИЗАЦИЯ
             # ═══════════════════════════════════════════
-            stored_file.is_indexed = True
-            stored_file.index_status = FileIndexStatus.DONE
+            qdrant_ok = metrics.get("qdrant_status") == "success"
+            lightrag_ok = metrics.get("lightrag_status") == "success"
+            successful = bool(qdrant_ok or lightrag_ok)
+
+            stored_file.is_indexed = successful
+            stored_file.index_status = (
+                FileIndexStatus.DONE if successful else FileIndexStatus.ERROR
+            )
+            if successful:
+                stored_file.index_error = None
+            else:
+                stored_file.index_error = (
+                    metrics.get("qdrant_error")
+                    or metrics.get("lightrag_error")
+                    or "Indexing failed"
+                )
             stored_file.indexed_at = datetime.utcnow()
             self.db.commit()
 
@@ -368,6 +392,10 @@ class HybridFileService:
                 extra={"file_id": str(file_id)},
             )
 
+            try:
+                self.db.rollback()
+            except Exception:
+                pass
 
             stored_file.is_indexed = False
             stored_file.index_error = str(exc)
@@ -407,7 +435,6 @@ class HybridFileService:
                 file_id=stored_file.id,
                 chunk_index=idx,
                 text=chunk_text,
-                tenant_id=None,
                 customer_id=stored_file.customer_id,
                 owner_id=str(stored_file.owner_id),
                 scope=stored_file.scope.value,
@@ -506,7 +533,26 @@ class HybridFileService:
                 logger.debug(f"LightRAG: skip empty large_chunk group={group_idx}")
                 continue
 
-            node_id = self.lightrag.insert(large_chunk)  # ✅ ВАЖНО: передаём строку
+            try:
+                node_id = self.lightrag.insert(large_chunk)  # ✅ ВАЖНО: передаём строку
+            except RuntimeError as e:
+                if "Use ainsert() inside async context" not in str(e):
+                    raise
+
+                file_path = stored_file.original_filename or f"{stored_file.scope.value}/{stored_file.id}"
+
+                def _run() -> str:
+                    import asyncio
+
+                    return asyncio.run(
+                        self.lightrag.ainsert(
+                            text=large_chunk,
+                            file_path=file_path,
+                        )
+                    )
+
+                with ThreadPoolExecutor(max_workers=1) as ex:
+                    node_id = ex.submit(_run).result()
 
             # ✅ Проставляем node_id всем мелким чанкам этой группы
             self.db.query(FileChunk).filter(
